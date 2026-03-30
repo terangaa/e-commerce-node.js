@@ -1,0 +1,10 @@
+{
+    "not_found": "Resource not found",
+    "internal_error": "Internal server error",
+    "product_not_found": "Product not found",
+    "page_title": "Online Shop",
+    "product_list": "Product Listing",
+    "stock": "Stock",
+    "price": "Price",
+    "description": "Description"
+}

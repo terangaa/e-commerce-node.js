@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="<%= locale || 'fr' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('../partials/head', { pageTitle: 'Dashboard Admin' }) %>
+</head>
+<body>
+  <%- include('../partials/nav', { user, locale, currentPage: 'admin' }) %>
+
+  <div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Tableau de bord</h2>
+      <a class="btn btn-primary" href="/admin/products/add"><i class="fa-solid fa-plus"></i> Ajouter un produit</a>
+    </div>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-warning"><%= error %></div>
+    <% } %>
+
+    <div class="row">
+      <div class="col-lg-6 mb-4">
+        <div class="card section-card-wrap">
+          <div class="card-body">
+            <h4 class="card-title">Produits</h4>
+            <div class="table-responsive">
+              <table class="table table-borderless table-sm">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Prix</th>
+                    <th>Stock</th>
+                    <th>Catégorie</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% products.forEach(product => { %>
+                    <tr>
+                      <td><%= product.name %></td>
+                      <td><%= product.price %> FCFA</td>
+                      <td><%= product.stock %></td>
+                      <td><%= product.Category ? product.Category.name : 'N/A' %></td>
+                      <td class="text-right">
+                        <form method="post" action="/admin/products/<%= product.id %>/delete" onsubmit="return confirm('Supprimer ce produit ?');" style="display:inline-block; margin:0;">
+                          <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 mb-4">
+        <div class="card section-card-wrap">
+          <div class="card-body">
+            <h4 class="card-title">Dernières commandes</h4>
+            <div class="table-responsive">
+              <table class="table table-borderless table-sm">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Client</th>
+                    <th>Montant</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% orders.forEach(order => { %>
+                    <tr>
+                      <td><%= order.id %></td>
+                      <td><%= order.customerName %></td>
+                      <td><%= order.totalAmount %> FCFA</td>
+                      <td><%= order.status %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

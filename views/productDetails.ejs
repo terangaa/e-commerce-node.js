@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="<%= locale || 'fr' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('partials/head', { pageTitle: product.name }) %>
+</head>
+<body>
+  <%- include('partials/nav', { user, locale, currentPage: 'products' }) %>
+
+  <div class="container my-5">
+    <a href="/products?lang=<%= locale %>" class="btn btn-link mb-3"><i class="fa-solid fa-arrow-left"></i> Retour aux produits</a>
+    <div class="row">
+      <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm h-100">
+          <% if(product.imageUrl){ %>
+            <img src="<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>" />
+          <% } else { %>
+            <img src="https://via.placeholder.com/470x300?text=<%= product.name %>" class="card-img-top" alt="<%= product.name %>" />
+          <% } %>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="card shadow-sm p-4">
+          <h1><%= product.name %></h1>
+          <p class="h3 text-primary mb-2"><strong><%= product.price %> FCFA</strong></p>
+          <p><strong>Stock :</strong> <%= product.stock %></p>
+          <p><strong>Description :</strong></p>
+          <p class="text-muted"><%= product.description || 'Aucune description disponible' %></p>
+
+          <hr />
+          <h3>Commande rapide</h3>
+          <form method="post" action="/orders" class="needs-validation" novalidate>
+            <input type="hidden" name="items[0][productId]" value="<%= product.id %>" />
+            <input type="hidden" name="items[0][quantity]" value="1" />
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Nom</label>
+                <input name="customerName" class="form-control" required />
+              </div>
+              <div class="form-group col-md-6">
+                <label>Email</label>
+                <input type="email" name="customerEmail" class="form-control" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label>Téléphone</label>
+                <input name="customerPhone" class="form-control" required />
+              </div>
+              <div class="form-group col-md-6">
+                <label>Adresse</label>
+                <input name="customerAddress" class="form-control" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Méthode de paiement</label>
+              <select name="paymentMethod" class="form-control" required>
+                <option value="cash">Cash</option>
+                <option value="wave">Wave</option>
+                <option value="orange_money">Orange Money</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success btn-block">Passer la commande</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

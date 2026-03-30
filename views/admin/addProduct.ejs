@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="<%= locale || 'fr' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('../partials/head', { pageTitle: 'Ajouter un produit' }) %>
+</head>
+<body>
+  <%- include('../partials/nav', { user, locale, currentPage: 'admin' }) %>
+  <div class="container mt-5" style="max-width: 760px;">
+    <div class="card section-card-wrap p-4">
+      <h2 class="mb-4">Ajouter un produit</h2>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+      <% } %>
+      <form method="post" action="/admin/products/add" enctype="multipart/form-data">
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label>Nom</label>
+            <input name="name" class="form-control" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-4">
+            <label>Prix</label>
+            <input type="number" name="price" class="form-control" min="0" step="0.01" required />
+          </div>
+          <div class="form-group col-md-4">
+            <label>Stock</label>
+            <input type="number" name="stock" class="form-control" min="0" required />
+          </div>
+          <div class="form-group col-md-4">
+            <label>Catégorie</label>
+            <select name="categoryId" class="form-control" required>
+              <option value="">Sélectionnez...</option>
+              <% categories.forEach(c => { %>
+                <option value="<%= c.id %>"><%= c.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Image</label>
+          <input type="file" name="image" class="form-control-file" accept="image/*" />
+        </div>
+        <button class="btn btn-success">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+  <%- include('../partials/footer') %>
+</body>
+</html>
