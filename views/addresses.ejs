@@ -1,0 +1,248 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-map-marker-alt"></i> Mes Adresses</h2>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addressModal" onclick="clearAddressForm()">
+                    <i class="fas fa-plus"></i> Ajouter une adresse
+                </button>
+            </div>
+
+            <% if (addresses.length === 0) { %>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Vous n'avez pas encore enregistré d'adresse.
+                </div>
+            <% } else { %>
+                <div class="row">
+                    <% addresses.forEach(address => { %>
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 <%= address.isDefault ? 'border-primary' : '' %>">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span class="badge <%= address.isDefault ? 'bg-primary' : 'bg-secondary' %>">
+                                        <%= address.label %>
+                                    </span>
+                                    <% if (address.isDefault) { %>
+                                        <span class="badge bg-success"><i class="fas fa-check"></i> Par défaut</span>
+                                    <% } %>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= address.firstName %> <%= address.lastName %></h5>
+                                    <p class="card-text">
+                                        <i class="fas fa-home"></i> <%= address.address %><br>
+                                        <i class="fas fa-city"></i> <%= address.city %><% if (address.postalCode) { %>, <%= address.postalCode %><% } %><br>
+                                        <i class="fas fa-globe"></i> <%= address.country %><br>
+                                        <i class="fas fa-phone"></i> <%= address.phone %>
+                                    </p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="btn-group w-100" role="group">
+                                        <% if (!address.isDefault) { %>
+                                            <button class="btn btn-outline-success btn-sm" onclick="setDefaultAddress('<%= address.id %>')" title="Définir par défaut">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        <% } %>
+                                        <button class="btn btn-outline-primary btn-sm" onclick="editAddress('<%= address.id %>')" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" onclick="deleteAddress('<%= address.id %>')" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour ajouter/modifier une adresse -->
+<div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addressModalLabel">Ajouter une adresse</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addressForm" onsubmit="saveAddress(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="addressId">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="label" class="form-label">Libellé</label>
+                            <select class="form-select" id="label" name="label">
+                                <option value="Domicile">Domicile</option>
+                                <option value="Travail">Travail</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Téléphone *</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="firstName" class="form-label">Prénom *</label>
+                            <input type="text" class="form-control" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="lastName" class="form-label">Nom *</label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Adresse *</label>
+                        <textarea class="form-control" id="address" name="address" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="city" class="form-label">Ville *</label>
+                            <input type="text" class="form-control" id="city" name="city" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="postalCode" class="form-label">Code postal</label>
+                            <input type="text" class="form-control" id="postalCode" name="postalCode">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="country" class="form-label">Pays</label>
+                            <input type="text" class="form-control" id="country" name="country" value="Sénégal">
+                        </div>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isDefault" name="isDefault">
+                        <label class="form-check-label" for="isDefault">
+                            Définir comme adresse par défaut
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentAddressId = null;
+
+function clearAddressForm() {
+    currentAddressId = null;
+    document.getElementById('addressForm').reset();
+    document.getElementById('addressId').value = '';
+    document.getElementById('addressModalLabel').textContent = 'Ajouter une adresse';
+}
+
+async function editAddress(id) {
+    try {
+        const response = await fetch(`/api/addresses/${id}`);
+        if (!response.ok) throw new Error('Erreur lors du chargement de l\'adresse');
+        
+        const address = await response.json();
+        currentAddressId = id;
+        
+        document.getElementById('addressId').value = address.id;
+        document.getElementById('label').value = address.label;
+        document.getElementById('firstName').value = address.firstName;
+        document.getElementById('lastName').value = address.lastName;
+        document.getElementById('address').value = address.address;
+        document.getElementById('city').value = address.city;
+        document.getElementById('postalCode').value = address.postalCode || '';
+        document.getElementById('country').value = address.country;
+        document.getElementById('phone').value = address.phone;
+        document.getElementById('isDefault').checked = address.isDefault;
+        
+        document.getElementById('addressModalLabel').textContent = 'Modifier l\'adresse';
+        new bootstrap.Modal(document.getElementById('addressModal')).show();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function saveAddress(event) {
+    event.preventDefault();
+    
+    const formData = {
+        label: document.getElementById('label').value,
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        postalCode: document.getElementById('postalCode').value,
+        country: document.getElementById('country').value,
+        phone: document.getElementById('phone').value,
+        isDefault: document.getElementById('isDefault').checked
+    };
+    
+    try {
+        const url = currentAddressId ? `/api/addresses/${currentAddressId}` : '/api/addresses';
+        const method = currentAddressId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Erreur lors de l\'enregistrement');
+        }
+        
+        location.reload();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function deleteAddress(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?')) return;
+    
+    try {
+        const response = await fetch(`/api/addresses/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Erreur lors de la suppression');
+        }
+        
+        location.reload();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+async function setDefaultAddress(id) {
+    try {
+        const response = await fetch(`/api/addresses/${id}/default`, {
+            method: 'PATCH'
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Erreur lors de la définition de l\'adresse par défaut');
+        }
+        
+        location.reload();
+    } catch (error) {
+        alert(error.message);
+    }
+}
+</script>
+
+<%- include('partials/footer') %>

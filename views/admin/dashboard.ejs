@@ -1,91 +1,206 @@
 <!DOCTYPE html>
 <html lang="<%= locale || 'fr' %>">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <%- include('../partials/head', { pageTitle: 'Dashboard Admin' }) %>
 </head>
+
 <body>
   <%- include('../partials/nav', { user, locale, currentPage: 'admin' }) %>
 
-  <div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Tableau de bord</h2>
-      <a class="btn btn-primary" href="/admin/products/add"><i class="fa-solid fa-plus"></i> Ajouter un produit</a>
-    </div>
-    <% if (typeof error !== 'undefined' && error) { %>
-      <div class="alert alert-warning"><%= error %></div>
-    <% } %>
-
-    <div class="row">
-      <div class="col-lg-6 mb-4">
-        <div class="card section-card-wrap">
-          <div class="card-body">
-            <h4 class="card-title">Produits</h4>
-            <div class="table-responsive">
-              <table class="table table-borderless table-sm">
-                <thead>
-                  <tr>
-                    <th>Nom</th>
-                    <th>Prix</th>
-                    <th>Stock</th>
-                    <th>Catégorie</th>
-                    <th class="text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% products.forEach(product => { %>
-                    <tr>
-                      <td><%= product.name %></td>
-                      <td><%= product.price %> FCFA</td>
-                      <td><%= product.stock %></td>
-                      <td><%= product.Category ? product.Category.name : 'N/A' %></td>
-                      <td class="text-right">
-                        <form method="post" action="/admin/products/<%= product.id %>/delete" onsubmit="return confirm('Supprimer ce produit ?');" style="display:inline-block; margin:0;">
-                          <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
-                        </form>
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <div class="container my-5">
+      <!-- Header avec bouton Ajouter produit -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Tableau de bord</h2>
+        <div>
+          <a class="btn btn-outline-primary me-2" href="/admin/test-email">
+            <i class="fa-solid fa-envelope"></i> Tester l'email
+          </a>
+          <a class="btn btn-success" href="/admin/products/add">
+            <i class="fa-solid fa-plus"></i> Ajouter un produit
+          </a>
         </div>
       </div>
 
-      <div class="col-lg-6 mb-4">
-        <div class="card section-card-wrap">
-          <div class="card-body">
-            <h4 class="card-title">Dernières commandes</h4>
-            <div class="table-responsive">
-              <table class="table table-borderless table-sm">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Client</th>
-                    <th>Montant</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% orders.forEach(order => { %>
-                    <tr>
-                      <td><%= order.id %></td>
-                      <td><%= order.customerName %></td>
-                      <td><%= order.totalAmount %> FCFA</td>
-                      <td><%= order.status %></td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-          </div>
+      <!-- Messages d'erreur / succès -->
+      <% if (typeof error !=='undefined' && error) { %>
+        <div class="alert alert-warning">
+          <%= error %>
         </div>
-      </div>
-    </div>
-  </div>
+        <% } %>
+          <% if (typeof success !=='undefined' && success) { %>
+            <div class="alert alert-success">
+              <%= success %>
+            </div>
+            <% } %>
 
-  <%- include('../partials/footer') %>
+              <!-- Section Produits -->
+              <div class="row mb-4">
+                <div class="col-12">
+                  <div class="card section-card-wrap">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="card-title mb-0">Produits</h4>
+                        <a class="btn btn-primary btn-sm" href="/admin/products/add">
+                          <i class="fa-solid fa-plus"></i> Ajouter produit
+                        </a>
+                      </div>
+                      <div class="table-responsive">
+                        <% if (products.length===0) { %>
+                          <p class="text-muted">Aucun produit disponible. Cliquez sur "Ajouter produit" pour en créer
+                            un.</p>
+                          <% } else { %>
+                            <table class="table table-striped table-hover align-middle">
+                              <thead class="table-light">
+                                <tr>
+                                  <th class="text-start">Produit</th>
+                                  <th>Catégorie</th>
+                                  <th class="text-end">Prix</th>
+                                  <th class="text-end">Stock</th>
+                                  <th>Statut</th>
+                                  <th class="text-center">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <% products.forEach(product=> { %>
+                                  <tr>
+                                    <td>
+                                      <strong>
+                                        <%= product.name %>
+                                      </strong><br>
+                                      <small class="text-muted">
+                                        <%= product.description ? product.description.substring(0, 48) +
+                                          (product.description.length> 48 ? '...' : '') : 'Pas de description' %>
+                                      </small>
+                                    </td>
+                                    <td>
+                                      <%= product.Category ? product.Category.name : 'N/A' %>
+                                    </td>
+                                    <td class="text-end">
+                                      <%= product.price %> FCFA
+                                    </td>
+                                    <td class="text-end">
+                                      <%= product.stock %>
+                                    </td>
+                                    <td>
+                                      <span
+                                        class="badge <%= product.status === 'active' ? 'bg-success' : 'bg-secondary' %>">
+                                        <%= product.status %>
+                                      </span>
+                                    </td>
+                                    <td class="text-center">
+                                      <a href="/admin/products/<%= product.id %>/edit"
+                                        class="btn btn-sm btn-outline-info me-1">Modifier</a>
+                                      <form method="post" action="/admin/products/<%= product.id %>/delete"
+                                        onsubmit="return confirm('Supprimer ce produit ?');"
+                                        style="display:inline-block; margin:0;">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                      </form>
+                                    </td>
+                                  </tr>
+                                  <% }) %>
+                              </tbody>
+                            </table>
+                            <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section Catégories -->
+              <div class="row">
+                <div class="col-lg-4 mb-4">
+                  <div class="card section-card-wrap">
+                    <div class="card-body">
+                      <h4 class="card-title">Catégories</h4>
+                      <form method="post" action="/admin/categories/add" class="d-flex mb-3">
+                        <input name="name" class="form-control me-2" placeholder="Nouvelle catégorie" required />
+                        <button class="btn btn-primary btn-sm" type="submit">Ajouter</button>
+                      </form>
+                      <ul class="list-group">
+                        <% categories.forEach(c=> { %>
+                          <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                              <%= c.name %>
+                            </span>
+                            <form method="post" action="/admin/categories/<%= c.id %>/delete" style="margin:0;">
+                              <button class="btn btn-sm btn-outline-danger">Supprimer</button>
+                            </form>
+                          </li>
+                          <% }) %>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section Dernières commandes -->
+                <div class="col-lg-8 mb-4">
+                  <div class="card section-card-wrap">
+                    <div class="card-body">
+                      <h4 class="card-title">Dernières commandes</h4>
+                      <div class="table-responsive">
+                        <% if (orders.length===0) { %>
+                          <p class="text-muted">Aucune commande pour le moment.</p>
+                          <% } else { %>
+                            <table class="table table-bordered table-sm">
+                              <thead class="table-light">
+                                <tr>
+                                  <th>ID</th>
+                                  <th>Client</th>
+                                  <th>Montant</th>
+                                  <th>Status</th>
+                                  <th>Livraison</th>
+                                  <th>Date</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <% orders.forEach(order=> { %>
+                                  <tr>
+                                    <td>
+                                      <%= order.id %>
+                                    </td>
+                                    <td>
+                                      <%= order.customerName %>
+                                    </td>
+                                    <td>
+                                      <%= order.totalAmount %> FCFA
+                                    </td>
+                                    <td>
+                                      <span
+                                        class="badge <%= order.status === 'pending' ? 'bg-warning' : order.status === 'completed' ? 'bg-success' : 'bg-info' %>">
+                                        <%= order.status %>
+                                      </span>
+                                    </td>
+                                    <td>
+                                      <span
+                                        class="badge <%= order.deliveryStatus === 'assigned' ? 'bg-success' : order.deliveryStatus === 'in_progress' ? 'bg-primary' : 'bg-secondary' %>">
+                                        <%= order.deliveryMethod %> / <%= order.deliveryStatus %>
+                                      </span>
+                                    </td>
+                                    <td>
+                                      <%= new Date(order.createdAt).toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                      <a href="/admin/orders/<%= order.id %>/delivery/thiak-thiak"
+                                        class="btn btn-sm btn-warning">Thiak-thiak</a>
+                                    </td>
+                                  </tr>
+                                  <% }) %>
+                              </tbody>
+                            </table>
+                            <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+    </div>
+
+    <%- include('../partials/footer') %>
 </body>
+
 </html>

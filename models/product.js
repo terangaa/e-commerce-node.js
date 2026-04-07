@@ -33,6 +33,11 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    status: {
+      type: DataTypes.ENUM('available', 'unavailable'),
+      allowNull: false,
+      defaultValue: 'available',
+    },
   }, {
     tableName: 'products',
   });

@@ -1,56 +1,98 @@
 <!DOCTYPE html>
-<html lang="<%= locale || 'fr' %>">
+<html lang="fr">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <%- include('../partials/head', { pageTitle: 'Ajouter un produit' }) %>
+  <!-- Include head depuis partials -->
+  <%- include('../partials/head', { pageTitle: formData && formData.id ? 'Modifier un produit' : 'Ajouter un produit' })
+    %>
 </head>
+
 <body>
-  <%- include('../partials/nav', { user, locale, currentPage: 'admin' }) %>
-  <div class="container mt-5" style="max-width: 760px;">
-    <div class="card section-card-wrap p-4">
-      <h2 class="mb-4">Ajouter un produit</h2>
-      <% if (typeof error !== 'undefined' && error) { %>
-        <div class="alert alert-danger"><%= error %></div>
-      <% } %>
-      <form method="post" action="/admin/products/add" enctype="multipart/form-data">
-        <div class="form-row">
-          <div class="form-group col-md-12">
-            <label>Nom</label>
-            <input name="name" class="form-control" required />
-          </div>
+  <!-- Include navbar depuis partials -->
+  <%- include('../partials/nav', { user }) %>
+
+    <div class="container mt-5">
+      <h2>
+        <%= formData && formData.id ? 'Modifier un produit' : 'Ajouter un produit' %>
+      </h2>
+
+      <% if (error) { %>
+        <div class="alert alert-danger">
+          <%= error %>
         </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea name="description" class="form-control" rows="3"></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label>Prix</label>
-            <input type="number" name="price" class="form-control" min="0" step="0.01" required />
-          </div>
-          <div class="form-group col-md-4">
-            <label>Stock</label>
-            <input type="number" name="stock" class="form-control" min="0" required />
-          </div>
-          <div class="form-group col-md-4">
-            <label>Catégorie</label>
-            <select name="categoryId" class="form-control" required>
-              <option value="">Sélectionnez...</option>
-              <% categories.forEach(c => { %>
-                <option value="<%= c.id %>"><%= c.name %></option>
-              <% }) %>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Image</label>
-          <input type="file" name="image" class="form-control-file" accept="image/*" />
-        </div>
-        <button class="btn btn-success">Enregistrer</button>
-      </form>
+        <% } %>
+
+          <% if (success) { %>
+            <div class="alert alert-success">
+              <%= success %>
+            </div>
+            <% } %>
+
+              <form
+                action="<%= formData && formData.id ? '/admin/products/' + formData.id + '/edit' : '/admin/products/add' %>"
+                method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Nom du produit *</label>
+                  <input type="text" class="form-control" id="name" name="name" value="<%= formData.name || '' %>"
+                    required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="description" class="form-label">Description</label>
+                  <textarea class="form-control" id="description"
+                    name="description"><%= formData.description || '' %></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label for="price" class="form-label">Prix *</label>
+                  <input type="number" class="form-control" id="price" name="price" step="0.01"
+                    value="<%= formData.price || '' %>" required>
+                </div>
+
+                <div class="mb-3">
+                  <label for="stock" class="form-label">Stock</label>
+                  <input type="number" class="form-control" id="stock" name="stock" value="<%= formData.stock || '' %>">
+                </div>
+
+                <div class="mb-3">
+                  <label for="categoryId" class="form-label">Catégorie *</label>
+                  <select class="form-select" id="categoryId" name="categoryId" required>
+                    <option value="">Sélectionnez une catégorie</option>
+                    <% categories.forEach(cat=> { %>
+                      <option value="<%= cat.id %>" <%=formData.categoryId==cat.id ? 'selected' : '' %>><%= cat.name %>
+                      </option>
+                      <% }) %>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="status" class="form-label">Statut *</label>
+                  <select name="status" required>
+                    <option value="actif" <%=formData.status==='available' ? 'selected' : '' %>>Actif</option>
+                    <option value="inactif" <%=formData.status==='unavailable' ? 'selected' : '' %>>Inactif</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="image" class="form-label">Image</label>
+                  <input type="file" class="form-control" id="image" name="image">
+                  <% if (formData.imageUrl) { %>
+                    <img src="<%= formData.imageUrl %>" alt="Image produit" class="img-thumbnail mt-2"
+                      style="max-width: 200px;">
+                    <% } %>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  <%= formData && formData.id ? 'Modifier' : 'Ajouter' %>
+                </button>
+                <a href="/admin/dashboard" class="btn btn-secondary">Annuler</a>
+              </form>
     </div>
-  </div>
-  <%- include('../partials/footer') %>
+
+    <!-- Include footer depuis partials -->
+    <%- include('../partials/footer') %>
 </body>
+
 </html>

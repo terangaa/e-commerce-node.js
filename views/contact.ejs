@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('partials/head', { pageTitle: 'Contact - Ecommerce JIM' }) %>
+  <style>
+    .contact-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 0;
+      margin-bottom: 40px;
+    }
+    .contact-section h1 {
+      color: white;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .contact-section p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+    }
+    .contact-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      margin-top: -60px;
+      position: relative;
+      z-index: 10;
+    }
+    .contact-info-card {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 25px;
+      height: 100%;
+    }
+    .contact-info-card h5 {
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .contact-info-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+    .contact-info-item:last-child {
+      margin-bottom: 0;
+    }
+    .contact-info-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    .contact-info-icon i {
+      color: white;
+      font-size: 1rem;
+    }
+    .contact-info-text h6 {
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #333;
+    }
+    .contact-info-text p {
+      margin-bottom: 0;
+      color: #666;
+      font-size: 0.95rem;
+    }
+    .form-control {
+      border-radius: 8px;
+      padding: 12px 15px;
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    .form-label {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .btn-contact {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      padding: 12px 30px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .btn-contact:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    .alert {
+      border-radius: 10px;
+      border: none;
+    }
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .map-container {
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    .map-container iframe {
+      width: 100%;
+      height: 200px;
+      border: none;
+    }
+    .social-links {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .social-link {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .social-link:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      color: white;
+    }
+    .required-field::after {
+      content: " *";
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/nav', { user, locale, currentPage: 'contact' }) %>
+
+  <section class="contact-section">
+    <div class="container text-center">
+      <h1>Contactez-nous</h1>
+      <p>Besoin d'aide ? Une question ? N'hésitez pas à nous contacter</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="contact-card">
+      <% if (success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="bi bi-check-circle-fill me-2"></i><%= success %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i><%= error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
+      <div class="row">
+        <div class="col-lg-7 mb-4 mb-lg-0">
+          <h4 class="mb-4">Envoyez-nous un message</h4>
+          <form action="/contact" method="post" id="contactForm">
+            <div class="mb-3">
+              <label class="form-label required-field" for="name">Nom complet</label>
+              <input id="name" name="name" class="form-control" type="text" required 
+                     placeholder="Votre nom complet" />
+              <div class="invalid-feedback">Veuillez entrer votre nom.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required-field" for="email">Adresse email</label>
+              <input id="email" name="email" class="form-control" type="email" required 
+                     placeholder="votre@email.com" />
+              <div class="invalid-feedback">Veuillez entrer une adresse email valide.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required-field" for="message">Votre message</label>
+              <textarea id="message" name="message" class="form-control" rows="6" required 
+                        placeholder="Décrivez votre question ou demande..."></textarea>
+              <div class="invalid-feedback">Veuillez entrer votre message.</div>
+            </div>
+            <button class="btn btn-primary btn-contact" type="submit">
+              <i class="bi bi-send me-2"></i>Envoyer le message
+            </button>
+          </form>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="contact-info-card">
+            <h5><i class="bi bi-info-circle me-2"></i>Informations de contact</h5>
+            
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="bi bi-geo-alt"></i>
+              </div>
+              <div class="contact-info-text">
+                <h6>Adresse</h6>
+                <p>123 Rue du Commerce<br>Dakar, Sénégal</p>
+              </div>
+            </div>
+
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="bi bi-telephone"></i>
+              </div>
+              <div class="contact-info-text">
+                <h6>Téléphone</h6>
+                <p>+221 77 000 000</p>
+              </div>
+            </div>
+
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <div class="contact-info-text">
+                <h6>Email</h6>
+                <p>support@ecommerce-jim.local</p>
+              </div>
+            </div>
+
+            <div class="contact-info-item">
+              <div class="contact-info-icon">
+                <i class="bi bi-clock"></i>
+              </div>
+              <div class="contact-info-text">
+                <h6>Horaires</h6>
+                <p>Lundi - Vendredi: 8h - 18h<br>Samedi: 9h - 13h</p>
+              </div>
+            </div>
+
+            <div class="social-links">
+              <a href="#" class="social-link" title="Facebook">
+                <i class="bi bi-facebook"></i>
+              </a>
+              <a href="#" class="social-link" title="Twitter">
+                <i class="bi bi-twitter"></i>
+              </a>
+              <a href="#" class="social-link" title="Instagram">
+                <i class="bi bi-instagram"></i>
+              </a>
+              <a href="#" class="social-link" title="WhatsApp">
+                <i class="bi bi-whatsapp"></i>
+              </a>
+            </div>
+
+            <div class="map-container">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15443.123456789!2d-17.456789!3d14.698765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDQxJzU1LjYiTiAxN8KwMjcnMjQuNCJX!5e0!3m2!1sfr!2ssn!4v1234567890"
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+              </iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    // Validation côté client
+    (function() {
+      'use strict';
+      
+      const form = document.getElementById('contactForm');
+      
+      form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+      }, false);
+      
+      // Validation en temps réel pour l'email
+      const emailInput = document.getElementById('email');
+      emailInput.addEventListener('input', function() {
+        const email = this.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (email && !emailRegex.test(email)) {
+          this.setCustomValidity('Veuillez entrer une adresse email valide.');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

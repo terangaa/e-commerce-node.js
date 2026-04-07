@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="<%= locale || 'fr' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('../partials/head', { pageTitle: 'Mes Commandes' }) %>
+  <style>
+    .tracking-progress {
+      height: 8px;
+      border-radius: 4px;
+      background-color: #e9ecef;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .tracking-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #007bff, #28a745);
+      transition: width 0.5s ease;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+    .tracking-timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+    .tracking-timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #dee2e6;
+    }
+    .tracking-step {
+      position: relative;
+      padding-bottom: 15px;
+    }
+    .tracking-step::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 5px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #dee2e6;
+      border: 2px solid #fff;
+    }
+    .tracking-step.active::before {
+      background: #28a745;
+    }
+    .tracking-step.completed::before {
+      background: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/nav', { user, locale, currentPage: 'auth' }) %>
+
+  <div class="container my-5">
+    <h2 class="mb-4">Mes Commandes</h2>
+    
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <% if (!orders || orders.length === 0) { %>
+      <div class="alert alert-info">
+        <p>Vous n'avez pas encore passé de commande.</p>
+        <a href="/products" class="btn btn-primary">Voir les produits</a>
+      </div>
+    <% } else { %>
+      <div class="row">
+        <% orders.forEach(order => { %>
+          <div class="col-12 mb-4">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Commande #<%= order.id %></strong>
+                  <span class="badge <%= order.status === 'pending' ? 'bg-warning' : order.status === 'completed' ? 'bg-success' : order.status === 'cancelled' ? 'bg-danger' : 'bg-info' %> ms-2 status-badge">
+                    <%= order.status %>
+                  </span>
+                </div>
+                <small class="text-muted"><%= new Date(order.createdAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></small>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6>Informations de livraison</h6>
+                    <p class="mb-1"><strong>Nom :</strong> <%= order.customerName %></p>
+                    <p class="mb-1"><strong>Email :</strong> <%= order.customerEmail %></p>
+                    <p class="mb-1"><strong>Téléphone :</strong> <%= order.customerPhone %></p>
+                    <p class="mb-1"><strong>Adresse :</strong> <%= order.customerAddress %></p>
+                    <p class="mb-1"><strong>Méthode de paiement :</strong> <%= order.paymentMethod %></p>
+                    <p class="mb-1"><strong>Méthode de livraison :</strong> <%= order.deliveryMethod %></p>
+                    <% if (order.deliveryDriver) { %>
+                      <p class="mb-1"><strong>Livreur :</strong> <%= order.deliveryDriver %></p>
+                    <% } %>
+                    
+                    <!-- Suivi de commande -->
+                    <div class="mt-3">
+                      <h6><i class="fas fa-truck"></i> Suivi de commande</h6>
+                      <div class="tracking-progress">
+                        <div class="tracking-progress-bar" style="width: <%= order.status === 'pending' ? '10%' : order.status === 'confirmed' ? '25%' : order.status === 'processing' ? '50%' : order.status === 'shipped' ? '75%' : order.status === 'delivered' ? '100%' : '0%' %>"></div>
+                      </div>
+                      <div class="tracking-timeline mt-3">
+                        <div class="tracking-step <%= ['pending', 'confirmed', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'completed' : '' %>">
+                          <small class="text-muted">Commande passée</small>
+                        </div>
+                        <div class="tracking-step <%= ['confirmed', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'completed' : '' %>">
+                          <small class="text-muted">Confirmée</small>
+                        </div>
+                        <div class="tracking-step <%= ['processing', 'shipped', 'delivered'].includes(order.status) ? 'completed' : '' %>">
+                          <small class="text-muted">En préparation</small>
+                        </div>
+                        <div class="tracking-step <%= ['shipped', 'delivered'].includes(order.status) ? 'completed' : '' %>">
+                          <small class="text-muted">Expédiée</small>
+                        </div>
+                        <div class="tracking-step <%= order.status === 'delivered' ? 'completed' : '' %>">
+                          <small class="text-muted">Livrée</small>
+                        </div>
+                      </div>
+                      <% if (order.trackingNumber) { %>
+                        <p class="mt-2 mb-1"><strong>N° de suivi :</strong> <%= order.trackingNumber %></p>
+                      <% } %>
+                      <% if (order.carrier) { %>
+                        <p class="mb-1"><strong>Transporteur :</strong> <%= order.carrier %></p>
+                      <% } %>
+                      <% if (order.estimatedDelivery) { %>
+                        <p class="mb-1"><strong>Livraison estimée :</strong> <%= new Date(order.estimatedDelivery).toLocaleDateString('fr-FR') %></p>
+                      <% } %>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <h6>Produits commandés</h6>
+                    <ul class="list-unstyled">
+                      <% order.OrderItems.forEach(item => { %>
+                        <li class="mb-2">
+                          <div class="d-flex justify-content-between">
+                            <span>
+                              <strong><%= item.Product ? item.Product.name : 'Produit supprimé' %></strong>
+                              <br>
+                              <small class="text-muted">Quantité: <%= item.quantity %> x <%= item.unitPrice %> FCFA</small>
+                            </span>
+                            <span class="text-end">
+                              <strong><%= item.quantity * item.unitPrice %> FCFA</strong>
+                            </span>
+                          </div>
+                        </li>
+                      <% }) %>
+                    </ul>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                      <strong>Total</strong>
+                      <strong class="text-primary"><%= order.totalAmount %> FCFA</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <div class="mt-4">
+      <a href="/auth/profile" class="btn btn-secondary">Retour au profil</a>
+      <a href="/products" class="btn btn-primary">Voir les produits</a>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  
+  <script>
+    // Rafraîchir le statut de la commande toutes les 30 secondes
+    async function refreshOrderStatus() {
+      const orderIds = '<%= orders ? orders.map(o => o.id).join(",") : "" %>'.split(',');
+      
+      for (const orderId of orderIds) {
+        if (!orderId) continue;
+        
+        try {
+          const response = await fetch(`/tracking/order/${orderId}`);
+          const data = await response.json();
+          
+          if (data.success) {
+            const order = data.data;
+            const badge = document.querySelector(`.card:has(strong:contains("Commande #${orderId}")) .badge`);
+            if (badge) {
+              badge.textContent = order.status;
+              badge.className = `badge ${order.status === 'pending' ? 'bg-warning' : order.status === 'delivered' ? 'bg-success' : order.status === 'cancelled' ? 'bg-danger' : 'bg-info'} ms-2 status-badge`;
+            }
+            
+            // Mettre à jour la barre de progression
+            const progressBar = document.querySelector(`.card:has(strong:contains("Commande #${orderId}")) .tracking-progress-bar`);
+            if (progressBar) {
+              const progress = order.progress || 0;
+              progressBar.style.width = `${progress}%`;
+            }
+          }
+        } catch (error) {
+          console.error(`Erreur lors de la mise à jour de la commande ${orderId}:`, error);
+        }
+      }
+    }
+
+    // Rafraîchir toutes les 30 secondes
+    setInterval(refreshOrderStatus, 30000);
+  </script>
+</body>
+</html>

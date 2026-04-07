@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('../partials/head', { pageTitle: 'Livraison Thiak-Thiak' }) %>
+</head>
+<body>
+  <%- include('../partials/nav', { user, locale: 'fr', currentPage: 'admin' }) %>
+
+  <div class="container my-5">
+    <div class="card section-card-wrap">
+      <div class="card-body">
+        <h2 class="mb-4">Livraison Thiak-Thiak pour commande #<%= order.id %></h2>
+
+        <% if (error) { %>
+          <div class="alert alert-warning"><%= error %></div>
+        <% } %>
+
+        <form method="post" action="/admin/orders/<%= order.id %>/delivery/thiak-thiak">
+          <div class="mb-3">
+            <label class="form-label">Nom du conducteur</label>
+            <input name="driverName" class="form-control" required value="<%= order.deliveryDriver || '' %>" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Latitude</label>
+            <input name="deliveryLat" type="number" step="0.000001" class="form-control" required value="<%= order.deliveryLat || '' %>" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Longitude</label>
+            <input name="deliveryLng" type="number" step="0.000001" class="form-control" required value="<%= order.deliveryLng || '' %>" />
+          </div>
+
+          <p>Statut actuel : <strong><%= order.deliveryStatus %></strong></p>
+          <p>Méthode : <strong><%= order.deliveryMethod %></strong></p>
+
+          <button class="btn btn-primary" type="submit">Valider livraison Thiak-Thiak</button>
+          <a href="/admin/dashboard" class="btn btn-secondary ms-2">Retour</a>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

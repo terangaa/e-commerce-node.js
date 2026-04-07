@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('../partials/head', { pageTitle: 'Commandes - Admin' }) %>
+</head>
+<body>
+  <%- include('../partials/nav', { user, locale: 'fr', currentPage: 'admin' }) %>
+
+  <div class="container my-5">
+    <h2>Liste des commandes</h2>
+    <a href="/admin/dashboard" class="btn btn-secondary mb-3">Retour au dashboard</a>
+
+    <form method="get" action="/admin/orders" class="form-inline mb-3">
+      <label class="mr-2">Status</label>
+      <select name="status" class="form-control mr-2">
+        <option value="">Tous</option>
+        <% ['pending','confirmed','shipped','completed','cancelled'].forEach(s => { %>
+          <option value="<%= s %>" <%= status===s ? 'selected' : '' %>><%= s %></option>
+        <% }) %>
+      </select>
+      <label class="mr-2">De</label>
+      <input type="date" name="from" value="<%= from || '' %>" class="form-control mr-2" />
+      <label class="mr-2">À</label>
+      <input type="date" name="to" value="<%= to || '' %>" class="form-control mr-2" />
+      <button type="submit" class="btn btn-primary">Filtrer</button>
+    </form>
+
+    <% if (!orders || orders.length === 0) { %>
+      <p>Aucune commande.</p>
+    <% } else { %>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach(order => { %>
+            <tr>
+              <td><%= order.id %></td>
+              <td><%= order.customerName %></td>
+              <td><%= order.customerEmail %></td>
+              <td><%= order.customerPhone %></td>
+              <td><%= order.status %></td>
+              <td><%= order.totalAmount %> FCFA</td>
+              <td><%= order.createdAt.toLocaleString() %></td>
+              <td>
+                <form method="post" action="/admin/orders/<%= order.id %>/status" class="form-inline">
+                  <select name="status" class="form-control form-control-sm mr-2">
+                    <% ['pending', 'confirmed', 'shipped', 'completed', 'cancelled'].forEach(st => { %>
+                      <option value="<%= st %>" <%= order.status === st ? 'selected' : '' %>><%= st %></option>
+                    <% }) %>
+                  </select>
+                  <button type="submit" class="btn btn-sm btn-primary">Mettre à jour</button>
+                </form>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="8">
+                <strong>Détails produits :</strong>
+                <ul>
+                  <% order.OrderItems.forEach(item => { %>
+                    <li><%= item.productId %> x <%= item.quantity %> = <%= item.unitPrice %> FCFA</li>
+                  <% }) %>
+                </ul>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

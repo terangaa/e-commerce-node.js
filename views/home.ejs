@@ -11,10 +11,18 @@
   <section class="hero">
     <div class="container hero-wrap text-center">
       <h1>Bienvenue chez JIM Shopping</h1>
-      <p>Trouve tes meilleures valises, chaussures, literie, et accessoires moto — livraison rapide et garanties qualité.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary btn-lg mr-2" href="/products">Découvrir</a>
-        <a class="btn btn-outline-light btn-lg" href="/auth/register">Créer un compte</a>
+      <p>Trouve tes meilleures valises, chaussures, literie et accessoires moto — livraison rapide et prix compétitifs.</p>
+      <div class="hero-search row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+          <form action="/products" method="get" class="d-flex gap-2">
+            <input class="form-control" type="search" name="q" placeholder="Rechercher un produit, une catégorie ou une marque" aria-label="Rechercher" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+            <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i> Rechercher</button>
+          </form>
+        </div>
+      </div>
+      <div class="hero-actions mt-4">
+        <a class="btn btn-primary btn-lg me-2" href="/products">Voir les produits</a>
+        <a class="btn btn-outline-primary btn-lg" href="/auth/register">Créer un compte</a>
       </div>
     </div>
   </section>
@@ -73,6 +81,27 @@
         </div>
       <% }) %>
     </div>
+  </div>
+
+  <div class="container section-card-wrap mb-5">
+    <h2 class="section-title">Contactez-nous</h2>
+    <p>Besoin d’aide ou d’informations supplémentaires ? Envoyez votre message directement :</p>
+    <form action="/contact" method="post">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <input type="text" name="name" class="form-control" placeholder="Nom" required />
+        </div>
+        <div class="col-md-4">
+          <input type="email" name="email" class="form-control" placeholder="Email" required />
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary w-100">Envoyer le message</button>
+        </div>
+      </div>
+      <div class="mt-3">
+        <textarea name="message" class="form-control" rows="4" placeholder="Votre message" required></textarea>
+      </div>
+    </form>
   </div>
 
   <%- include('partials/footer') %>

@@ -37,6 +37,8 @@ npm start
 - GET `/` : page d'accueil (présentation, Top produits, catégories)
 - GET `/products` : liste des produits
 - GET `/products/:id` : détails produit + formulaire commande
+- GET `/contact` : page de contact
+- POST `/contact` : envoi du formulaire de contact
 - POST `/orders` : création commande
 - POST `/orders/pay/wave` : simulation paiement Wave
 - POST `/orders/pay/orangemoney` : simulation paiement Orange Money
@@ -64,6 +66,8 @@ npm start
 ## Email de notification
 
 Envoyé à `ceesaysamba24@gmail.com` via la config SMTP du `.env`.
+
+Variables obligatoires : `SMTP_USER`, `SMTP_PASS` (et facultatives `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `FROM_EMAIL`, `OWNER_EMAIL`).
 
 ## Paiement
 

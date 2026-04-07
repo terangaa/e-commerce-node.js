@@ -29,6 +29,20 @@
           <p class="text-muted"><%= product.description || 'Aucune description disponible' %></p>
 
           <hr />
+          <div class="d-flex mb-3 flex-wrap">
+            <form method="post" action="/products/cart/add" class="mr-2 mb-2">
+              <input type="hidden" name="productId" value="<%= product.id %>" />
+              <input type="hidden" name="quantity" value="1" />
+              <button type="submit" class="btn btn-outline-primary">Ajouter au panier</button>
+            </form>
+            <a href="/products/cart" class="btn btn-secondary mr-2 mb-2">Voir panier (<%= typeof cartCount !== 'undefined' ? cartCount : 0 %>)</a>
+            <% if(user) { %>
+              <button id="wishlistBtn" class="btn btn-outline-danger mb-2" onclick="toggleWishlist()">
+                <i class="fa-solid fa-heart"></i> <span id="wishlistText">Ajouter aux souhaits</span>
+              </button>
+            <% } %>
+          </div>
+
           <h3>Commande rapide</h3>
           <form method="post" action="/orders" class="needs-validation" novalidate>
             <input type="hidden" name="items[0][productId]" value="<%= product.id %>" />
@@ -66,8 +80,409 @@
         </div>
       </div>
     </div>
+
+    <!-- Section Produits Associés -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fa-solid fa-boxes-stacked"></i> Produits associés</h3>
+          </div>
+          <div class="card-body">
+            <div id="relatedProducts" class="row">
+              <div class="col-12 text-center text-muted">
+                <i class="fa-solid fa-spinner fa-spin"></i> Chargement des produits associés...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Avis -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fa-solid fa-star"></i> Avis des clients</h3>
+          </div>
+          <div class="card-body">
+            <!-- Statistiques des avis -->
+            <div id="reviewStats" class="mb-4">
+              <div class="row">
+                <div class="col-md-3 text-center">
+                  <div class="display-4 text-primary" id="averageRating">0</div>
+                  <div id="starsDisplay" class="mb-2"></div>
+                  <small class="text-muted" id="totalReviews">0 avis</small>
+                </div>
+                <div class="col-md-9">
+                  <div id="ratingDistribution"></div>
+                </div>
+              </div>
+            </div>
+
+            <hr />
+
+            <!-- Formulaire d'avis -->
+            <% if(user) { %>
+              <div class="mb-4">
+                <h4>Laisser un avis</h4>
+                <form id="reviewForm">
+                  <input type="hidden" name="productId" value="<%= product.id %>" />
+                  <div class="form-group">
+                    <label>Note</label>
+                    <div id="ratingStars" class="mb-2">
+                      <i class="fa-solid fa-star fa-2x text-muted" data-rating="1" style="cursor:pointer"></i>
+                      <i class="fa-solid fa-star fa-2x text-muted" data-rating="2" style="cursor:pointer"></i>
+                      <i class="fa-solid fa-star fa-2x text-muted" data-rating="3" style="cursor:pointer"></i>
+                      <i class="fa-solid fa-star fa-2x text-muted" data-rating="4" style="cursor:pointer"></i>
+                      <i class="fa-solid fa-star fa-2x text-muted" data-rating="5" style="cursor:pointer"></i>
+                    </div>
+                    <input type="hidden" name="rating" id="ratingInput" value="0" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Commentaire (optionnel)</label>
+                    <textarea name="comment" class="form-control" rows="3" placeholder="Partagez votre expérience avec ce produit..."></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Soumettre l'avis</button>
+                </form>
+              </div>
+            <% } else { %>
+              <div class="alert alert-info">
+                <a href="/auth/login?lang=<%= locale %>">Connectez-vous</a> pour laisser un avis.
+              </div>
+            <% } %>
+
+            <hr />
+
+            <!-- Liste des avis -->
+            <div id="reviewsList">
+              <div class="text-center text-muted">
+                <i class="fa-solid fa-spinner fa-spin"></i> Chargement des avis...
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <%- include('partials/footer') %>
+
+  <script>
+    const productId = '<%= product.id %>';
+    const userId = '<%= user ? user.id : null %>';
+    let selectedRating = 0;
+
+    // Gestion des étoiles de notation
+    document.querySelectorAll('#ratingStars i').forEach(star => {
+      star.addEventListener('click', function() {
+        selectedRating = parseInt(this.dataset.rating);
+        document.getElementById('ratingInput').value = selectedRating;
+        updateStars(selectedRating);
+      });
+
+      star.addEventListener('mouseenter', function() {
+        updateStars(parseInt(this.dataset.rating));
+      });
+
+      star.addEventListener('mouseleave', function() {
+        updateStars(selectedRating);
+      });
+    });
+
+    function updateStars(rating) {
+      document.querySelectorAll('#ratingStars i').forEach((star, index) => {
+        if (index < rating) {
+          star.classList.remove('text-muted');
+          star.classList.add('text-warning');
+        } else {
+          star.classList.remove('text-warning');
+          star.classList.add('text-muted');
+        }
+      });
+    }
+
+    // Charger les avis
+    async function loadReviews() {
+      try {
+        const response = await fetch(`/reviews/product/${productId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          displayReviews(data.data.reviews);
+          displayStats(data.data.averageRating, data.data.totalReviews);
+        }
+      } catch (error) {
+        console.error('Erreur chargement avis:', error);
+        document.getElementById('reviewsList').innerHTML = '<div class="alert alert-danger">Erreur lors du chargement des avis</div>';
+      }
+    }
+
+    // Afficher les statistiques
+    function displayStats(average, total) {
+      document.getElementById('averageRating').textContent = average;
+      document.getElementById('totalReviews').textContent = `${total} avis`;
+      
+      // Afficher les étoiles moyennes
+      const starsHtml = Array(5).fill(0).map((_, i) => 
+        `<i class="fa-solid fa-star ${i < Math.round(average) ? 'text-warning' : 'text-muted'}"></i>`
+      ).join('');
+      document.getElementById('starsDisplay').innerHTML = starsHtml;
+    }
+
+    // Afficher les avis
+    function displayReviews(reviews) {
+      const container = document.getElementById('reviewsList');
+      
+      if (reviews.length === 0) {
+        container.innerHTML = '<div class="text-center text-muted py-4"><i class="fa-solid fa-comment-slash fa-3x mb-3"></i><p>Aucun avis pour ce produit. Soyez le premier à donner votre avis !</p></div>';
+        return;
+      }
+
+      const html = reviews.map(review => `
+        <div class="border-bottom pb-3 mb-3" id="review-${review.id}">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <strong>${review.User ? review.User.name : 'Utilisateur'}</strong>
+              <div class="text-warning mb-2">
+                ${Array(5).fill(0).map((_, i) => 
+                  `<i class="fa-solid fa-star ${i < review.rating ? 'text-warning' : 'text-muted'}"></i>`
+                ).join('')}
+              </div>
+            </div>
+            <small class="text-muted">${new Date(review.createdAt).toLocaleDateString('fr-FR')}</small>
+          </div>
+          ${review.comment ? `<p class="mb-2">${review.comment}</p>` : ''}
+          ${userId && review.userId === parseInt(userId) ? `
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary" onclick="editReview(${review.id}, ${review.rating}, '${review.comment || ''}')">
+                <i class="fa-solid fa-edit"></i> Modifier
+              </button>
+              <button class="btn btn-outline-danger" onclick="deleteReview(${review.id})">
+                <i class="fa-solid fa-trash"></i> Supprimer
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+
+      container.innerHTML = html;
+    }
+
+    // Soumettre un avis
+    document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (selectedRating === 0) {
+        alert('Veuillez sélectionner une note');
+        return;
+      }
+
+      const formData = new FormData(this);
+      const data = {
+        productId: formData.get('productId'),
+        rating: parseInt(formData.get('rating')),
+        comment: formData.get('comment')
+      };
+
+      try {
+        const response = await fetch('/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Avis ajouté avec succès !');
+          this.reset();
+          selectedRating = 0;
+          updateStars(0);
+          loadReviews();
+        } else {
+          alert(result.error || 'Erreur lors de l\'ajout de l\'avis');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'ajout de l\'avis');
+      }
+    });
+
+    // Modifier un avis
+    async function editReview(reviewId, currentRating, currentComment) {
+      const newRating = prompt('Nouvelle note (1-5):', currentRating);
+      if (newRating === null) return;
+      
+      const newComment = prompt('Nouveau commentaire:', currentComment);
+      if (newComment === null) return;
+
+      try {
+        const response = await fetch(`/reviews/${reviewId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating: parseInt(newRating), comment: newComment })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Avis mis à jour !');
+          loadReviews();
+        } else {
+          alert(result.error || 'Erreur lors de la mise à jour');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la mise à jour');
+      }
+    }
+
+    // Supprimer un avis
+    async function deleteReview(reviewId) {
+      if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
+
+      try {
+        const response = await fetch(`/reviews/${reviewId}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Avis supprimé !');
+          loadReviews();
+        } else {
+          alert(result.error || 'Erreur lors de la suppression');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la suppression');
+      }
+    }
+
+    // Charger les produits associés
+    async function loadRelatedProducts() {
+      try {
+        const response = await fetch(`/recommendations/related/${productId}?limit=4`);
+        const data = await response.json();
+        
+        if (data.success) {
+          displayRelatedProducts(data.data);
+        }
+      } catch (error) {
+        console.error('Erreur chargement produits associés:', error);
+        document.getElementById('relatedProducts').innerHTML = '<div class="col-12 text-center text-muted">Erreur lors du chargement des produits associés</div>';
+      }
+    }
+
+    // Afficher les produits associés
+    function displayRelatedProducts(products) {
+      const container = document.getElementById('relatedProducts');
+      
+      if (products.length === 0) {
+        container.innerHTML = '<div class="col-12 text-center text-muted py-4"><i class="fa-solid fa-box-open fa-3x mb-3"></i><p>Aucun produit associé disponible.</p></div>';
+        return;
+      }
+
+      const html = products.map(product => `
+        <div class="col-md-6 col-lg-3 mb-4">
+          <div class="card h-100 shadow-sm">
+            <img src="${product.image || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(product.name)}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">${product.name}</h5>
+              <p class="card-text text-primary fw-bold">${product.price} FCFA</p>
+              <p class="card-text text-muted small">${product.category}</p>
+              <div class="mt-auto">
+                <div class="text-warning mb-2">
+                  ${Array(5).fill(0).map((_, i) => 
+                    `<i class="fa-solid fa-star ${i < Math.round(product.avgRating) ? 'text-warning' : 'text-muted'}"></i>`
+                  ).join('')}
+                  <small class="text-muted">(${product.reviewCount})</small>
+                </div>
+                <a href="/products/${product.id}?lang=<%= locale %>" class="btn btn-outline-primary btn-sm w-100">Voir le produit</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      container.innerHTML = html;
+    }
+
+    // Charger les avis au chargement de la page
+    document.addEventListener('DOMContentLoaded', loadReviews);
+
+    // Charger les produits associés au chargement de la page
+    document.addEventListener('DOMContentLoaded', loadRelatedProducts);
+
+    // Vérifier si le produit est dans la liste de souhaits
+    async function checkWishlistStatus() {
+      if (!userId) return;
+      
+      try {
+        const response = await fetch(`/wishlist/api/check/${productId}`);
+        const data = await response.json();
+        
+        if (data.success && data.data.inWishlist) {
+          document.getElementById('wishlistBtn').classList.remove('btn-outline-danger');
+          document.getElementById('wishlistBtn').classList.add('btn-danger');
+          document.getElementById('wishlistText').textContent = 'Retirer des souhaits';
+        }
+      } catch (error) {
+        console.error('Erreur vérification wishlist:', error);
+      }
+    }
+
+    // Ajouter/Retirer de la liste de souhaits
+    async function toggleWishlist() {
+      try {
+        const isInWishlist = document.getElementById('wishlistText').textContent === 'Retirer des souhaits';
+        
+        if (isInWishlist) {
+          // Retirer de la liste de souhaits
+          const response = await fetch(`/wishlist/api/remove/${productId}`, {
+            method: 'DELETE'
+          });
+          const result = await response.json();
+          
+          if (result.success) {
+            document.getElementById('wishlistBtn').classList.remove('btn-danger');
+            document.getElementById('wishlistBtn').classList.add('btn-outline-danger');
+            document.getElementById('wishlistText').textContent = 'Ajouter aux souhaits';
+            alert('Produit retiré de la liste de souhaits');
+          } else {
+            alert(result.error || 'Erreur lors de la suppression');
+          }
+        } else {
+          // Ajouter à la liste de souhaits
+          const response = await fetch('/wishlist/api/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+          });
+          const result = await response.json();
+          
+          if (result.success) {
+            document.getElementById('wishlistBtn').classList.remove('btn-outline-danger');
+            document.getElementById('wishlistBtn').classList.add('btn-danger');
+            document.getElementById('wishlistText').textContent = 'Retirer des souhaits';
+            alert('Produit ajouté à la liste de souhaits');
+          } else {
+            alert(result.error || 'Erreur lors de l\'ajout');
+          }
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la mise à jour de la liste de souhaits');
+      }
+    }
+
+    // Vérifier le statut wishlist au chargement
+    if (userId) {
+      document.addEventListener('DOMContentLoaded', checkWishlistStatus);
+    }
+  </script>
 </body>
 </html>

@@ -2,7 +2,14 @@ function ensureAdmin(req, res, next) {
   if (req.session && req.session.user && req.session.user.role === 'admin') {
     return next();
   }
-  res.redirect('/auth/login');
+  return res.redirect('/auth/login');
 }
 
-module.exports = { ensureAdmin };
+function authenticateToken(req, res, next) {
+  if (req.session && req.session.user) {
+    return next();
+  }
+  return res.status(401).json({ error: 'Non autorisé' });
+}
+
+module.exports = { ensureAdmin, authenticateToken };

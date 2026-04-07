@@ -1,0 +1,177 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-shield-alt"></i> Authentification à deux facteurs (2FA)</h4>
+                </div>
+                <div class="card-body">
+                    <% if (typeof success !== 'undefined' && success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="alert alert-danger">
+                            <%= error %>
+                        </div>
+                    <% } %>
+
+                    <% if (user.twoFactorEnabled) { %>
+                        <!-- 2FA est activé -->
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> L'authentification à deux facteurs est activée sur votre compte.
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-key"></i> Désactiver le 2FA</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Pour désactiver l'authentification à deux facteurs, veuillez entrer votre mot de passe et le code de vérification actuel.</p>
+                                
+                                <form action="/auth/2fa/disable" method="POST">
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">Mot de passe</label>
+                                        <input type="password" class="form-control" id="password" name="password" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="token" class="form-label">Code de vérification (6 chiffres)</label>
+                                        <input type="text" class="form-control" id="token" name="token" 
+                                               pattern="[0-9]{6}" maxlength="6" placeholder="123456" required>
+                                        <div class="form-text">Entrez le code à 6 chiffres de votre application d'authentification.</div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-times"></i> Désactiver le 2FA
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                    <% } else if (typeof qrCode !== 'undefined' && qrCode) { %>
+                        <!-- Étape de configuration du 2FA -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Scannez le code QR ci-dessous avec votre application d'authentification (Google Authenticator, Authy, etc.)
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-qrcode"></i> Code QR</h5>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <img src="<%= qrCode %>" alt="Code QR 2FA" class="img-fluid mb-3" style="max-width: 200px;">
+                                        <p class="text-muted small">Scannez ce code avec votre application</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-key"></i> Clé secrète</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted">Si vous ne pouvez pas scanner le code QR, entrez cette clé manuellement :</p>
+                                        <div class="alert alert-secondary">
+                                            <code><%= secret %></code>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('<%= secret %>')">
+                                            <i class="fas fa-copy"></i> Copier
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-check-circle"></i> Vérifier et activer</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>Entrez le code à 6 chiffres généré par votre application d'authentification pour vérifier et activer le 2FA.</p>
+                                
+                                <form action="/auth/2fa/verify" method="POST">
+                                    <div class="mb-3">
+                                        <label for="token" class="form-label">Code de vérification (6 chiffres)</label>
+                                        <input type="text" class="form-control" id="token" name="token" 
+                                               pattern="[0-9]{6}" maxlength="6" placeholder="123456" required>
+                                        <div class="form-text">Entrez le code à 6 chiffres de votre application d'authentification.</div>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-check"></i> Vérifier et activer le 2FA
+                                    </button>
+                                    
+                                    <a href="/auth/2fa/setup" class="btn btn-outline-secondary ms-2">
+                                        <i class="fas fa-redo"></i> Générer un nouveau code
+                                    </a>
+                                </form>
+                            </div>
+                        </div>
+                        
+                    <% } else { %>
+                        <!-- Page d'accueil du 2FA -->
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> L'authentification à deux facteurs n'est pas activée sur votre compte.
+                        </div>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-shield-alt"></i> Qu'est-ce que le 2FA ?</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>L'authentification à deux facteurs ajoute une couche de sécurité supplémentaire à votre compte. En plus de votre mot de passe, vous aurez besoin d'un code de vérification généré par une application d'authentification sur votre téléphone.</p>
+                                
+                                <h6>Avantages :</h6>
+                                <ul>
+                                    <li>Protection contre le vol de mot de passe</li>
+                                    <li>Sécurité renforcée pour vos données</li>
+                                    <li>Accès plus sécurisé à votre compte</li>
+                                </ul>
+                                
+                                <h6>Comment ça marche :</h6>
+                                <ol>
+                                    <li>Installez une application d'authentification (Google Authenticator, Authy, etc.)</li>
+                                    <li>Scannez le code QR ou entrez la clé secrète</li>
+                                    <li>Entrez le code à 6 chiffres pour vérifier</li>
+                                    <li>À chaque connexion, vous devrez entrer le code généré</li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <a href="/auth/2fa/setup" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus"></i> Activer le 2FA
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <a href="/auth/profile" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour au profil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('Clé copiée dans le presse-papiers !');
+    }, function(err) {
+        console.error('Erreur lors de la copie : ', err);
+    });
+}
+</script>
+
+<%- include('../partials/footer') %>

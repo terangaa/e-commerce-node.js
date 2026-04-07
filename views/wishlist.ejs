@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="<%= locale || 'fr' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('partials/head', { pageTitle: 'Ma Liste de Souhaits' }) %>
+</head>
+<body>
+  <%- include('partials/nav', { user, locale, currentPage: 'wishlist' }) %>
+
+  <div class="container my-5">
+    <h1 class="mb-4"><i class="fa-solid fa-heart"></i> Ma Liste de Souhaits</h1>
+
+    <div id="wishlistContainer">
+      <div class="text-center text-muted py-5">
+        <i class="fa-solid fa-spinner fa-spin fa-3x mb-3"></i>
+        <p>Chargement de votre liste de souhaits...</p>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    async function loadWishlist() {
+      try {
+        const response = await fetch('/wishlist/api');
+        const data = await response.json();
+        
+        if (data.success) {
+          displayWishlist(data.data);
+        } else {
+          document.getElementById('wishlistContainer').innerHTML = 
+            '<div class="alert alert-danger">Erreur lors du chargement de la liste de souhaits</div>';
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        document.getElementById('wishlistContainer').innerHTML = 
+          '<div class="alert alert-danger">Erreur lors du chargement de la liste de souhaits</div>';
+      }
+    }
+
+    function displayWishlist(items) {
+      const container = document.getElementById('wishlistContainer');
+      
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-5">
+            <i class="fa-solid fa-heart-crack fa-4x text-muted mb-3"></i>
+            <h3>Votre liste de souhaits est vide</h3>
+            <p class="text-muted">Ajoutez des produits à votre liste de souhaits pour les retrouver facilement plus tard.</p>
+            <a href="/products?lang=<%= locale %>" class="btn btn-primary">
+              <i class="fa-solid fa-shopping-bag"></i> Parcourir les produits
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      const html = `
+        <div class="row">
+          ${items.map(item => {
+            const product = item.Product;
+            if (!product) return '';
+            
+            return `
+              <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                  ${product.imageUrl ? 
+                    `<img src="${product.imageUrl}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">` :
+                    `<img src="https://via.placeholder.com/300x200?text=${encodeURIComponent(product.name)}" class="card-img-top" alt="${product.name}" style="height: 200px; object-fit: cover;">`
+                  }
+                  <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">${product.name}</h5>
+                    <p class="card-text text-primary fw-bold">${product.price} FCFA</p>
+                    <p class="card-text text-muted">
+                      <small>Stock: ${product.stock > 0 ? product.stock : 'Rupture'}</small>
+                    </p>
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <a href="/products/${product.id}?lang=<%= locale %>" class="btn btn-outline-primary btn-sm">
+                          <i class="fa-solid fa-eye"></i> Voir
+                        </a>
+                        <button class="btn btn-outline-danger btn-sm" onclick="removeFromWishlist(${product.id})">
+                          <i class="fa-solid fa-trash"></i> Retirer
+                        </button>
+                      </div>
+                      ${product.stock > 0 ? `
+                        <form method="post" action="/products/cart/add" class="mt-2">
+                          <input type="hidden" name="productId" value="${product.id}" />
+                          <input type="hidden" name="quantity" value="1" />
+                          <button type="submit" class="btn btn-success btn-sm w-100">
+                            <i class="fa-solid fa-cart-plus"></i> Ajouter au panier
+                          </button>
+                        </form>
+                      ` : `
+                        <button class="btn btn-secondary btn-sm w-100 mt-2" disabled>
+                          <i class="fa-solid fa-times"></i> Indisponible
+                        </button>
+                      `}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    async function removeFromWishlist(productId) {
+      if (!confirm('Êtes-vous sûr de vouloir retirer ce produit de votre liste de souhaits ?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/wishlist/api/remove/${productId}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Produit retiré de la liste de souhaits');
+          loadWishlist();
+        } else {
+          alert(result.error || 'Erreur lors de la suppression');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la suppression');
+      }
+    }
+
+    // Charger la liste de souhaits au chargement de la page
+    document.addEventListener('DOMContentLoaded', loadWishlist);
+  </script>
+</body>
+</html>

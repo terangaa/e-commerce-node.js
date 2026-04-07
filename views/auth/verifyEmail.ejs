@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="<%= locale || 'fr' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('../partials/head', { pageTitle: 'Vérification Email' }) %>
+</head>
+<body>
+  <%- include('../partials/nav', { user, locale, currentPage: 'auth' }) %>
+
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fa-solid fa-envelope-circle-check"></i> Vérification Email</h3>
+          </div>
+          <div class="card-body">
+            <% if (error) { %>
+              <div class="alert alert-danger">
+                <i class="fa-solid fa-exclamation-triangle"></i> <%= error %>
+              </div>
+            <% } %>
+
+            <% if (success) { %>
+              <div class="alert alert-success">
+                <i class="fa-solid fa-check-circle"></i> <%= success %>
+              </div>
+              <div class="text-center mt-4">
+                <a href="/auth/login?lang=<%= locale %>" class="btn btn-primary">
+                  <i class="fa-solid fa-sign-in-alt"></i> Se connecter
+                </a>
+              </div>
+            <% } else if (!error) { %>
+              <div class="text-center py-4">
+                <i class="fa-solid fa-envelope fa-4x text-primary mb-3"></i>
+                <h4>Vérifiez votre email</h4>
+                <p class="text-muted">
+                  Un email de vérification a été envoyé à votre adresse email.
+                  Veuillez cliquer sur le lien dans l'email pour activer votre compte.
+                </p>
+                <p class="text-muted">
+                  <small>Si vous ne recevez pas l'email dans les prochaines minutes, vérifiez votre dossier spam.</small>
+                </p>
+                <hr>
+                <p class="text-muted">
+                  <small>Vous n'avez pas reçu l'email ?</small>
+                </p>
+                <form method="post" action="/auth/resend-verification" class="d-inline">
+                  <input type="hidden" name="email" value="<%= email || '' %>" />
+                  <button type="submit" class="btn btn-outline-primary btn-sm">
+                    <i class="fa-solid fa-redo"></i> Renvoyer l'email de vérification
+                  </button>
+                </form>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

@@ -6,11 +6,16 @@ const i18n = require('i18n');
 const session = require('express-session');
 const { sequelize } = require('./models');
 const publicRoutes = require('./routes/public');
-const { home } = require('./controllers/publicController');
+const { home, contactPage, contactSubmit } = require('./controllers/publicController');
 const adminRoutes = require('./routes/admin');
 const adminWebRoutes = require('./routes/adminWeb');
 const orderRoutes = require('./routes/order');
 const authRoutes = require('./routes/auth');
+const chatbotRoutes = require('./routes/chatbot');
+const reviewRoutes = require('./routes/review');
+const wishlistRoutes = require('./routes/wishlist');
+const couponRoutes = require('./routes/coupon');
+const socialAuthRoutes = require('./routes/socialAuth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,8 +48,17 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
+  console.log('[REQ]', req.method, req.originalUrl);
+  next();
+});
+
+app.use((req, res, next) => {
   res.locals.user = req.session && req.session.user ? req.session.user : null;
   res.locals.locale = (req.getLocale && req.getLocale()) ? req.getLocale() : 'fr';
+
+  const cart = req.session && req.session.cart ? req.session.cart : [];
+  res.locals.cartCount = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+
   next();
 });
 
@@ -52,20 +66,33 @@ app.get('/', home);
 
 app.use('/auth', authRoutes);
 app.use('/products', publicRoutes);
+app.use('/cart', publicRoutes); // alias vers la même logique panier/produit
+app.get('/contact', contactPage);
+app.post('/contact', contactSubmit);
 app.use('/admin', adminRoutes);
 app.use('/admin', adminWebRoutes);
 app.use('/orders', orderRoutes);
+app.use('/chatbot', chatbotRoutes);
+app.use('/reviews', reviewRoutes);
+app.use('/wishlist', wishlistRoutes);
+app.use('/coupons', couponRoutes);
+app.use('/auth', socialAuthRoutes);
+
+// Raccourcis d'accès (e.g. /cart, /checkout) vers routes existantes
+app.get('/cart', (req, res) => res.redirect('/products/cart'));
+app.get('/checkout', (req, res) => res.redirect('/products/cart'));
+app.post('/orders/submit', (req, res) => res.redirect(307, '/orders'));
 
 // 404
 app.use((req, res) => {
-  res.status(404).json({ error: __('not_found') });
+  res.status(404).json({ error: __('non trouve') });
 });
 
 // global error
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json({
-    error: err.message || __('internal_error'),
+    error: err.message || __('erreur_interne'),
     stack: err.stack,
   });
 });
@@ -73,17 +100,17 @@ app.use((err, req, res, next) => {
 async function start() {
   try {
     await sequelize.authenticate();
-    console.log('Database connection successful.');
+    console.log('la base de donnees est connectee.');
 
     await sequelize.sync({ alter: true });
-    console.log('Database synchronized.');
+    console.log('les tables de la base de donnees sont synchronisees.');
 
     app.listen(PORT, () => {
-      console.log(`Server started on port ${PORT}`);
+      console.log(`le serveur est demarre sur le port ${PORT}`);
       console.log(`Visit http://localhost:${PORT}?lang=fr or ?lang=en`);
     });
   } catch (err) {
-    console.error('Unable to start server:', err);
+    console.error('Error starting server:', err);
     process.exit(1);
   }
 }

@@ -12,6 +12,31 @@
     <h1 class="section-title"><%= __('product_list') %></h1>
     <p class="text-muted">Explorez nos produits et commandez rapidement en quelques clics.</p>
 
+    <form method="get" action="/products" class="mb-4">
+      <div class="row">
+        <div class="col-md-6 mb-2">
+          <input type="text" name="q" class="form-control" placeholder="Rechercher un produit..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" />
+        </div>
+        <div class="col-md-4 mb-2">
+          <select name="categoryId" class="form-control">
+            <option value="">Toutes les catégories</option>
+            <% categories.forEach(c => { %>
+              <option value="<%= c.id %>" <%= selectedCategoryId === c.id ? 'selected' : '' %>><%= c.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-2 mb-2">
+          <button class="btn btn-primary w-100"><i class="fa fa-search"></i> Rechercher</button>
+        </div>
+      </div>
+    </form>
+    <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+      <div class="alert alert-info">
+        Résultats pour "<strong><%= searchQuery %></strong>" - <%= products.length %> produit(s) trouvé(s)
+        <a href="/products" class="btn btn-sm btn-outline-secondary ms-2">Réinitialiser</a>
+      </div>
+    <% } %>
+
     <div class="row">
       <% products.forEach(function(product){ %>
         <div class="col-lg-4 col-md-6 mb-4">

@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-shield-alt"></i> Vérification à deux facteurs</h4>
+                </div>
+                <div class="card-body">
+                    <% if (typeof success !== 'undefined' && success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="alert alert-danger">
+                            <%= error %>
+                        </div>
+                    <% } %>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Votre compte est protégé par l'authentification à deux facteurs. Veuillez entrer le code de vérification généré par votre application d'authentification.
+                    </div>
+                    
+                    <form action="/auth/2fa/verify-login" method="POST">
+                        <div class="mb-3">
+                            <label for="token" class="form-label">Code de vérification (6 chiffres)</label>
+                            <input type="text" class="form-control form-control-lg text-center" id="token" name="token" 
+                                   pattern="[0-9]{6}" maxlength="6" placeholder="123456" required autofocus>
+                            <div class="form-text">Entrez le code à 6 chiffres de votre application d'authentification (Google Authenticator, Authy, etc.).</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-check"></i> Vérifier
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="text-muted mb-2">Vous n'avez pas accès à votre application d'authentification ?</p>
+                        <a href="/auth/login" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour à la connexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

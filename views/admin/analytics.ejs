@@ -1,0 +1,383 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <%- include('../partials/adminSidebar') %>
+        
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Tableau de bord analytique</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportData()">
+                            <i class="fas fa-download"></i> Exporter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cartes de statistiques -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Commandes totales</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalOrders">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Revenu total</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalRevenue">0 FCFA</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Produits</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalProducts">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-box fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Utilisateurs</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalUsers">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphiques -->
+            <div class="row mb-4">
+                <div class="col-xl-8 col-lg-7">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Ventes des 7 derniers jours</h6>
+                            <select id="salesPeriod" class="form-select form-select-sm" style="width: auto;" onchange="loadSalesData()">
+                                <option value="week">7 derniers jours</option>
+                                <option value="month">30 derniers jours</option>
+                                <option value="year">12 derniers mois</option>
+                            </select>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-area">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-4 col-lg-5">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Commandes par statut</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-pie pt-4 pb-2">
+                                <canvas id="ordersChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top produits et avis récents -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Top 5 produits les plus vendus</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Produit</th>
+                                            <th>Vendus</th>
+                                            <th>Prix</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topProductsTable">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Avis récents</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="recentReviews">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let salesChart, ordersChart;
+
+// Charger les données du tableau de bord
+async function loadDashboardData() {
+    try {
+        const response = await fetch('/api/analytics/dashboard');
+        const data = await response.json();
+        
+        if (data.success) {
+            const stats = data.data.overview;
+            document.getElementById('totalOrders').textContent = stats.totalOrders;
+            document.getElementById('totalRevenue').textContent = stats.totalRevenue + ' FCFA';
+            document.getElementById('totalProducts').textContent = stats.totalProducts;
+            document.getElementById('totalUsers').textContent = stats.totalUsers;
+            
+            // Charger les données des graphiques
+            loadSalesData();
+            loadOrdersChart(data.data.ordersByStatus);
+            loadTopProducts(data.data.topProducts);
+            loadRecentReviews();
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+    }
+}
+
+// Charger les données de ventes
+async function loadSalesData() {
+    try {
+        const period = document.getElementById('salesPeriod').value;
+        const response = await fetch(`/api/analytics/sales?period=${period}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            updateSalesChart(data.data);
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement des ventes:', error);
+    }
+}
+
+// Mettre à jour le graphique des ventes
+function updateSalesChart(salesData) {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    if (salesChart) {
+        salesChart.destroy();
+    }
+    
+    const labels = salesData.map(item => item.date);
+    const revenues = salesData.map(item => parseFloat(item.revenue) || 0);
+    const orders = salesData.map(item => parseInt(item.orders) || 0);
+    
+    salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Revenu (FCFA)',
+                data: revenues,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.1,
+                yAxisID: 'y'
+            }, {
+                label: 'Commandes',
+                data: orders,
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Revenu (FCFA)'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Commandes'
+                    },
+                    grid: {
+                        drawOnChartArea: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Charger le graphique des commandes par statut
+function loadOrdersChart(ordersByStatus) {
+    const ctx = document.getElementById('ordersChart').getContext('2d');
+    
+    if (ordersChart) {
+        ordersChart.destroy();
+    }
+    
+    const labels = ordersByStatus.map(item => item.status);
+    const data = ordersByStatus.map(item => parseInt(item.count));
+    
+    ordersChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    '#4e73df',
+                    '#1cc88a',
+                    '#36b9cc',
+                    '#f6c23e',
+                    '#e74a3b'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+// Charger les top produits
+function loadTopProducts(topProducts) {
+    const tbody = document.getElementById('topProductsTable');
+    tbody.innerHTML = '';
+    
+    topProducts.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.Product.name}</td>
+            <td>${item.totalSold}</td>
+            <td>${item.Product.price} FCFA</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Charger les avis récents
+async function loadRecentReviews() {
+    try {
+        const response = await fetch('/api/analytics/reviews');
+        const data = await response.json();
+        
+        if (data.success) {
+            const container = document.getElementById('recentReviews');
+            container.innerHTML = '';
+            
+            data.data.forEach(review => {
+                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                const div = document.createElement('div');
+                div.className = 'border-bottom pb-2 mb-2';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <strong>${review.User.name}</strong>
+                        <span class="text-warning">${stars}</span>
+                    </div>
+                    <small class="text-muted">${review.Product.name}</small>
+                    <p class="mb-0 small">${review.comment || 'Pas de commentaire'}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement des avis:', error);
+    }
+}
+
+// Exporter les données
+function exportData() {
+    alert('Fonctionnalité d\'export à implémenter');
+}
+
+// Charger les données au chargement de la page
+document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+.chart-area {
+    position: relative;
+    height: 20rem;
+}
+.chart-pie {
+    position: relative;
+    height: 15rem;
+}
+</style>
+
+<%- include('../partials/footer') %>

@@ -28,6 +28,28 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 'pending',
     },
+    deliveryMethod: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: 'standard',
+    },
+    deliveryStatus: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: 'not_assigned',
+    },
+    deliveryLat: {
+      type: DataTypes.DECIMAL(10, 7),
+      allowNull: true,
+    },
+    deliveryLng: {
+      type: DataTypes.DECIMAL(10, 7),
+      allowNull: true,
+    },
+    deliveryDriver: {
+      type: DataTypes.STRING(150),
+      allowNull: true,
+    },
     paymentMethod: {
       type: DataTypes.STRING(50),
       allowNull: false,

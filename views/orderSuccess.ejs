@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="<%= locale || 'fr' %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('partials/head', { pageTitle: 'Commande confirmée - Ecommerce JIM' }) %>
+</head>
+<body>
+  <%- include('partials/nav', { user, locale, currentPage: 'cart' }) %>
+
+  <div class="container my-5">
+    <div class="alert alert-success">
+      <h2>Commande validée !</h2>
+      <p>Merci <strong><%= order.customerName %></strong>, votre commande n°<strong><%= order.id %></strong> a bien été prise en compte.</p>
+      <p>Un email de confirmation a été envoyé à <strong><%= order.customerEmail %></strong>.</p>
+      <% if (emailStatus && emailStatus.customer === 'failed') { %>
+        <div class="alert alert-warning mt-3">
+          <strong>Attention :</strong> l’envoi de l’email de confirmation a échoué. Vérifiez votre dossier Spam et contactez l’administrateur si besoin.
+        </div>
+      <% } %>
+      <p>Nous vous contacterons au <strong><%= order.customerPhone %></strong> pour la suite.</p>
+      <p>Total : <strong><%= order.totalAmount %> FCFA</strong></p>
+    </div>
+    <a href="/products" class="btn btn-primary">Retour aux produits</a>
+  </div>
+
+  <%- include('partials/footer') %>
+</body>
+</html>

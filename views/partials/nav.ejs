@@ -1,28 +1,36 @@
-<nav class="navbar navbar-expand-lg navbar-dark shadow-sm" aria-label="Main navigation">
-  <a class="navbar-brand" href="/">Ecommerce JIM</a>
+<nav class="navbar navbar-expand-xl navbar-light bg-white shadow-sm" aria-label="Main navigation" style="padding: 0.5rem 0;">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold text-primary" href="/" style="font-size: 1.3rem;">Ecommerce JIM</a>
 
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Basculer la navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Basculer la navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-  <div class="collapse navbar-collapse" id="navbarMain">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item <%= currentPage === 'home' ? 'active' : '' %>"><a class="nav-link" href="/">Accueil</a></li>
-      <li class="nav-item <%= currentPage === 'products' ? 'active' : '' %>"><a class="nav-link" href="/products">Produits</a></li>
-      <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Admin</a></li>
-    </ul>
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="gap: 0.5rem;">
+        <li class="nav-item"><a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'active' : '' %>" href="/" style="font-weight: 600; padding: 0.5rem 0.75rem;">Accueil</a></li>
+        <li class="nav-item"><a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'products' ? 'active' : '' %>" href="/products" style="font-weight: 600; padding: 0.5rem 0.75rem;">Produits</a></li>
+        <li class="nav-item"><a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'contact' ? 'active' : '' %>" href="/contact" style="font-weight: 600; padding: 0.5rem 0.75rem;">Contact</a></li>
+        <li class="nav-item"><a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'chatbot' ? 'active' : '' %>" href="/chatbot" style="font-weight: 600; padding: 0.5rem 0.75rem;">🤖 Chatbot</a></li>
+        <li class="nav-item"><a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'cart' ? 'active' : '' %>" href="/products/cart" style="font-weight: 600; padding: 0.5rem 0.75rem;">Panier (<%= typeof cartCount !== 'undefined' ? cartCount : 0 %>)</a></li>
+        <li class="nav-item"><a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'wishlist' ? 'active' : '' %>" href="/wishlist" style="font-weight: 600; padding: 0.5rem 0.75rem;"><i class="fa-solid fa-heart"></i> Souhaits</a></li>
+        <li class="nav-item"><a class="nav-link" href="/admin/dashboard" style="font-weight: 600; padding: 0.5rem 0.75rem;">Admin</a></li>
+      </ul>
 
-    <ul class="navbar-nav">
-      <li class="nav-item d-flex align-items-center mr-2">
-        <a class="small text-light" href="?<%= locale === 'fr' ? 'lang=en' : 'lang=fr' %>"><i class="fa-solid fa-language"></i> <%= locale === 'fr' ? 'EN' : 'FR' %></a>
-      </li>
-      <% if (user) { %>
-        <li class="nav-item"><span class="nav-link text-white">Bonjour <strong><%= user.name %></strong></span></li>
-        <li class="nav-item"><a class="nav-link" href="/auth/logout">Déconnexion</a></li>
-      <% } else { %>
-        <li class="nav-item"><a class="nav-link" href="/auth/login">Connexion</a></li>
-        <li class="nav-item"><a class="nav-link" href="/auth/register">Inscription</a></li>
-      <% } %>
-    </ul>
+      <ul class="navbar-nav align-items-center" style="gap: 0.5rem;">
+        <li class="nav-item">
+          <a class="small text-secondary text-decoration-none" href="?<%= locale === 'fr' ? 'lang=en' : 'lang=fr' %>" style="padding: 0.5rem 0.75rem;"><i class="fa-solid fa-language"></i> <%= locale === 'fr' ? 'EN' : 'FR' %></a>
+        </li>
+        <% if (user) { %>
+          <li class="nav-item"><span class="nav-link text-secondary" style="padding: 0.5rem 0.75rem;">Bonjour <strong><%= user.name %></strong></span></li>
+          <li class="nav-item"><a class="nav-link btn btn-outline-primary btn-sm" href="/auth/profile" style="padding: 0.4rem 0.75rem;">Mon Profil</a></li>
+          <li class="nav-item"><a class="nav-link btn btn-outline-primary btn-sm" href="/auth/orders" style="padding: 0.4rem 0.75rem;">Mes Commandes</a></li>
+          <li class="nav-item"><a class="nav-link btn btn-outline-primary btn-sm" href="/auth/logout" style="padding: 0.4rem 0.75rem;">Déconnexion</a></li>
+        <% } else { %>
+          <li class="nav-item"><a class="btn btn-primary btn-sm" href="/auth/login" style="padding: 0.4rem 0.75rem;">Connexion</a></li>
+          <li class="nav-item"><a class="btn btn-outline-primary btn-sm" href="/auth/register" style="padding: 0.4rem 0.75rem;">Inscription</a></li>
+        <% } %>
+      </ul>
+    </div>
   </div>
 </nav>

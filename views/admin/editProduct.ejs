@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%- include('../partials/head', { pageTitle: 'Modifier le produit' }) %>
+</head>
+
+<body>
+  <%- include('../partials/nav', { user, locale: 'fr' , currentPage: 'admin' }) %>
+
+    <div class="container mt-5" style="max-width: 760px;">
+      <div class="card section-card-wrap p-4">
+        <h2 class="mb-4">Modifier le produit</h2>
+        <% if (error) { %>
+          <div class="alert alert-danger">
+            <%= error %>
+          </div>
+          <% } %>
+            <form method="post" action="/admin/products/<%= product.id %>/edit" enctype="multipart/form-data">
+              <!-- Nom -->
+              <input name="name" class="form-control" required value="<%= product.name %>" />
+
+              <!-- Description -->
+              <textarea name="description" class="form-control"><%= product.description %></textarea>
+
+              <!-- Prix -->
+              <input type="number" name="price" class="form-control" min="0" step="0.01" required
+                value="<%= product.price %>" />
+
+              <!-- Stock -->
+              <input type="number" name="stock" class="form-control" min="0" required value="<%= product.stock %>" />
+
+              <!-- Catégorie -->
+              <select name="categoryId" class="form-control" required>
+                <% categories.forEach(c=> { %>
+                  <option value="<%= c.id %>" <%=product.categoryId===c.id ? 'selected' : '' %>><%= c.name %>
+                  </option>
+                  <% }) %>
+              </select>
+
+              <!-- Statut -->
+              <select name="status" class="form-control" required>
+                <option value="available" <%=product.status==='available' ? 'selected' : '' %>>Disponible</option>
+                <option value="unavailable" <%=product.status==='unavailable' ? 'selected' : '' %>>Indisponible</option>
+              </select>
+
+              <!-- Image -->
+              <input type="file" name="image" class="form-control-file" />
+
+              <!-- Boutons -->
+              <button class="btn btn-success">Sauvegarder</button>
+              <a class="btn btn-secondary" href="/admin/dashboard">Annuler</a>
+            </form>
+      </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+</body>
+
+</html>
