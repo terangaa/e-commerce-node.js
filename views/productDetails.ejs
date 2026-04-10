@@ -23,6 +23,7 @@
       <div class="col-lg-7">
         <div class="card shadow-sm p-4">
           <h1><%= product.name %></h1>
+          <p class="text-secondary mb-2">Catégorie : <%= product.Category ? product.Category.name : 'Non définie' %></p>
           <p class="h3 text-primary mb-2"><strong><%= product.price %> FCFA</strong></p>
           <p><strong>Stock :</strong> <%= product.stock %></p>
           <p><strong>Description :</strong></p>

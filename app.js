@@ -45,7 +45,14 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Sert tout le dossier public (y compris sous-dossiers)
 app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// Raccourcis directs vers les sous-dossiers uploads
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+app.use('/uploads/valise', express.static(path.join(__dirname, 'public', 'uploads', 'valise')));
+app.use('/uploads/drap', express.static(path.join(__dirname, 'public', 'uploads', 'drap')));
+app.use('/uploads/jalabi', express.static(path.join(__dirname, 'public', 'uploads', 'jalabi')));
 
 app.use((req, res, next) => {
   console.log('[REQ]', req.method, req.originalUrl);
@@ -69,7 +76,6 @@ app.use('/products', publicRoutes);
 app.use('/cart', publicRoutes); // alias vers la même logique panier/produit
 app.get('/contact', contactPage);
 app.post('/contact', contactSubmit);
-app.use('/admin', adminRoutes);
 app.use('/admin', adminWebRoutes);
 app.use('/orders', orderRoutes);
 app.use('/chatbot', chatbotRoutes);
@@ -102,7 +108,7 @@ async function start() {
     await sequelize.authenticate();
     console.log('la base de donnees est connectee.');
 
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     console.log('les tables de la base de donnees sont synchronisees.');
 
     app.listen(PORT, () => {

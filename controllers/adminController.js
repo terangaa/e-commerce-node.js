@@ -1,5 +1,8 @@
-const { Product, Category, Order, OrderItem } = require('../models');
+// controllers/adminController.js
+const { Category, Product, Order, OrderItem, User } = require('../models');
+const bcrypt = require('bcryptjs');
 
+// ------------------- CATÉGORIES -------------------
 async function createCategory(req, res, next) {
   try {
     const { name, description } = req.body;
@@ -41,6 +44,7 @@ async function deleteCategory(req, res, next) {
   }
 }
 
+// ------------------- PRODUITS -------------------
 async function createProduct(req, res, next) {
   try {
     const { name, description, price, stock, imageUrl, categoryId } = req.body;
@@ -82,10 +86,56 @@ async function deleteProduct(req, res, next) {
   }
 }
 
+// ------------------- COMMANDES -------------------
 async function listOrdersAdmin(req, res, next) {
   try {
     const orders = await Order.findAll({ include: [{ model: OrderItem, include: [Product] }] });
     res.json(orders);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ------------------- UTILISATEURS -------------------
+async function listUsers(req, res, next) {
+  try {
+    const users = await User.findAll({ attributes: ['id', 'name', 'email', 'role'] });
+    res.json(users);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function addUser(req, res, next) {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) return res.status(400).json({ error: 'Champs requis manquants' });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({ name, email, password: hashedPassword, role: 'user' });
+    res.status(201).json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function deleteUser(req, res, next) {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+    await user.destroy();
+    res.json({ message: 'Utilisateur supprimé' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function makeAdmin(req, res, next) {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+    user.role = 'admin';
+    await user.save();
+    res.json({ message: `${user.name} est maintenant admin` });
   } catch (err) {
     next(err);
   }
@@ -101,4 +151,8 @@ module.exports = {
   updateProduct,
   deleteProduct,
   listOrdersAdmin,
+  listUsers,
+  addUser,
+  deleteUser,
+  makeAdmin
 };

@@ -12,39 +12,41 @@ async function showRegister(req, res) {
 // Enregistrer un utilisateur (email verification désactivée)
 async function register(req, res, next) {
   try {
-    const { name, email, password, role } = req.body;
-    if (!name || !email || !password || !role)
+    const { name, email, password } = req.body;
+
+    // ✅ Validation simple
+    if (!name || !email || !password) {
       return res.render('auth/register', { error: 'Tous les champs sont requis' });
+    }
 
-    if (!['admin', 'customer'].includes(role))
-      return res.render('auth/register', { error: 'Rôle invalide' });
-
+    // ✅ Vérifier si email existe
     const existing = await User.findOne({ where: { email } });
-    if (existing)
+    if (existing) {
       return res.render('auth/register', { error: 'Email déjà utilisé' });
+    }
 
+    // ✅ Hash du mot de passe
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Créer l'utilisateur directement comme "vérifié"
+    // 🔒 CRUCIAL : role fixé côté serveur
     const user = await User.create({
       name,
       email,
       passwordHash,
-      role,
-      emailVerified: true, // ✅ email considéré comme vérifié
-      emailVerificationToken: null,
-      emailVerificationExpiry: null
+      role: 'customer', // ✅ TOUJOURS customer
+      emailVerified: true
     });
 
-    // Connecter l'utilisateur
-    req.session.user = { id: user.id, name: user.name, email: user.email, role: user.role };
+    // ✅ Session
+    req.session.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    };
 
-    // Rediriger selon le rôle
-    if (user.role === 'admin') {
-      res.redirect('/admin/dashboard');
-    } else {
-      res.redirect('/');
-    }
+    // ✅ Redirection
+    res.redirect('/');
 
   } catch (err) {
     next(err);
