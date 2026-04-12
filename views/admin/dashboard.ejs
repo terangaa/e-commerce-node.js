@@ -97,15 +97,35 @@
     }
 
     @keyframes float-bg {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      33% { transform: translate(30px, -30px) rotate(120deg); }
-      66% { transform: translate(-20px, 20px) rotate(240deg); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+
+      33% {
+        transform: translate(30px, -30px) rotate(120deg);
+      }
+
+      66% {
+        transform: translate(-20px, 20px) rotate(240deg);
+      }
     }
 
     @keyframes float-bg-reverse {
-      0%, 100% { transform: translate(0, 0) rotate(0deg); }
-      33% { transform: translate(-25px, 25px) rotate(-120deg); }
-      66% { transform: translate(15px, -15px) rotate(-240deg); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+
+      33% {
+        transform: translate(-25px, 25px) rotate(-120deg);
+      }
+
+      66% {
+        transform: translate(15px, -15px) rotate(-240deg);
+      }
     }
 
     /* Modern Scrollbar */
@@ -201,8 +221,13 @@
     }
 
     @keyframes shimmer {
-      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+      0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+      }
+
+      100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+      }
     }
 
     .logo-text {
@@ -346,10 +371,11 @@
       transform: scale(1.1);
       box-shadow: var(--shadow-lg);
     }
-      font-size: 0.65rem;
-      transition: all 0.2s;
-      z-index: 10;
-      box-shadow: var(--shadow);
+
+    font-size: 0.65rem;
+    transition: all 0.2s;
+    z-index: 10;
+    box-shadow: var(--shadow);
     }
 
     .toggle-btn:hover {
@@ -577,6 +603,7 @@
         opacity: 0;
         transform: translateY(-10px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -684,10 +711,21 @@
       animation-fill-mode: both;
     }
 
-    .stat-card:nth-child(1) { animation-delay: 0.1s; }
-    .stat-card:nth-child(2) { animation-delay: 0.2s; }
-    .stat-card:nth-child(3) { animation-delay: 0.3s; }
-    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    .stat-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .stat-card:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .stat-card:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .stat-card:nth-child(4) {
+      animation-delay: 0.4s;
+    }
 
     .stat-card::before {
       content: '';
@@ -756,6 +794,7 @@
         opacity: 0;
         transform: translateY(30px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -1081,12 +1120,29 @@
       animation-fill-mode: both;
     }
 
-    .product-card:nth-child(1) { animation-delay: 0.1s; }
-    .product-card:nth-child(2) { animation-delay: 0.2s; }
-    .product-card:nth-child(3) { animation-delay: 0.3s; }
-    .product-card:nth-child(4) { animation-delay: 0.4s; }
-    .product-card:nth-child(5) { animation-delay: 0.5s; }
-    .product-card:nth-child(6) { animation-delay: 0.6s; }
+    .product-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .product-card:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .product-card:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .product-card:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+
+    .product-card:nth-child(5) {
+      animation-delay: 0.5s;
+    }
+
+    .product-card:nth-child(6) {
+      animation-delay: 0.6s;
+    }
 
     .product-card::before {
       content: '';
@@ -1546,12 +1602,29 @@
       animation-fill-mode: both;
     }
 
-    .action-card:nth-child(1) { animation-delay: 0.1s; }
-    .action-card:nth-child(2) { animation-delay: 0.2s; }
-    .action-card:nth-child(3) { animation-delay: 0.3s; }
-    .action-card:nth-child(4) { animation-delay: 0.4s; }
-    .action-card:nth-child(5) { animation-delay: 0.5s; }
-    .action-card:nth-child(6) { animation-delay: 0.6s; }
+    .action-card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .action-card:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .action-card:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .action-card:nth-child(4) {
+      animation-delay: 0.4s;
+    }
+
+    .action-card:nth-child(5) {
+      animation-delay: 0.5s;
+    }
+
+    .action-card:nth-child(6) {
+      animation-delay: 0.6s;
+    }
 
     .action-card::before {
       content: '';
@@ -1861,8 +1934,13 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     /* Focus States */
@@ -1937,9 +2015,17 @@
     }
 
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     /* Status Indicators */
@@ -2012,6 +2098,7 @@
 
     /* Reduced Motion */
     @media (prefers-reduced-motion: reduce) {
+
       *,
       *::before,
       *::after {
@@ -2241,8 +2328,15 @@
     }
 
     @keyframes float {
-      0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-      50% { transform: translate(-50%, -50%) rotate(180deg); }
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+
+      50% {
+        transform: translate(-50%, -50%) rotate(180deg);
+      }
     }
 
     .welcome-content {
@@ -2646,8 +2740,15 @@
   <main class="main" id="main">
     <div class="topbar">
       <div class="topbar-left">
-        <div class="topbar-title" id="pageTitle"><%= selectedTab === 'categories' ? 'Catégories' : selectedTab === 'orders' ? 'Commandes' : selectedTab === 'users' ? 'Utilisateurs' : 'Produits' %></div>
-        <div class="topbar-sub" id="pageSub"><%= selectedTab === 'categories' ? 'Organisez vos catégories' : selectedTab === 'orders' ? 'Suivez et gérez vos commandes' : selectedTab === 'users' ? 'Administrez vos utilisateurs' : 'Gérez votre catalogue de produits' %></div>
+        <div class="topbar-title" id="pageTitle">
+          <%= selectedTab==='categories' ? 'Catégories' : selectedTab==='orders' ? 'Commandes' : selectedTab==='users'
+            ? 'Utilisateurs' : 'Produits' %>
+        </div>
+        <div class="topbar-sub" id="pageSub">
+          <%= selectedTab==='categories' ? 'Organisez vos catégories' : selectedTab==='orders'
+            ? 'Suivez et gérez vos commandes' : selectedTab==='users' ? 'Administrez vos utilisateurs'
+            : 'Gérez votre catalogue de produits' %>
+        </div>
       </div>
       <div class="topbar-actions">
         <div class="theme-toggle" id="themeToggle" title="Basculer le thème"></div>
@@ -2682,7 +2783,8 @@
                     </p>
                     <div class="welcome-date">
                       <i class="fa fa-calendar"></i>
-                      <%= new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %>
+                      <%= new Date().toLocaleDateString('fr-FR', { weekday: 'long' , year: 'numeric' , month: 'long' ,
+                        day: 'numeric' }) %>
                     </div>
                   </div>
                   <div class="welcome-illustration">
@@ -2693,15 +2795,21 @@
                 </div>
                 <div class="welcome-stats-preview">
                   <div class="preview-item">
-                    <div class="preview-value"><%= products ? products.length : 0 %></div>
+                    <div class="preview-value">
+                      <%= products ? products.length : 0 %>
+                    </div>
                     <div class="preview-label">Produits actifs</div>
                   </div>
                   <div class="preview-item">
-                    <div class="preview-value"><%= orders ? orders.length : 0 %></div>
+                    <div class="preview-value">
+                      <%= orders ? orders.length : 0 %>
+                    </div>
                     <div class="preview-label">Commandes récentes</div>
                   </div>
                   <div class="preview-item">
-                    <div class="preview-value"><%= users ? users.length : 0 %></div>
+                    <div class="preview-value">
+                      <%= users ? users.length : 0 %>
+                    </div>
                     <div class="preview-label">Utilisateurs</div>
                   </div>
                 </div>
@@ -2796,8 +2904,8 @@
                     <div class="product-card">
                       <div class="product-img-wrap">
                         <% if (p.imageUrl) { %>
-                          <% let imgSrc=p.imageUrl; if (!imgSrc.startsWith('http://') && !imgSrc.startsWith('https://')) {
-                            imgSrc='/' + imgSrc.replace(/^\/+/, '' ); } %>
+                          <% let imgSrc=p.imageUrl; if (!imgSrc.startsWith('http://') && !imgSrc.startsWith('https://'))
+                            { imgSrc='/' + imgSrc.replace(/^\/+/, '' ); } %>
                             <img src="<%= imgSrc %>" alt="<%= p.name %>" onload="this.style.opacity='1'"
                               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                               style="opacity:0; transition:opacity 0.3s;">
@@ -2883,59 +2991,103 @@
 
               <!-- COMMANDES -->
               <div class="tab-content <%= selectedTab === 'orders' ? 'active' : '' %>" id="orders">
+
                 <div class="section-header">
                   <h2 class="section-title">Commandes</h2>
                 </div>
+
                 <div class="table-wrap">
                   <table>
                     <thead>
                       <tr>
-                        <th>#</th>
-                        <th>Client</th>
+                        <th>ID</th>
+                        <th>Nom complet</th>
                         <th>Produits</th>
                         <th>Statut</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
+
                     <tbody>
                       <% orders.forEach(o=> { %>
                         <tr>
-                          <td style="color:var(--muted);font-weight:600">#<%= o.id %>
+
+                          <!-- ID -->
+                          <td style="color:var(--muted);font-weight:600">
+                            #<%= o.id %>
                           </td>
+
+                          <!-- NOM COMPLET -->
                           <td style="font-weight:500">
                             <%= o.customerName %>
                           </td>
+
+                          <!-- PRODUITS -->
                           <td>
                             <div class="product-images">
-                              <% if (o.OrderItems && o.OrderItems.length > 0) { %>
-                                <% o.OrderItems.forEach(item => { %>
-                                  <% if (item.Product && item.Product.imageUrl) { %>
-                                    <img src="<%= item.Product.imageUrl %>" alt="<%= item.Product.name %>" class="product-thumb" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 5px;" />
-                                  <% } else { %>
-                                    <div class="product-thumb-placeholder" style="width: 40px; height: 40px; background: var(--muted-light); border-radius: 4px; margin-right: 5px; display: inline-block;"></div>
-                                  <% } %>
-                                <% }) %>
-                              <% } else { %>
-                                <span class="text-muted">Aucun produit</span>
-                              <% } %>
+
+                              <% if (o.OrderItems && o.OrderItems.length> 0) { %>
+
+                                <% o.OrderItems.forEach(item=> { %>
+
+                                  <span style="display:inline-block; margin-right:8px; font-size:13px;">
+                                    <%= item.Product?.name %>
+                                  </span>
+
+                                  <% }) %>
+
+                                    <% } else { %>
+                                      <span class="text-muted">Aucun produit</span>
+                                      <% } %>
+
                             </div>
                           </td>
+
+                          <!-- STATUT -->
                           <td>
-                            <span class="badge <%= o.deliveryStatus === 'livré' ? 'badge-done' : 'badge-pending' %>">
-                              <i class="fa fa-circle" style="font-size:0.45rem"></i>
-                              <%= o.deliveryStatus %>
-                            </span>
+                            <% if (o.status==='pending' ) { %>
+                              <span class="badge bg-warning">En attente</span>
+
+                              <% } else if (o.status==='paid' ) { %>
+                                <span class="badge bg-success">Payée</span>
+
+                                <% } else if (o.status==='delivered' ) { %>
+                                  <span class="badge bg-primary">Livrée</span>
+
+                                  <% } else { %>
+                                    <span class="badge bg-secondary">Traitée</span>
+                                    <% } %>
                           </td>
+
+                          <!-- ACTIONS -->
                           <td>
-                            <a href="/admin/orders/<%= o.id %>/delivery/thiak-thiak" class="btn btn-ghost btn-sm">
-                              <i class="fa fa-truck"></i> Livraison
+
+                            <!-- VOIR -->
+                            <a href="/admin/orders/<%= o.id %>" class="btn btn-info btn-sm">
+                              Voir
                             </a>
+
+                            <!-- MODIFIER -->
+                            <a href="/admin/orders/<%= o.id %>/edit" class="btn btn-warning btn-sm">
+                              Modifier
+                            </a>
+
+                            <!-- SUPPRIMER -->
+                            <form method="POST" action="/admin/orders/<%= o.id %>/delete">
+                              <button type="submit" class="btn btn-danger btn-sm">
+                                Supprimer
+                              </button>
+                            </form>
+
                           </td>
+
                         </tr>
                         <% }) %>
                     </tbody>
+
                   </table>
                 </div>
+
               </div>
 
               <!-- UTILISATEURS -->
@@ -3040,15 +3192,21 @@
         <div class="footer-right">
           <div class="footer-stats">
             <div class="footer-stat">
-              <div class="stat-number"><%= products ? products.length : 0 %></div>
+              <div class="stat-number">
+                <%= products ? products.length : 0 %>
+              </div>
               <div class="stat-label">Produits</div>
             </div>
             <div class="footer-stat">
-              <div class="stat-number"><%= orders ? orders.length : 0 %></div>
+              <div class="stat-number">
+                <%= orders ? orders.length : 0 %>
+              </div>
               <div class="stat-label">Commandes</div>
             </div>
             <div class="footer-stat">
-              <div class="stat-number"><%= users ? users.length : 0 %></div>
+              <div class="stat-number">
+                <%= users ? users.length : 0 %>
+              </div>
               <div class="stat-label">Utilisateurs</div>
             </div>
           </div>

@@ -1,7 +1,6 @@
 <% if (user && user.role==='admin' ) { %>
-  <!-- Admin : pas de navbar classique, ils utilisent la sidebar admin -->
+  <!-- Admin : pas de navbar classique -->
   <% } else { %>
-    <!-- Navbar pour utilisateurs normaux -->
     <nav class="navbar navbar-expand-xl navbar-light bg-white shadow-sm" aria-label="Main navigation"
       style="padding: 0.5rem 0;">
       <div class="container-fluid px-4">
@@ -15,39 +14,122 @@
         <div class="collapse navbar-collapse" id="navbarMain">
           <!-- Liens principaux -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="gap: 0.5rem;">
+
             <li class="nav-item">
               <a class="nav-link <%= currentPage==='home'?'active':'' %>" href="/"
-                style="font-weight: 600; padding: 0.5rem 0.75rem;">Accueil</a>
+                style="font-weight: 600; padding: 0.5rem 0.75rem;">
+                Accueil</a>
             </li>
 
             <li class="nav-item">
               <a class="nav-link <%= currentPage==='products'?'active':'' %>" href="/products"
-                style="font-weight: 600; padding: 0.5rem 0.75rem;">Produits</a>
+                style="font-weight: 600; padding: 0.5rem 0.75rem;">
+                Produits</a>
             </li>
 
-            <li class="nav-item">
-              <a class="nav-link <%= currentPage==='cart'?'active':'' %>" href="/products/cart"
-                style="font-weight: 600; padding: 0.5rem 0.75rem;">Panier (<%= cartCount||0 %>)</a>
+            <!-- Dropdown Panier -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle
+              <%= currentPage==='cart'?'active':'' %>" href="/products/cart" id="cartDropdown" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false" style="font-weight: 600; padding: 0.5rem 0.75rem;">
+                <i class="fa fa-shopping-cart"></i>
+                Panier (<%= cartCount||0 %>)
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="cartDropdown" style="min-width: 350px;">
+
+                <% if (cartItems && cartItems.length> 0) { %>
+                  <% cartItems.slice(0, 3).forEach(item=> { %>
+                    <li class="dropdown-item d-flex align-items-center">
+                      <% if (item.product && item.product.imageUrl) { %>
+                        <img src="/public<%= item.product.imageUrl %>" alt="<%= item.product.name %>" class="me-2"
+                          style="width:40px;height:40px;object-fit:cover;">
+                        <% } else { %>
+                          <img src="https://via.placeholder.com/40x40?text=Img" alt="Image" class="me-2">
+                          <% } %>
+                            <div class="flex-grow-1">
+                              <div class="fw-bold">
+                                <%= item.product ? item.product.name : 'Produit supprimé' %>
+                              </div>
+                              <small class="text-muted">
+                                <%= item.quantity %> x
+                                  <%= item.product ? item.product.price : 0 %> FCFA
+                              </small>
+                            </div>
+
+                            <!-- ✅ CORRIGÉ : bouton sans <form> imbriqué -->
+                            <button type="button" class="btn btn-sm btn-outline-danger ms-2" title="Supprimer"
+                              onclick="removeFromCart(<%= item.product ? item.product.id : 0 %>)">
+                              <i class="fa fa-times"></i>
+                            </button>
+                    </li>
+                    <% }); %>
+
+                      <% if (cartItems.length> 3) { %>
+                        <li>
+                          <hr class="dropdown-divider">
+                        </li>
+                        <li class="dropdown-item text-center">
+                          <small class="text-muted">
+                            Et <%= cartItems.length - 3 %> autres articles...
+                          </small>
+                        </li>
+                        <% } %>
+
+                          <li>
+                            <hr class="dropdown-divider">
+                          </li>
+                          <li class="dropdown-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <strong>Total: <%= totalAmount || 0 %> FCFA</strong>
+                              <a href="/products/cart" class="btn btn-primary btn-sm">
+                                Voir le panier
+                              </a>
+                            </div>
+                          </li>
+                          <li class="dropdown-item text-center">
+                            <!-- ✅ CORRIGÉ : bouton sans <form> imbriqué -->
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearCart()">
+                              Vider le panier
+                            </button>
+                          </li>
+
+                          <% } else { %>
+                            <li class="dropdown-item text-center text-muted">
+                              Votre panier est vide
+                            </li>
+                            <% } %>
+
+              </ul>
             </li>
+            <!-- Fin Dropdown Panier -->
 
             <li class="nav-item">
               <a class="nav-link <%= currentPage==='wishlist'?'active':'' %>" href="/wishlist"
-                style="font-weight: 600; padding: 0.5rem 0.75rem;"><i class="fa-solid fa-heart"></i> Souhaits</a>
+                style="font-weight: 600; padding: 0.5rem 0.75rem;">
+                <i class="fa-solid fa-heart"></i> Souhaits
+              </a>
             </li>
 
             <li class="nav-item">
               <a class="nav-link <%= currentPage==='contact'?'active':'' %>" href="/contact"
-                style="font-weight: 600; padding: 0.5rem 0.75rem;">Contact</a>
+                style="font-weight: 600; padding: 0.5rem 0.75rem;">
+                Contact
+              </a>
             </li>
 
             <li class="nav-item">
               <a class="nav-link <%= currentPage==='chatbot'?'active':'' %>" href="/chatbot"
-                style="font-weight: 600; padding: 0.5rem 0.75rem;">🤖 Chatbot</a>
+                style="font-weight: 600; padding: 0.5rem 0.75rem;">
+                Chatbot
+              </a>
             </li>
+
           </ul>
+          <!-- Fin Liens principaux -->
 
           <!-- Utilisateur / Langue -->
           <ul class="navbar-nav align-items-center" style="gap: 0.5rem;">
+
             <li class="nav-item">
               <a class="small text-secondary text-decoration-none" href="?<%= locale==='fr'?'lang=en':'lang=fr' %>"
                 style="padding: 0.5rem 0.75rem;">
@@ -58,21 +140,24 @@
 
             <% if(user){ %>
               <li class="nav-item">
-                <span class="nav-link text-secondary" style="padding: 0.5rem 0.75rem;">Bonjour <strong>
+                <span class="nav-link text-secondary" style="padding: 0.5rem 0.75rem;">
+                  Bonjour <strong>
                     <%= user.name %>
-                  </strong></span>
+                  </strong>
+                </span>
               </li>
-
-              <li class="nav-item"><a class="nav-link btn btn-outline-primary btn-sm" href="/auth/profile"
-                  style="padding: 0.4rem 0.75rem;">Mon Profil</a></li>
-              <li class="nav-item"><a class="nav-link btn btn-outline-primary btn-sm" href="/auth/orders"
-                  style="padding: 0.4rem 0.75rem;">Mes Commandes</a></li>
-
+              <li class="nav-item">
+                <a class="nav-link btn btn-outline-primary btn-sm" href="/auth/profile"
+                  style="padding: 0.4rem 0.75rem;">Mon Profil</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link btn btn-outline-primary btn-sm" href="/auth/orders"
+                  style="padding: 0.4rem 0.75rem;">Mes Commandes</a>
+              </li>
               <li class="nav-item">
                 <a class="nav-link btn btn-outline-primary btn-sm" href="/auth/logout"
                   style="padding: 0.4rem 0.75rem;">Déconnexion</a>
               </li>
-
               <% } else { %>
                 <li class="nav-item">
                   <a class="btn btn-primary btn-sm" href="/auth/login" style="padding: 0.4rem 0.75rem;">Connexion</a>
@@ -82,8 +167,30 @@
                     style="padding: 0.4rem 0.75rem;">Inscription</a>
                 </li>
                 <% } %>
+
           </ul>
+          <!-- Fin Utilisateur / Langue -->
+
         </div>
       </div>
     </nav>
+
+    <!-- ✅ Scripts panier (remplacent les <form> imbriqués) -->
+    <script>
+      function removeFromCart(productId) {
+        fetch('/products/cart/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'productId=' + productId
+        }).then(() => window.location.reload());
+      }
+
+      function clearCart() {
+        fetch('/products/cart/clear', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }).then(() => window.location.reload());
+      }
+    </script>
+
     <% } %>

@@ -1,28 +1,287 @@
-<footer class="bg-dark text-white pt-5 pb-4">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <h5>À propos</h5>
-        <p class="small">Ecommerce JIM est votre boutique en ligne locale avec des produits de qualité et une livraison rapide.</p>
+<!-- Footer Modernisé -->
+<footer class="footer-modern bg-gradient-dark text-white position-relative overflow-hidden">
+  <!-- Background Pattern -->
+  <div class="footer-bg-pattern"></div>
+
+  <!-- Main Footer Content -->
+  <div class="container position-relative">
+    <div class="row g-4 py-5">
+      <!-- Company Info -->
+      <div class="col-lg-4 col-md-6">
+        <div class="footer-brand mb-4">
+          <h3 class="fw-bold mb-3">
+            <i class="fas fa-shopping-bag text-primary me-2"></i>
+            Ecommerce JIM
+          </h3>
+          <p class="text-muted mb-3">
+            Votre boutique en ligne locale avec des produits de qualité et une livraison rapide dans toute la région.
+          </p>
+          <div class="social-links">
+            <a href="#" class="social-link facebook" title="Facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-link instagram" title="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="social-link twitter" title="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="social-link whatsapp" title="WhatsApp">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="col-md-4 mb-3">
-        <h5>Liens rapides</h5>
-        <ul class="list-unstyled small">
-          <li><a href="/" class="text-white text-decoration-none">Accueil</a></li>
-          <li><a href="/products" class="text-white text-decoration-none">Produits</a></li>
-          <li><a href="/auth/login" class="text-white text-decoration-none">Connexion</a></li>
+
+      <!-- Quick Links -->
+      <div class="col-lg-2 col-md-6">
+        <h5 class="fw-bold mb-3">Navigation</h5>
+        <ul class="footer-links list-unstyled">
+          <li><a href="/" class="footer-link"><i class="fas fa-home me-2"></i>Accueil</a></li>
+          <li><a href="/products" class="footer-link"><i class="fas fa-box me-2"></i>Produits</a></li>
+          <li><a href="/categories" class="footer-link"><i class="fas fa-tags me-2"></i>Catégories</a></li>
+          <li><a href="/contact" class="footer-link"><i class="fas fa-envelope me-2"></i>Contact</a></li>
         </ul>
       </div>
-      <div class="col-md-4 mb-3">
-        <h5>Support</h5>
-        <p class="small">contact@ecommerce-jim.local<br>+221 77 000 00 00</p>
+
+      <!-- Account Links -->
+      <div class="col-lg-2 col-md-6">
+        <h5 class="fw-bold mb-3">Mon Compte</h5>
+        <ul class="footer-links list-unstyled">
+          <li><a href="/auth/login" class="footer-link"><i class="fas fa-sign-in-alt me-2"></i>Connexion</a></li>
+          <li><a href="/auth/register" class="footer-link"><i class="fas fa-user-plus me-2"></i>Inscription</a></li>
+          <li><a href="/profile" class="footer-link"><i class="fas fa-user me-2"></i>Mon Profil</a></li>
+          <li><a href="/orders" class="footer-link"><i class="fas fa-shopping-cart me-2"></i>Mes Commandes</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact & Newsletter -->
+      <div class="col-lg-4 col-md-6">
+        <h5 class="fw-bold mb-3">Restez Connecté</h5>
+        <div class="contact-info mb-4">
+          <div class="contact-item mb-2">
+            <i class="fas fa-map-marker-alt text-primary me-2"></i>
+            <span>Dakar, Sénégal</span>
+          </div>
+          <div class="contact-item mb-2">
+            <i class="fas fa-phone text-primary me-2"></i>
+            <span>+221 77 000 00 00</span>
+          </div>
+          <div class="contact-item mb-2">
+            <i class="fas fa-envelope text-primary me-2"></i>
+            <span>contact@ecommerce-jim.local</span>
+          </div>
+          <div class="contact-item">
+            <i class="fas fa-clock text-primary me-2"></i>
+            <span>Lun-Dim: 8h-20h</span>
+          </div>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="newsletter">
+          <p class="mb-2">Inscrivez-vous à notre newsletter</p>
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="Votre email" aria-label="Email">
+            <button class="btn btn-primary newsletter-btn" type="button">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="text-center mt-3">
-      <p class="mb-0 small">&copy; <%= new Date().getFullYear() %> Ecommerce JIM. Tous droits réservés.</p>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="footer-bottom bg-dark py-3">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <p class="mb-0 text-muted small">
+            &copy; <%= new Date().getFullYear() %> Ecommerce JIM. Tous droits réservés.
+          </p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <div class="payment-methods">
+            <small class="text-muted me-2">Paiement sécurisé:</small>
+            <i class="fab fa-cc-visa text-white me-2" title="Visa"></i>
+            <i class="fab fa-cc-mastercard text-white me-2" title="Mastercard"></i>
+            <i class="fab fa-cc-paypal text-white" title="PayPal"></i>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop" title="Retour en haut" type="button">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+    // Sticky Navigation
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+      window.addEventListener('scroll', function () {
+        if (window.pageYOffset > 100) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      });
+    }
+
+    // Smooth Scrolling for Anchor Links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Back to Top Button
+    const backToTopBtn = document.getElementById('backToTop');
+    if (backToTopBtn) {
+      window.addEventListener('scroll', function () {
+        if (window.pageYOffset > 300) {
+          backToTopBtn.classList.add('show');
+        } else {
+          backToTopBtn.classList.remove('show');
+        }
+      });
+      backToTopBtn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    // Intersection Observer for Animations
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      document.querySelectorAll('.fade-in-up, .slide-in-left, .slide-in-right, .bounce-in').forEach(el => {
+        observer.observe(el);
+      });
+    }
+
+    // Form Interactions (focus/blur uniquement)
+    document.querySelectorAll('form').forEach(form => {
+      form.querySelectorAll('input, textarea, select').forEach(input => {
+        input.addEventListener('focus', function () {
+          this.parentElement.classList.add('focused');
+        });
+        input.addEventListener('blur', function () {
+          this.parentElement.classList.remove('focused');
+        });
+      });
+    });
+
+    // Newsletter Subscription
+    const newsletterBtn = document.querySelector('.newsletter-btn');
+    if (newsletterBtn) {
+      newsletterBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const emailInput = document.querySelector('.newsletter .form-control');
+        if (emailInput && emailInput.value) {
+          newsletterBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+          newsletterBtn.disabled = true;
+          setTimeout(() => {
+            alert('Merci pour votre inscription à notre newsletter !');
+            emailInput.value = '';
+            newsletterBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            newsletterBtn.disabled = false;
+          }, 1500);
+        } else {
+          alert('Veuillez entrer une adresse email valide.');
+          if (emailInput) emailInput.focus();
+        }
+      });
+    }
+
+    // ✅ CORRIGÉ : Ne PAS bloquer les boutons submit
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        if (this.type === 'submit') return;       // ✅ laisser soumettre
+        if (this.closest('form')) return;          // ✅ bouton dans form = ignoré
+        if (this.classList.contains('newsletter-btn')) return;
+        if (this.id === 'backToTop') return;
+      });
+    });
+
+    // Product Card Hover Effects
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('mouseenter', function () { this.style.zIndex = '10'; });
+      card.addEventListener('mouseleave', function () { this.style.zIndex = '1'; });
+    });
+
+    // Category Card Click Animation
+    document.querySelectorAll('.category-card').forEach(card => {
+      card.addEventListener('click', function (e) {
+        if (!e.target.closest('a')) {
+          this.style.transform = 'scale(0.95)';
+          setTimeout(() => { this.style.transform = ''; }, 150);
+        }
+      });
+    });
+
+    // Touch Device Optimizations
+    if ('ontouchstart' in window) {
+      document.body.classList.add('touch-device');
+      document.addEventListener('touchstart', function (e) {
+        const target = e.target.closest('.btn, .card, .category-card');
+        if (target) target.classList.add('touch-active');
+      });
+      document.addEventListener('touchend', function (e) {
+        const target = e.target.closest('.btn, .card, .category-card');
+        if (target) setTimeout(() => target.classList.remove('touch-active'), 150);
+      });
+    }
+
+    // Lazy Load Images
+    if ('IntersectionObserver' in window) {
+      const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            if (img.dataset.src) {
+              img.src = img.dataset.src;
+              img.classList.remove('lazy');
+              imageObserver.unobserve(img);
+            }
+          }
+        });
+      });
+      document.querySelectorAll('img[data-src]').forEach(img => imageObserver.observe(img));
+    }
+
+    // Accessibility: keyboard navigation
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab') document.body.classList.add('keyboard-navigation');
+    });
+    document.addEventListener('mousedown', function () {
+      document.body.classList.remove('keyboard-navigation');
+    });
+
+  });
+</script>
+
+<!-- Preload critical resources -->
+<link rel="preload" href="/public/css/site.css" as="style">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+
 </body>
+
 </html>

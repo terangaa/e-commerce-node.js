@@ -1,183 +1,200 @@
 <!DOCTYPE html>
 <html lang="<%= locale || 'fr' %>">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <%- include('partials/head', { pageTitle: 'Panier - Ecommerce JIM' }) %>
 </head>
+
 <body>
   <%- include('partials/nav', { user, locale, currentPage: 'cart' }) %>
 
-  <div class="container my-5">
-    <h1>Panier</h1>
+    <div class="container my-5">
+      <h1>Panier</h1>
 
-    <% if (cartItems.length === 0) { %>
-      <p>Votre panier est vide.</p>
-      <a href="/products" class="btn btn-primary">Retour aux produits</a>
-    <% } else { %>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Produit</th>
-            <th>Prix unitaire</th>
-            <th>Quantité</th>
-            <th>Total</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% cartItems.forEach(item => { %>
-            <tr>
-              <td><%= item.product ? item.product.name : 'Produit supprimé' %></td>
-              <td><%= item.product ? item.product.price : '--' %> FCFA</td>
-              <td>
-                <% if (item.product) { %>
-                  <form method="post" action="/products/cart/update" class="form-inline">
-                    <input type="hidden" name="productId" value="<%= item.product.id %>" />
-                    <input type="number" name="quantity" value="<%= item.quantity %>" class="form-control form-control-sm mr-2" min="0" />
-                    <button class="btn btn-sm btn-primary" type="submit">OK</button>
-                  </form>
-                <% } else { %>
-                  <%= item.quantity %>
-                <% } %>
-              </td>
-              <td><%= item.total %> FCFA</td>
-              <td>
-                <% if (item.product) { %>
-                  <form method="post" action="/products/cart/remove" style="display:inline-block;">
-                    <input type="hidden" name="productId" value="<%= item.product.id %>" />
-                    <button class="btn btn-sm btn-danger" type="submit">Supprimer</button>
-                  </form>
-                <% } %>
-              </td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
+      <% if (cartItems.length===0) { %>
+        <p>Votre panier est vide.</p>
+        <a href="/products" class="btn btn-primary">Retour aux produits</a>
+        <% } else { %>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Total</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% cartItems.forEach(item=> { %>
+                <tr>
+                  <td>
+                    <%= item.product ? item.product.name : 'Produit supprimé' %>
+                  </td>
+                  <td>
+                    <%= item.product ? item.product.price : '--' %> FCFA
+                  </td>
+                  <td>
+                    <% if (item.product) { %>
+                      <form method="post" action="/products/cart/update" class="form-inline">
+                        <input type="hidden" name="productId" value="<%= item.product.id %>" />
+                        <input type="number" name="quantity" value="<%= item.quantity %>"
+                          class="form-control form-control-sm mr-2" min="0" />
+                        <button class="btn btn-sm btn-primary" type="submit">OK</button>
+                      </form>
+                      <% } else { %>
+                        <%= item.quantity %>
+                          <% } %>
+                  </td>
+                  <td>
+                    <%= item.total %> FCFA
+                  </td>
+                  <td>
+                    <% if (item.product) { %>
+                      <form method="post" action="/products/cart/remove" style="display:inline-block;">
+                        <input type="hidden" name="productId" value="<%= item.product.id %>" />
+                        <button class="btn btn-sm btn-danger" type="submit">Supprimer</button>
+                      </form>
+                      <% } %>
+                  </td>
+                </tr>
+                <% }); %>
+            </tbody>
+          </table>
 
-      <div class="mb-4">
-        <h4>Total panier : <strong><%= totalAmount %> FCFA</strong></h4>
-        <div id="discountInfo" style="display: none;" class="alert alert-success mt-2">
-          <strong>Remise appliquée :</strong> <span id="discountAmount">0</span> FCFA
-          <br><strong>Nouveau total :</strong> <span id="finalAmount">0</span> FCFA
-        </div>
-      </div>
-
-      <div class="card p-3 mb-4">
-        <h5><i class="fa-solid fa-ticket"></i> Code promo</h5>
-        <div class="input-group">
-          <input type="text" id="couponCode" class="form-control" placeholder="Entrez votre code promo" />
-          <div class="input-group-append">
-            <button class="btn btn-outline-primary" type="button" onclick="applyCoupon()">Appliquer</button>
-          </div>
-        </div>
-        <small id="couponMessage" class="text-muted"></small>
-      </div>
-
-      <div class="card p-4 mb-4">
-        <h3>Valider la commande</h3>
-        <form method="post" action="/products/cart/checkout">
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label>Nom</label><input name="customerName" class="form-control" required />
-            </div>
-            <div class="form-group col-md-6">
-              <label>Email</label><input type="email" name="customerEmail" class="form-control" required />
+          <div class="mb-4">
+            <h4>Total panier : <strong>
+                <%= totalAmount %> FCFA
+              </strong></h4>
+            <div id="discountInfo" style="display: none;" class="alert alert-success mt-2">
+              <strong>Remise appliquée :</strong> <span id="discountAmount">0</span> FCFA
+              <br><strong>Nouveau total :</strong> <span id="finalAmount">0</span> FCFA
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label>Téléphone</label><input name="customerPhone" class="form-control" required />
+
+          <div class="card p-3 mb-4">
+            <h5><i class="fa-solid fa-ticket"></i> Code promo</h5>
+            <div class="input-group">
+              <input type="text" id="couponCode" class="form-control" placeholder="Entrez votre code promo" />
+              <div class="input-group-append">
+                <button class="btn btn-outline-primary" type="button" onclick="applyCoupon()">Appliquer</button>
+              </div>
             </div>
-            <div class="form-group col-md-6">
-              <label>Adresse</label><input name="customerAddress" class="form-control" required />
-            </div>
+            <small id="couponMessage" class="text-muted"></small>
           </div>
-          <div class="form-group">
-            <label>Méthode de paiement</label>
-            <select name="paymentMethod" class="form-control" required>
-              <option value="cash">Cash</option>
-              <option value="wave">Wave</option>
-              <option value="orange_money">Orange Money</option>
-            </select>
+
+          <div class="card p-4 mb-4">
+            <h3>Valider la commande</h3>
+
+            <form method="post" action="/products/cart/checkout">
+
+              <div class="row">
+                <div class="form-group col-md-6">
+                  <label>Nom</label>
+                  <input type="text" name="customerName" class="form-control" required />
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label>Email</label>
+                  <input type="email" name="customerEmail" class="form-control" required />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="form-group col-md-6">
+                  <label>Téléphone</label>
+                  <input type="text" name="customerPhone" class="form-control" required />
+                </div>
+
+                <div class="form-group col-md-6">
+                  <label>Adresse</label>
+                  <input type="text" name="customerAddress" class="form-control" required />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-success mt-3">
+                Valider la commande
+              </button>
+
+            </form>
           </div>
-          <button type="submit" class="btn btn-success">Valider la commande</button>
-        </form>
-      </div>
 
-      <form method="post" action="/products/cart/clear">
-        <button type="submit" class="btn btn-outline-danger">Vider le panier</button>
-      </form>
-    <% } %>
-  </div>
+          <form method="post" action="/products/cart/clear">
+            <button type="submit" class="btn btn-outline-danger">Vider le panier</button>
+          </form>
+          <% } %>
+    </div>
 
-  <%- include('partials/footer') %>
+    <%- include('partials/footer') %>
 
-  <script>
-    const cartTotalAmount = <%= totalAmount %>;
-    let appliedCoupon = null;
-    let discountAmount = 0;
+      <script>
+        const cartTotalAmount = <%= totalAmount %>;
+        let appliedCoupon = null;
+        let discountAmount = 0;
 
-    async function applyCoupon() {
-      const code = document.getElementById('couponCode').value.trim();
-      const messageEl = document.getElementById('couponMessage');
-      const discountInfoEl = document.getElementById('discountInfo');
-      const discountAmountEl = document.getElementById('discountAmount');
-      const finalAmountEl = document.getElementById('finalAmount');
+        async function applyCoupon() {
+          const code = document.getElementById('couponCode').value.trim();
+          const messageEl = document.getElementById('couponMessage');
+          const discountInfoEl = document.getElementById('discountInfo');
+          const discountAmountEl = document.getElementById('discountAmount');
+          const finalAmountEl = document.getElementById('finalAmount');
 
-      if (!code) {
-        messageEl.textContent = 'Veuillez entrer un code promo';
-        messageEl.className = 'text-danger';
-        return;
-      }
+          if (!code) {
+            messageEl.textContent = 'Veuillez entrer un code promo';
+            messageEl.className = 'text-danger';
+            return;
+          }
 
-      try {
-        const response = await fetch('/coupons/validate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, orderAmount: cartTotalAmount })
-        });
+          try {
+            const response = await fetch('/coupons/validate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code, orderAmount: cartTotalAmount })
+            });
 
-        const result = await response.json();
+            const result = await response.json();
 
-        if (result.success) {
-          appliedCoupon = result.data.coupon;
-          discountAmount = result.data.discount;
-          
-          discountInfoEl.style.display = 'block';
-          discountAmountEl.textContent = discountAmount;
-          finalAmountEl.textContent = result.data.finalAmount;
-          
-          messageEl.textContent = `Code promo "${appliedCoupon.code}" appliqué avec succès !`;
-          messageEl.className = 'text-success';
-          
-          // Désactiver le champ et le bouton
-          document.getElementById('couponCode').disabled = true;
-          document.querySelector('button[onclick="applyCoupon()"]').disabled = true;
-        } else {
-          messageEl.textContent = result.error || 'Code promo invalide';
-          messageEl.className = 'text-danger';
-          discountInfoEl.style.display = 'none';
-          appliedCoupon = null;
-          discountAmount = 0;
+            if (result.success) {
+              appliedCoupon = result.data.coupon;
+              discountAmount = result.data.discount;
+
+              discountInfoEl.style.display = 'block';
+              discountAmountEl.textContent = discountAmount;
+              finalAmountEl.textContent = result.data.finalAmount;
+
+              messageEl.textContent = `Code promo "${appliedCoupon.code}" appliqué avec succès !`;
+              messageEl.className = 'text-success';
+
+              // Désactiver le champ et le bouton
+              document.getElementById('couponCode').disabled = true;
+              document.querySelector('button[onclick="applyCoupon()"]').disabled = true;
+            } else {
+              messageEl.textContent = result.error || 'Code promo invalide';
+              messageEl.className = 'text-danger';
+              discountInfoEl.style.display = 'none';
+              appliedCoupon = null;
+              discountAmount = 0;
+            }
+          } catch (error) {
+            console.error('Erreur:', error);
+            messageEl.textContent = 'Erreur lors de la validation du code promo';
+            messageEl.className = 'text-danger';
+          }
         }
-      } catch (error) {
-        console.error('Erreur:', error);
-        messageEl.textContent = 'Erreur lors de la validation du code promo';
-        messageEl.className = 'text-danger';
-      }
-    }
 
-    // Ajouter le coupon au formulaire de checkout
-    document.querySelector('form[action="/products/cart/checkout"]').addEventListener('submit', function(e) {
-      if (appliedCoupon) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'couponCode';
-        input.value = appliedCoupon.code;
-        this.appendChild(input);
-      }
-    });
-  </script>
+        // Ajouter le coupon au formulaire de checkout
+        document.querySelector('form[action="/products/cart/checkout"]').addEventListener('submit', function (e) {
+          if (appliedCoupon) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'couponCode';
+            input.value = appliedCoupon.code;
+            this.appendChild(input);
+          }
+        });
+      </script>
 </body>
+
 </html>

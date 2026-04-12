@@ -7,20 +7,19 @@ const session = require('express-session');
 const { sequelize } = require('./models');
 const publicRoutes = require('./routes/public');
 const { home, contactPage, contactSubmit } = require('./controllers/publicController');
-const adminRoutes = require('./routes/admin');
 const adminWebRoutes = require('./routes/adminWeb');
 const orderRoutes = require('./routes/order');
 const authRoutes = require('./routes/auth');
+const socialAuthRoutes = require('./routes/socialAuth');
 const chatbotRoutes = require('./routes/chatbot');
 const reviewRoutes = require('./routes/review');
 const wishlistRoutes = require('./routes/wishlist');
 const couponRoutes = require('./routes/coupon');
-const socialAuthRoutes = require('./routes/socialAuth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Internationalization configuration
+// ─── Internationalisation ───────────────────────────────────────────────────
 i18n.configure({
   locales: ['en', 'fr'],
   defaultLocale: 'fr',
@@ -29,94 +28,132 @@ i18n.configure({
   objectNotation: true,
   register: global,
 });
-
 app.use(i18n.init);
+
+// ─── Middlewares de base ────────────────────────────────────────────────────
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// ─── Session ────────────────────────────────────────────────────────────────
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'ecommerce_secret_123',
+  secret: process.env.SESSION_SECRET || 'your-super-secret-key-change-in-production',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 7 * 24 * 3600 * 1000 },
+  cookie: {
+    maxAge: 7 * 24 * 3600 * 1000,
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'strict'
+  },
 }));
 
+// ─── Moteur de vues ─────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Sert tout le dossier public (y compris sous-dossiers)
+// ─── Fichiers statiques ─────────────────────────────────────────────────────
 app.use('/public', express.static(path.join(__dirname, 'public')));
-
-// Raccourcis directs vers les sous-dossiers uploads
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 app.use('/uploads/valise', express.static(path.join(__dirname, 'public', 'uploads', 'valise')));
 app.use('/uploads/drap', express.static(path.join(__dirname, 'public', 'uploads', 'drap')));
 app.use('/uploads/jalabi', express.static(path.join(__dirname, 'public', 'uploads', 'jalabi')));
 
+// ─── Logger de requêtes ─────────────────────────────────────────────────────
 app.use((req, res, next) => {
   console.log('[REQ]', req.method, req.originalUrl);
   next();
 });
 
+// ─── Variables locales globales ─────────────────────────────────────────────
 app.use((req, res, next) => {
   res.locals.user = req.session && req.session.user ? req.session.user : null;
   res.locals.locale = (req.getLocale && req.getLocale()) ? req.getLocale() : 'fr';
-
   const cart = req.session && req.session.cart ? req.session.cart : [];
   res.locals.cartCount = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-
   next();
 });
 
+// ─── Routes ─────────────────────────────────────────────────────────────────
 app.get('/', home);
-
-app.use('/auth', authRoutes);
-app.use('/products', publicRoutes);
-app.use('/cart', publicRoutes); // alias vers la même logique panier/produit
 app.get('/contact', contactPage);
 app.post('/contact', contactSubmit);
+
+// ✅ Auth : montage unique avec authRoutes ET socialAuthRoutes ensemble
+app.use('/auth', authRoutes);
+app.use('/auth', socialAuthRoutes);
+
+app.use('/products', publicRoutes);
 app.use('/admin', adminWebRoutes);
 app.use('/orders', orderRoutes);
 app.use('/chatbot', chatbotRoutes);
 app.use('/reviews', reviewRoutes);
 app.use('/wishlist', wishlistRoutes);
 app.use('/coupons', couponRoutes);
-app.use('/auth', socialAuthRoutes);
 
-// Raccourcis d'accès (e.g. /cart, /checkout) vers routes existantes
+// ─── Raccourcis ─────────────────────────────────────────────────────────────
 app.get('/cart', (req, res) => res.redirect('/products/cart'));
 app.get('/checkout', (req, res) => res.redirect('/products/cart'));
 app.post('/orders/submit', (req, res) => res.redirect(307, '/orders'));
 
-// 404
+// ─── 404 ─────────────────────────────────────────────────────────────────────
 app.use((req, res) => {
-  res.status(404).json({ error: __('non trouve') });
+  // Réponse JSON pour les API, page HTML pour le navigateur
+  if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+    return res.status(404).json({ error: __('non trouve') });
+  }
+  res.status(404).send('<h1>404 – Page introuvable</h1><a href="/">Retour à l\'accueil</a>');
 });
 
-// global error
+// ─── Gestionnaire d'erreurs global ✅ CORRIGÉ ────────────────────────────────
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({
-    error: err.message || __('erreur_interne'),
-    stack: err.stack,
-  });
+  console.error('[ERREUR]', err.message);
+  console.error(err.stack);
+
+  // Requête API → réponse JSON
+  if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+    return res.status(err.status || 500).json({ error: err.message || __('erreur_interne') });
+  }
+
+  // Requête navigateur → page HTML lisible
+  // Si vous avez une vue views/error.ejs, utilisez res.render :
+  // return res.status(err.status || 500).render('error', { message: err.message, stack: err.stack, cartItems: [], totalAmount: 0, cartCount: 0 });
+
+  res.status(err.status || 500).send(`
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head><meta charset="UTF-8"><title>Erreur serveur</title>
+    <style>
+      body { font-family: sans-serif; padding: 2rem; }
+      h1 { color: #c0392b; }
+      pre { background: #f4f4f4; padding: 1rem; border-radius: 4px; overflow: auto; }
+      a { color: #2980b9; }
+    </style>
+    </head>
+    <body>
+      <h1>Erreur serveur</h1>
+      <p>${err.message || 'Une erreur inattendue s\'est produite.'}</p>
+      ${process.env.NODE_ENV !== 'production' ? `<pre>${err.stack}</pre>` : ''}
+      <a href="/">← Retour à l'accueil</a>
+    </body>
+    </html>
+  `);
 });
 
+// ─── Démarrage ───────────────────────────────────────────────────────────────
 async function start() {
   try {
     await sequelize.authenticate();
-    console.log('la base de donnees est connectee.');
-
+    console.log('✅ Base de données connectée.');
     await sequelize.sync();
-    console.log('les tables de la base de donnees sont synchronisees.');
-
+    console.log('✅ Tables synchronisées.');
     app.listen(PORT, () => {
-      console.log(`le serveur est demarre sur le port ${PORT}`);
-      console.log(`Visit http://localhost:${PORT}?lang=fr or ?lang=en`);
+      console.log(`✅ Serveur démarré sur http://localhost:${PORT}`);
+      console.log(`   → http://localhost:${PORT}?lang=fr`);
+      console.log(`   → http://localhost:${PORT}?lang=en`);
     });
   } catch (err) {
-    console.error('Error starting server:', err);
+    console.error('❌ Erreur au démarrage :', err);
     process.exit(1);
   }
 }

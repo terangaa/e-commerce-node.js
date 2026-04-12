@@ -2,12 +2,34 @@ const { Product, Category } = require('../models');
 const { buildOrderAndNotify } = require('./orderController');
 const { sendContactNotification } = require('../services/emailService');
 
+// Helper pour obtenir les données du panier
+async function getCartData(req) {
+  const cart = req.session.cart || [];
+  const productIds = cart.map(i => i.productId);
+  const products = productIds.length ? await Product.findAll({ where: { id: productIds }, include: Category }) : [];
+
+  const cartItems = cart.map(item => {
+    const product = products.find(p => p.id === item.productId);
+    return {
+      product,
+      quantity: item.quantity,
+      total: product ? Number(product.price) * Number(item.quantity) : 0,
+    };
+  });
+
+  const totalAmount = cartItems.reduce((sum, item) => sum + item.total, 0);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  return { cartItems, totalAmount, cartCount };
+}
+
 async function home(req, res, next) {
   try {
     const categories = await Category.findAll({ include: Product });
     const topProducts = await Product.findAll({ limit: 8, order: [['createdAt', 'DESC']] });
     const searchQuery = req.query.q || '';
-    res.render('home', { categories, topProducts, searchQuery, __: res.__, locale: req.getLocale(), user: req.session?.user || null, currentPage: 'home' });
+    const { cartItems, totalAmount, cartCount } = await getCartData(req);
+    res.render('home', { categories, topProducts, searchQuery, cartItems, totalAmount, cartCount, __: res.__, locale: req.getLocale(), user: req.session?.user || null, currentPage: 'home' });
   } catch (err) {
     next(err);
   }
@@ -34,11 +56,15 @@ async function listProducts(req, res, next) {
     }
 
     const products = await Product.findAll({ where, include: Category });
+    const { cartItems, totalAmount, cartCount } = await getCartData(req);
     res.render('products', {
       products,
       categories,
       selectedCategoryId,
       searchQuery,
+      cartItems,
+      totalAmount,
+      cartCount,
       __: res.__,
       locale: req.getLocale(),
       user: req.session?.user || null,
@@ -53,7 +79,8 @@ async function productDetails(req, res, next) {
   try {
     const product = await Product.findByPk(req.params.id, { include: Category });
     if (!product) return res.status(404).json({ error: res.__('product_not_found') });
-    res.render('productDetails', { product, __: res.__, locale: req.getLocale(), user: req.session?.user || null, currentPage: 'products' });
+    const { cartItems, totalAmount, cartCount } = await getCartData(req);
+    res.render('productDetails', { product, cartItems, totalAmount, cartCount, __: res.__, locale: req.getLocale(), user: req.session?.user || null, currentPage: 'products' });
   } catch (err) {
     next(err);
   }
@@ -84,24 +111,11 @@ async function addToCart(req, res, next) {
 
 async function cartPage(req, res, next) {
   try {
-    const cart = req.session.cart || [];
-    const productIds = cart.map(i => i.productId);
-    const products = productIds.length ? await Product.findAll({ where: { id: productIds }, include: Category }) : [];
-
-    const cartItems = cart.map(item => {
-      const product = products.find(p => p.id === item.productId);
-      return {
-        product,
-        quantity: item.quantity,
-        total: product ? Number(product.price) * Number(item.quantity) : 0,
-      };
-    });
-
-    const totalAmount = cartItems.reduce((sum, item) => sum + item.total, 0);
-
+    const { cartItems, totalAmount, cartCount } = await getCartData(req);
     res.render('cart', {
       cartItems,
       totalAmount,
+      cartCount,
       __: res.__,
       locale: req.getLocale(),
       user: req.session?.user || null,
@@ -177,7 +191,7 @@ async function checkoutCart(req, res, next) {
     // vider le panier après validation
     req.session.cart = [];
 
-    res.render('orderSuccess', { order, emailStatus, __: res.__, locale: req.getLocale(), user: req.session?.user || null, currentPage: 'cart' });
+    res.render('orderSuccess', { order, emailStatus, cartItems: [], totalAmount: 0, cartCount: 0, __: res.__, locale: req.getLocale(), user: req.session?.user || null, currentPage: 'cart' });
   } catch (err) {
     if (err.status) {
       return res.status(err.status).json({ error: err.message });
@@ -188,7 +202,8 @@ async function checkoutCart(req, res, next) {
 
 async function contactPage(req, res, next) {
   try {
-    res.render('contact', { __: res.__, locale: req.getLocale(), user: req.session?.user || null, success: req.session.contactSuccess || null, error: req.session.contactError || null, currentPage: 'contact' });
+    const { cartItems, totalAmount, cartCount } = await getCartData(req);
+    res.render('contact', { cartItems, totalAmount, cartCount, __: res.__, locale: req.getLocale(), user: req.session?.user || null, success: req.session.contactSuccess || null, error: req.session.contactError || null, currentPage: 'contact' });
     delete req.session.contactSuccess;
     delete req.session.contactError;
   } catch (err) {

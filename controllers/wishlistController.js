@@ -149,6 +149,27 @@ async function getWishlistCount(req, res, next) {
   }
 }
 
+// Helper pour obtenir les données du panier
+async function getCartData(req) {
+  const cart = req.session.cart || [];
+  const productIds = cart.map(i => i.productId);
+  const products = productIds.length ? await Product.findAll({ where: { id: productIds }, include: Category }) : [];
+
+  const cartItems = cart.map(item => {
+    const product = products.find(p => p.id === item.productId);
+    return {
+      product,
+      quantity: item.quantity,
+      total: product ? Number(product.price) * Number(item.quantity) : 0,
+    };
+  });
+
+  const totalAmount = cartItems.reduce((sum, item) => sum + item.total, 0);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  return { cartItems, totalAmount, cartCount };
+}
+
 /**
  * Afficher la page de la liste de souhaits
  */
@@ -158,8 +179,12 @@ async function wishlistPage(req, res, next) {
       return res.redirect('/auth/login');
     }
 
+    const { cartItems, totalAmount, cartCount } = await getCartData(req);
     res.render('wishlist', {
       user: req.session.user,
+      cartItems,
+      totalAmount,
+      cartCount,
       locale: req.getLocale(),
       currentPage: 'wishlist'
     });

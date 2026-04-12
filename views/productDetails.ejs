@@ -9,75 +9,244 @@
   <%- include('partials/nav', { user, locale, currentPage: 'products' }) %>
 
   <div class="container my-5">
-    <a href="/products?lang=<%= locale %>" class="btn btn-link mb-3"><i class="fa-solid fa-arrow-left"></i> Retour aux produits</a>
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+        <li class="breadcrumb-item"><a href="/products">Produits</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><%= product.name %></li>
+      </ol>
+    </nav>
+
     <div class="row">
-      <div class="col-lg-5 mb-4">
-        <div class="card shadow-sm h-100">
-          <% if(product.imageUrl){ %>
-            <img src="<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>" />
-          <% } else { %>
-            <img src="https://via.placeholder.com/470x300?text=<%= product.name %>" class="card-img-top" alt="<%= product.name %>" />
-          <% } %>
+      <!-- Image Section -->
+      <div class="col-lg-6 mb-4">
+        <div class="product-gallery">
+          <div class="main-image mb-3">
+            <% if(product.imageUrl){ %>
+              <img src="/public<%= product.imageUrl %>" class="img-fluid rounded-lg shadow" alt="<%= product.name %>" id="mainImage" />
+            <% } else { %>
+              <img src="https://via.placeholder.com/600x400?text=<%= product.name %>" class="img-fluid rounded-lg shadow" alt="<%= product.name %>" id="mainImage" />
+            <% } %>
+          </div>
+          <div class="product-badges mb-3">
+            <% if(product.stock < 10) { %>
+              <span class="badge bg-danger me-2">
+                <i class="fas fa-exclamation-triangle"></i> Stock faible
+              </span>
+            <% } %>
+            <% if(product.price < 10000) { %>
+              <span class="badge bg-success">
+                <i class="fas fa-tag"></i> Bon plan
+              </span>
+            <% } %>
+          </div>
         </div>
       </div>
-      <div class="col-lg-7">
-        <div class="card shadow-sm p-4">
-          <h1><%= product.name %></h1>
-          <p class="text-secondary mb-2">Catégorie : <%= product.Category ? product.Category.name : 'Non définie' %></p>
-          <p class="h3 text-primary mb-2"><strong><%= product.price %> FCFA</strong></p>
-          <p><strong>Stock :</strong> <%= product.stock %></p>
-          <p><strong>Description :</strong></p>
-          <p class="text-muted"><%= product.description || 'Aucune description disponible' %></p>
 
-          <hr />
-          <div class="d-flex mb-3 flex-wrap">
-            <form method="post" action="/products/cart/add" class="mr-2 mb-2">
-              <input type="hidden" name="productId" value="<%= product.id %>" />
-              <input type="hidden" name="quantity" value="1" />
-              <button type="submit" class="btn btn-outline-primary">Ajouter au panier</button>
-            </form>
-            <a href="/products/cart" class="btn btn-secondary mr-2 mb-2">Voir panier (<%= typeof cartCount !== 'undefined' ? cartCount : 0 %>)</a>
-            <% if(user) { %>
-              <button id="wishlistBtn" class="btn btn-outline-danger mb-2" onclick="toggleWishlist()">
-                <i class="fa-solid fa-heart"></i> <span id="wishlistText">Ajouter aux souhaits</span>
-              </button>
+      <!-- Product Info -->
+      <div class="col-lg-6">
+        <div class="product-info">
+          <h1 class="product-title mb-3"><%= product.name %></h1>
+
+          <!-- Rating -->
+          <div class="rating mb-3">
+            <div class="stars">
+              <i class="fas fa-star text-warning"></i>
+              <i class="fas fa-star text-warning"></i>
+              <i class="fas fa-star text-warning"></i>
+              <i class="fas fa-star text-warning"></i>
+              <i class="fas fa-star-half-alt text-warning"></i>
+            </div>
+            <span class="rating-text ms-2">4.5 (120 avis)</span>
+          </div>
+
+          <!-- Price -->
+          <div class="price-section mb-4">
+            <span class="current-price"><%= product.price %> FCFA</span>
+            <% if(product.price < 10000) { %>
+              <span class="old-price ms-2 text-muted text-decoration-line-through">15,000 FCFA</span>
+              <span class="discount-badge ms-2">Économique</span>
             <% } %>
           </div>
 
-          <h3>Commande rapide</h3>
-          <form method="post" action="/orders" class="needs-validation" novalidate>
-            <input type="hidden" name="items[0][productId]" value="<%= product.id %>" />
-            <input type="hidden" name="items[0][quantity]" value="1" />
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label>Nom</label>
-                <input name="customerName" class="form-control" required />
+          <!-- Stock Status -->
+          <div class="stock-status mb-4">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-<%= product.stock > 10 ? 'check-circle text-success' : product.stock > 0 ? 'exclamation-triangle text-warning' : 'times-circle text-danger' %> me-2"></i>
+              <span class="<%= product.stock > 10 ? 'text-success' : product.stock > 0 ? 'text-warning' : 'text-danger' %>">
+                <%= product.stock > 10 ? 'En stock' : product.stock > 0 ? 'Stock limité (' + product.stock + ' restants)' : 'Rupture de stock' %>
+              </span>
+            </div>
+          </div>
+
+          <!-- Category -->
+          <div class="product-category mb-4">
+            <span class="badge bg-light text-dark">
+              <i class="fas fa-tag"></i>
+              <%= product.Category ? product.Category.name : 'Non catégorisé' %>
+            </span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons mb-4">
+            <div class="row g-2">
+              <div class="col-12">
+                <form method="post" action="/products/cart/add" class="d-inline-block w-100">
+                  <input type="hidden" name="productId" value="<%= product.id %>" />
+                  <input type="hidden" name="quantity" value="1" />
+                  <button type="submit" class="btn btn-primary btn-lg w-100" <%= product.stock <= 0 ? 'disabled' : '' %>>
+                    <i class="fas fa-cart-plus"></i>
+                    <%= product.stock <= 0 ? 'Indisponible' : 'Ajouter au panier' %>
+                  </button>
+                </form>
               </div>
-              <div class="form-group col-md-6">
-                <label>Email</label>
-                <input type="email" name="customerEmail" class="form-control" required />
+              <div class="col-6">
+                <a href="/products/cart" class="btn btn-outline-secondary btn-lg w-100">
+                  <i class="fas fa-shopping-cart"></i> Voir panier
+                </a>
+              </div>
+              <div class="col-6">
+                <% if(user) { %>
+                  <button id="wishlistBtn" class="btn btn-outline-danger btn-lg w-100" onclick="toggleWishlist()">
+                    <i class="far fa-heart"></i> <span id="wishlistText">Favoris</span>
+                  </button>
+                <% } else { %>
+                  <a href="/auth/login" class="btn btn-outline-danger btn-lg w-100">
+                    <i class="far fa-heart"></i> Favoris
+                  </a>
+                <% } %>
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group col-md-6">
-                <label>Téléphone</label>
-                <input name="customerPhone" class="form-control" required />
+          </div>
+
+          <!-- Quick Features -->
+          <div class="quick-features mb-4">
+            <div class="row g-3">
+              <div class="col-6">
+                <div class="feature-item text-center p-3 bg-light rounded">
+                  <i class="fas fa-truck text-primary mb-2"></i>
+                  <div class="small">Livraison gratuite</div>
+                  <div class="small text-muted">dès 50k FCFA</div>
+                </div>
               </div>
-              <div class="form-group col-md-6">
-                <label>Adresse</label>
-                <input name="customerAddress" class="form-control" required />
+              <div class="col-6">
+                <div class="feature-item text-center p-3 bg-light rounded">
+                  <i class="fas fa-undo text-success mb-2"></i>
+                  <div class="small">Retour facile</div>
+                  <div class="small text-muted">30 jours</div>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label>Méthode de paiement</label>
-              <select name="paymentMethod" class="form-control" required>
-                <option value="cash">Cash</option>
-                <option value="wave">Wave</option>
-                <option value="orange_money">Orange Money</option>
-              </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Details Tabs -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <div class="product-details-tabs">
+          <ul class="nav nav-tabs" id="productTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab">
+                <i class="fas fa-info-circle"></i> Description
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">
+                <i class="fas fa-star"></i> Avis (120)
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab">
+                <i class="fas fa-truck"></i> Livraison
+              </button>
+            </li>
+          </ul>
+          <div class="tab-content p-4 bg-white rounded-bottom" id="productTabsContent">
+            <div class="tab-pane fade show active" id="description" role="tabpanel">
+              <h4>Description du produit</h4>
+              <p class="text-muted"><%= product.description || 'Aucune description détaillée disponible pour ce produit.' %></p>
+              <div class="product-specs mt-4">
+                <h5>Caractéristiques</h5>
+                <ul class="list-unstyled">
+                  <li><i class="fas fa-check text-success me-2"></i>Qualité garantie</li>
+                  <li><i class="fas fa-check text-success me-2"></i>Matériaux durables</li>
+                  <li><i class="fas fa-check text-success me-2"></i>Design moderne</li>
+                  <li><i class="fas fa-check text-success me-2"></i>Facile d'entretien</li>
+                </ul>
+              </div>
             </div>
-            <button type="submit" class="btn btn-success btn-block">Passer la commande</button>
-          </form>
+            <div class="tab-pane fade" id="reviews" role="tabpanel">
+              <h4>Avis clients</h4>
+              <div class="reviews-section">
+                <div class="review-item mb-4 p-3 border rounded">
+                  <div class="d-flex justify-content-between mb-2">
+                    <strong>Marie K.</strong>
+                    <div class="rating">
+                      <i class="fas fa-star text-warning"></i>
+                      <i class="fas fa-star text-warning"></i>
+                      <i class="fas fa-star text-warning"></i>
+                      <i class="fas fa-star text-warning"></i>
+                      <i class="fas fa-star text-warning"></i>
+                    </div>
+                  </div>
+                  <p class="mb-1">"Excellent produit, livraison rapide et qualité au rendez-vous !"</p>
+                  <small class="text-muted">Il y a 2 jours</small>
+                </div>
+                <div class="review-item mb-4 p-3 border rounded">
+                  <div class="d-flex justify-content-between mb-2">
+                    <strong>Ahmed D.</strong>
+                    <div class="rating">
+                      <i class="fas fa-star text-warning"></i>
+                      <i class="fas fa-star text-warning"></i>
+                      <i class="fas fa-star text-warning"></i>
+                      <i class="fas fa-star text-warning"></i>
+                      <i class="far fa-star text-warning"></i>
+                    </div>
+                  </div>
+                  <p class="mb-1">"Très satisfait de mon achat. Service client réactif."</p>
+                  <small class="text-muted">Il y a 1 semaine</small>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="shipping" role="tabpanel">
+              <h4>Informations de livraison</h4>
+              <div class="shipping-info">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-map-marker-alt text-primary me-2"></i>Livraison à Dakar</h6>
+                    <p class="text-muted">Livraison gratuite dès 50.000 FCFA<br>Délai: 2-3 jours ouvrés</p>
+                  </div>
+                  <div class="col-md-6">
+                    <h6><i class="fas fa-globe text-primary me-2"></i>Livraison nationale</h6>
+                    <p class="text-muted">Frais de port calculés selon la destination<br>Délai: 3-7 jours ouvrés</p>
+                  </div>
+                </div>
+                <hr>
+                <h6><i class="fas fa-shield-alt text-success me-2"></i>Retours et échanges</h6>
+                <p class="text-muted">Retour gratuit sous 30 jours en cas de défaut<br>Échange possible sous conditions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="related-products mt-5">
+      <h3 class="section-title text-center">Produits similaires</h3>
+      <div class="row">
+        <!-- Ici on pourrait ajouter des produits similaires -->
+        <div class="col-12 text-center">
+          <p class="text-muted">Découvrez d'autres produits dans cette catégorie</p>
+          <a href="/products?categoryId=<%= product.categoryId %>" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-right"></i> Voir la catégorie
+          </a>
+        </div>
+      </div>
+    </div>
         </div>
       </div>
     </div>

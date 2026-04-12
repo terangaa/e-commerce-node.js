@@ -61,14 +61,38 @@ async function getIntents(req, res) {
   }
 }
 
+const { Product, Category } = require('../models');
+
+// Helper pour obtenir les données du panier
+async function getCartData(req) {
+  const cart = req.session.cart || [];
+  const productIds = cart.map(i => i.productId);
+  const products = productIds.length ? await Product.findAll({ where: { id: productIds }, include: Category }) : [];
+
+  const cartItems = cart.map(item => {
+    const product = products.find(p => p.id === item.productId);
+    return {
+      product,
+      quantity: item.quantity,
+      total: product ? Number(product.price) * Number(item.quantity) : 0,
+    };
+  });
+
+  const totalAmount = cartItems.reduce((sum, item) => sum + item.total, 0);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  return { cartItems, totalAmount, cartCount };
+}
+
 /**
  * Affiche la page du chatbot
  * @param {Object} req - Requête Express
  * @param {Object} res - Réponse Express
  */
-function renderChatbotPage(req, res) {
+async function renderChatbotPage(req, res) {
   const lang = req.query.lang || req.session?.lang || 'fr';
-  res.render('chatbot', { lang, currentPage: 'chatbot', user: req.session?.user || null, locale: req.getLocale() });
+  const { cartItems, totalAmount, cartCount } = await getCartData(req);
+  res.render('chatbot', { lang, cartItems, totalAmount, cartCount, currentPage: 'chatbot', user: req.session?.user || null, locale: req.getLocale() });
 }
 
 module.exports = {
