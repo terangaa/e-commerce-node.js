@@ -145,7 +145,7 @@ async function start() {
   try {
     await sequelize.authenticate();
     console.log('✅ Base de données connectée.');
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     console.log('✅ Tables synchronisées.');
     app.listen(PORT, () => {
       console.log(`✅ Serveur démarré sur http://localhost:${PORT}`);
