@@ -9,8 +9,8 @@ async function dashboard(req, res, next) {
     const selectedTab = req.query.tab || 'products';
     const categories = await Category.findAll();
     const products = await Product.findAll({ include: Category });
-    const orders = await Order.findAll({ 
-      limit: 10, 
+    const orders = await Order.findAll({
+      limit: 10,
       order: [['createdAt', 'DESC']],
       include: [{
         model: OrderItem,
@@ -94,7 +94,7 @@ async function addUser(req, res, next) {
       return res.redirect('/admin/users');
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    await User.create({ name, email, password: hashedPassword, role: 'user' });
+    await User.create({ name, email, passwordHash: hashedPassword, role: 'user' });
     req.session.adminSuccess = `Utilisateur ${name} ajouté avec succès`;
     res.redirect('/admin/users');
   } catch (err) {

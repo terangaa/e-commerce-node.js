@@ -57,13 +57,20 @@
                 </div>
 
                 <div class="mb-3">
-                  <label for="categoryId" class="form-label">Catégorie *</label>
-                  <select class="form-select" id="categoryId" name="categoryId" required>
+                  <label class="form-label">Catégorie *</label>
+
+                  <select class="form-select" name="categoryId" required>
                     <option value="">Sélectionnez une catégorie</option>
-                    <% categories.forEach(cat=> { %>
-                      <option value="<%= cat.id %>" <%=formData.categoryId==cat.id ? 'selected' : '' %>><%= cat.name %>
-                      </option>
-                      <% }) %>
+
+                    <% if (categories && categories.length) { %>
+                      <% categories.forEach(cat=> { %>
+                        <option value="<%= cat.id %>" <%=formData.categoryId==cat.id ? 'selected' : '' %>>
+                          <%= cat.name %>
+                        </option>
+                        <% }) %>
+                          <% } else { %>
+                            <option disabled>Aucune catégorie disponible</option>
+                            <% } %>
                   </select>
                 </div>
 

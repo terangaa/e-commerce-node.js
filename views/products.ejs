@@ -1,68 +1,211 @@
 <!DOCTYPE html>
 <html lang="<%= locale || 'fr' %>">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <%- include('partials/head', { pageTitle: 'Liste des produits - Ecommerce JIM' }) %>
 </head>
+
 <body>
+
   <%- include('partials/nav', { user, locale, currentPage: 'products' }) %>
 
-  <div class="container my-5">
-    <h1 class="section-title">
-      <%= selectedCategoryId ? categories.find(c => c.id === selectedCategoryId)?.name || __('product_list') : __('product_list') %>
-    </h1>
-    <p class="text-muted">
-      <%= selectedCategoryId ? 'Découvrez tous nos produits de cette catégorie.' : 'Explorez nos produits et commandez rapidement en quelques clics.' %>
-    </p>
+    <% //=========================// SAFE LOGIC (NO ?. NO TRY) //=========================let
+      categoryName=__('product_list'); if (selectedCategoryId && categories && categories.length> 0) {
+      for (let i = 0; i < categories.length; i++) { if (categories[i].id==selectedCategoryId) {
+        categoryName=categories[i].name; break; } } } %>
 
-    <form method="get" action="/products" class="mb-4">
-      <div class="row">
-        <div class="col-md-6 mb-2">
-          <input type="text" name="q" class="form-control" placeholder="Rechercher un produit..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" />
-        </div>
-        <div class="col-md-4 mb-2">
-          <select name="categoryId" class="form-control">
-            <option value="">Toutes les catégories</option>
-            <% categories.forEach(c => { %>
-              <option value="<%= c.id %>" <%= selectedCategoryId === c.id ? 'selected' : '' %>><%= c.name %></option>
-            <% }) %>
-          </select>
-        </div>
-        <div class="col-md-2 mb-2">
-          <button class="btn btn-primary w-100"><i class="fa fa-search"></i> Rechercher</button>
-        </div>
-      </div>
-    </form>
-    <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
-      <div class="alert alert-info">
-        Résultats pour "<strong><%= searchQuery %></strong>" - <%= products.length %> produit(s) trouvé(s)
-        <a href="/products" class="btn btn-sm btn-outline-secondary ms-2">Réinitialiser</a>
-      </div>
-    <% } %>
+        <div class="container my-5">
 
-    <div class="row">
-      <% products.forEach(function(product){ %>
-        <div class="col-lg-4 col-md-6 mb-4">
-          <div class="card h-100 shadow-sm">
-            <% if(product.imageUrl){ %>
-              <img src="<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>" />
-            <% } else { %>
-              <img src="https://via.placeholder.com/320x180?text=<%= product.name %>" class="card-img-top" alt="<%= product.name %>" />
-            <% } %>
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title"><%= product.name %></h5>
-              <p class="text-secondary mb-2">Catégorie : <%= product.Category ? product.Category.name : 'Non définie' %></p>
-              <p class="card-text text-muted"><%= product.description ? product.description.substring(0, 80) + (product.description.length > 80 ? '...' : '') : 'Aucune description' %></p>
-              <p class="font-weight-bold mb-2"><%= __('price') %> : <%= product.price %> FCFA</p>
-              <p class="mb-3"><%= __('stock') %> : <strong><%= product.stock %></strong></p>
-              <a href="/products/<%= product.id %>?lang=<%= locale %>" class="btn btn-primary mt-auto">Voir le produit</a>
+          <!-- TITLE -->
+          <h1 class="section-title">
+            <%= categoryName %>
+          </h1>
+
+          <!-- DESCRIPTION -->
+          <p class="text-muted">
+            <%= selectedCategoryId ? 'Découvrez tous nos produits de cette catégorie.'
+              : 'Explorez nos produits et commandez rapidement en quelques clics.' %>
+          </p>
+
+          <!-- FILTERS -->
+          <div class="filters-section bg-light p-4 rounded mb-4">
+
+            <div class="row g-3 align-items-end">
+
+              <!-- SEARCH -->
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label fw-bold">Rechercher</label>
+                <input type="text" class="form-control form-control-lg" name="q" placeholder="Nom du produit..."
+                  value="<%= searchQuery ? searchQuery : '' %>">
+              </div>
+
+              <!-- CATEGORY -->
+              <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-bold">Catégorie</label>
+
+                <select name="categoryId" class="form-select form-select-lg">
+                  <option value="">Toutes les catégories</option>
+
+                  <% if (categories && categories.length> 0) { %>
+                    <% for (let i=0; i < categories.length; i++) { %>
+                      <option value="<%= categories[i].id %>" <%=selectedCategoryId==categories[i].id ? 'selected' : ''
+                        %>>
+                        <%= categories[i].name %>
+                      </option>
+                      <% } %>
+                        <% } %>
+
+                </select>
+              </div>
+
+              <!-- SORT -->
+              <div class="col-lg-2 col-md-6">
+                <label class="form-label fw-bold">Trier</label>
+                <select name="sort" class="form-select form-select-lg">
+                  <option value="name">Nom</option>
+                  <option value="price_asc">Prix croissant</option>
+                  <option value="price_desc">Prix décroissant</option>
+                  <option value="newest">Plus récent</option>
+                </select>
+              </div>
+
+              <!-- BUTTON -->
+              <div class="col-lg-3 col-md-6">
+                <button class="btn btn-primary btn-lg w-100">
+                  Appliquer
+                </button>
+              </div>
+
             </div>
           </div>
+
+          <!-- SEARCH RESULT -->
+          <% if (searchQuery) { %>
+            <div class="alert alert-info d-flex justify-content-between">
+              <div>
+                <strong>
+                  <%= products.length %>
+                </strong> résultat(s) pour "<%= searchQuery %>"
+              </div>
+              <a href="/products" class="btn btn-sm btn-outline-secondary">Réinitialiser</a>
+            </div>
+            <% } %>
+
+              <!-- HEADER -->
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>
+                  <%= categoryName %>
+                    <span class="badge bg-primary">
+                      <%= products ? products.length : 0 %>
+                    </span>
+                </h3>
+              </div>
+
+              <!-- PRODUCTS GRID -->
+              <div class="row">
+
+                <% if (products && products.length> 0) { %>
+
+                  <% for (let i=0; i < products.length; i++) { let product=products[i]; %>
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+
+                      <div class="card h-100 product-card">
+
+                        <!-- IMAGE -->
+                        <% if (product.imageUrl) { %>
+                          <img src="/public<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>">
+                          <% } else { %>
+                            <img src="https://via.placeholder.com/320x240?text=<%= product.name %>"
+                              class="card-img-top">
+                            <% } %>
+
+                              <div class="card-body d-flex flex-column">
+
+                                <!-- CATEGORY -->
+                                <small class="text-muted">
+                                  <%= product.Category ? product.Category.name : 'Non catégorisé' %>
+                                </small>
+
+                                <!-- NAME -->
+                                <h6>
+                                  <%= product.name %>
+                                </h6>
+
+                                <!-- DESCRIPTION -->
+                                <p class="text-muted small">
+                                  <%= product.description ? product.description.substring(0, 80) +
+                                    (product.description.length> 80 ? '...' : '')
+                                    : 'Aucune description disponible' %>
+                                </p>
+
+                                <!-- PRICE -->
+                                <h5 class="text-primary">
+                                  <%= product.price %> FCFA
+                                </h5>
+
+                                <!-- STOCK -->
+                                <small class="
+              <%= product.stock > 10
+                ? 'text-success'
+                : product.stock > 0
+                  ? 'text-warning'
+                  : 'text-danger' %>">
+
+                                  <%= product.stock> 10
+                                    ? 'En stock'
+                                    : product.stock > 0
+                                    ? 'Stock limité'
+                                    : 'Rupture' %>
+                                </small>
+
+                                <!-- ACTIONS -->
+                                <div class="mt-auto d-flex gap-2">
+
+                                  <form method="POST" action="/products/cart/add" class="flex-fill">
+
+                                    <input type="hidden" name="productId" value="<%= product.id %>">
+                                    <input type="hidden" name="quantity" value="1">
+
+                                    <button class="btn btn-success btn-sm w-100" <%=product.stock <=0 ? 'disabled' : ''
+                                      %>>
+                                      Ajouter
+                                    </button>
+
+                                  </form>
+
+                                  <button class="btn btn-outline-danger btn-sm"
+                                    onclick="toggleWishlist(<%= product.id %>)">
+                                    ❤
+                                  </button>
+
+                                </div>
+
+                              </div>
+                      </div>
+
+                    </div>
+
+                    <% } %>
+
+                      <% } else { %>
+
+                        <!-- EMPTY -->
+                        <div class="text-center py-5 w-100">
+                          <h4>Aucun produit trouvé</h4>
+                          <a href="/products" class="btn btn-primary mt-3">Voir tous les produits</a>
+                        </div>
+
+                        <% } %>
+
+              </div>
+
         </div>
-      <% }) %>
-    </div>
-  </div>
 
-  <%- include('partials/footer') %>
+        <%- include('partials/footer') %>
 
+</body>
+
+</html>

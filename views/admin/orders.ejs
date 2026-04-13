@@ -963,7 +963,7 @@
                         <div class="item-info">
                           <div class="item-image">
                             <% if (item.Product && item.Product.imageUrl) { %>
-                              <img src="/<%= item.Product.imageUrl %>"
+                              <img src="/public<%= item.Product.imageUrl %>"
                                    alt="<%= item.Product.name %>"
                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                               <div class="image-fallback" style="display: none;">

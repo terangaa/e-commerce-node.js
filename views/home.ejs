@@ -12,10 +12,9 @@
 
     <section class="hero">
       <div class="container hero-wrap text-center">
-        <h1>Bienvenue chez JIM Shopping</h1>
-        <p>Trouve tes meilleures valises, chaussures, literie et accessoires moto — livraison rapide et prix
-          compétitifs.</p>
-        <div class="hero-search row justify-content-center">
+        <h1 class="animate__animated animate__fadeInUp">Bienvenue chez JIM Shopping</h1>
+        <p class="animate__animated animate__fadeInUp animate__delay-1s">Trouve tes meilleures valises, chaussures, literie et accessoires moto — livraison rapide et prix compétitifs.</p>
+        <div class="hero-search row justify-content-center animate__animated animate__fadeInUp animate__delay-2s">
           <div class="col-lg-7 col-md-9">
             <form action="/products" method="get" class="d-flex gap-2">
               <input class="form-control" type="search" name="q"
@@ -25,7 +24,7 @@
             </form>
           </div>
         </div>
-        <div class="hero-actions mt-4">
+        <div class="hero-actions mt-4 animate__animated animate__fadeInUp animate__delay-3s">
           <a class="btn btn-primary btn-lg me-2" href="/products">Voir les produits</a>
           <a class="btn btn-outline-primary btn-lg" href="/auth/register">Créer un compte</a>
         </div>
@@ -35,81 +34,166 @@
     <div class="container my-5">
       <h2 class="section-title">Catégories populaires</h2>
       <div class="row">
-        <% categories.forEach(cat=> { %>
-          <div class="col-md-2 mb-4">
+        <% categories.forEach((cat, index) => { %>
+          <div class="col-lg-2 col-md-4 col-sm-6 mb-4 fade-in-up" style="animation-delay: <%= index * 0.1 %>s">
             <a href="/products?categoryId=<%= cat.id %>" class="text-decoration-none">
-              <div class="category-card text-center p-3 h-100">
-                <strong>
+              <div class="category-card text-center p-4 h-100 hover-lift">
+                <div class="category-icon mb-3">
+                  <% if(cat.name === 'Chaussures') { %>
+                    <i class="fas fa-shoe-prints fa-3x text-primary animate__animated animate__pulse animate__infinite animate__slow"></i>
+                  <% } else if(cat.name === 'Drap') { %>
+                    <i class="fas fa-bed fa-3x text-primary animate__animated animate__pulse animate__infinite animate__slow"></i>
+                  <% } else if(cat.name === 'Lit') { %>
+                    <i class="fas fa-couch fa-3x text-primary animate__animated animate__pulse animate__infinite animate__slow"></i>
+                  <% } else if(cat.name === 'Moto') { %>
+                    <i class="fas fa-motorcycle fa-3x text-primary animate__animated animate__pulse animate__infinite animate__slow"></i>
+                  <% } else if(cat.name === 'Valises') { %>
+                    <i class="fas fa-suitcase fa-3x text-primary animate__animated animate__pulse animate__infinite animate__slow"></i>
+                  <% } else { %>
+                    <i class="fas fa-shopping-bag fa-3x text-primary animate__animated animate__pulse animate__infinite animate__slow"></i>
+                  <% } %>
+                </div>
+                <strong class="d-block mb-2 gradient-text">
                   <%= cat.name %>
                 </strong>
-                <p class="muted-text">
+                <p class="text-muted small mb-0">
                   <%= cat.description || 'Produits de qualité' %>
                 </p>
+                <span class="badge badge-primary mt-2 hover-scale">Explorer</span>
               </div>
             </a>
           </div>
-          <% }) %>
+        <% }) %>
       </div>
     </div>
 
-    <div class="container my-4">
-      <h2 class="section-title">Top produits</h2>
-      <div class="row">
-        <% topProducts.forEach(product=> { %>
-          <div class="col-md-3 mb-4">
-            <div class="card h-100 shadow-sm">
-              <% if(product.imageUrl){ %>
-                <img src="<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>">
-                <% } else { %>
-                  <img src="https://via.placeholder.com/350x220?text=<%= product.name %>" class="card-img-top"
-                    alt="<%= product.name %>">
-                  <% } %>
-                    <div class="card-body d-flex flex-column">
-                      <h5 class="card-title">
-                        <%= product.name %>
-                      </h5>
-                      <p class="card-text text-muted">
-                        <%= product.description ? product.description.substring(0, 70) + (product.description.length> 70
-                          ? '...' : '') : 'Aucune description' %>
-                      </p>
-                      <div class="mt-auto">
-                        <p class="font-weight-bold mb-2">
-                          <%= product.price %> FCFA
-                        </p>
-                        <a href="/products/<%= product.id %>?lang=<%= locale %>" class="btn btn-sm btn-primary">Voir
-                          détails</a>
-                      </div>
-                    </div>
+    <!-- Section Avantages -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <h2 class="section-title text-center mb-5 gradient-text animate__animated animate__fadeInUp">Pourquoi choisir JIM Shopping ?</h2>
+        <div class="row g-4">
+          <div class="col-lg-3 col-md-6 text-center animate__animated animate__fadeInUp">
+            <div class="card feature-card p-4 h-100 hover-lift">
+              <div class="feature-icon mb-3">
+                <i class="fas fa-truck fa-3x text-primary animate__animated animate__bounceIn"></i>
+              </div>
+              <h5 class="feature-title gradient-text">Livraison Rapide</h5>
+              <p class="feature-text text-muted">Livraison gratuite dès 50.000 FCFA</p>
             </div>
           </div>
-          <% }) %>
+          <div class="col-lg-3 col-md-6 text-center animate__animated animate__fadeInUp animate__delay-1s">
+            <div class="card feature-card p-4 h-100 hover-lift">
+              <div class="feature-icon mb-3">
+                <i class="fas fa-shield-alt fa-3x text-success animate__animated animate__bounceIn animate__delay-1s"></i>
+              </div>
+              <h5 class="feature-title gradient-text">Paiement Sécurisé</h5>
+              <p class="feature-text text-muted">Wave, Orange Money, Cash</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 text-center animate__animated animate__fadeInUp animate__delay-2s">
+            <div class="card feature-card p-4 h-100 hover-lift">
+              <div class="feature-icon mb-3">
+                <i class="fas fa-undo fa-3x text-warning animate__animated animate__bounceIn animate__delay-2s"></i>
+              </div>
+              <h5 class="feature-title gradient-text">Retour Facile</h5>
+              <p class="feature-text text-muted">30 jours pour changer d'avis</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 text-center animate__animated animate__fadeInUp animate__delay-3s">
+            <div class="card feature-card p-4 h-100 hover-lift">
+              <div class="feature-icon mb-3">
+                <i class="fas fa-headset fa-3x text-info animate__animated animate__bounceIn animate__delay-3s"></i>
+              </div>
+              <h5 class="feature-title gradient-text">Support 24/7</h5>
+              <p class="feature-text text-muted">Service client disponible</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container my-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title mb-0 gradient-text animate__animated animate__fadeInLeft">Top produits</h2>
+        <a href="/products" class="btn btn-outline-primary hover-lift animate__animated animate__fadeInRight">Voir tous les produits</a>
+      </div>
+      <div class="products-grid">
+        <% topProducts.forEach((product, index) => { %>
+          <div class="animate__animated animate__fadeInUp" style="animation-delay: <%= index * 0.1 %>s">
+            <div class="card h-100 product-card">
+              <div class="position-relative">
+                <% if(product.imageUrl){ %>
+                  <img src="/public<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>">
+                <% } else { %>
+                  <img src="https://via.placeholder.com/350x220?text=<%= product.name %>" class="card-img-top" alt="<%= product.name %>">
+                <% } %>
+                <div class="product-badge new">Nouveau</div>
+                <div class="product-actions">
+                  <button class="btn" title="Ajouter aux favoris">
+                    <i class="fas fa-heart"></i>
+                  </button>
+                  <button class="btn" title="Comparaison rapide">
+                    <i class="fas fa-balance-scale"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body d-flex flex-column">
+                <h6 class="card-title text-truncate mb-2">
+                  <%= product.name %>
+                </h6>
+                <p class="card-text text-muted small mb-3">
+                  <%= product.description ? product.description.substring(0, 60) + (product.description.length > 60 ? '...' : '') : 'Aucune description' %>
+                </p>
+                <div class="mt-auto">
+                  <div class="price mb-3">
+                    <span><%= product.price %> FCFA</span>
+                  </div>
+                  <div class="rating mb-3">
+                    <i class="fas fa-star text-warning"></i>
+                    <i class="fas fa-star text-warning"></i>
+                    <i class="fas fa-star text-warning"></i>
+                    <i class="fas fa-star text-warning"></i>
+                    <i class="fas fa-star-half-alt text-warning"></i>
+                    <small class="text-muted ms-1">(4.5)</small>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <a href="/products/<%= product.id %>?lang=<%= locale %>" class="btn btn-primary btn-sm flex-fill hover-lift">
+                      <i class="fas fa-eye"></i> Voir
+                    </a>
+                    <form method="post" action="/products/cart/add" class="flex-fill">
+                      <input type="hidden" name="productId" value="<%= product.id %>" />
+                      <input type="hidden" name="quantity" value="1" />
+                      <button type="submit" class="btn btn-success btn-sm w-100">
+                        <i class="fas fa-cart-plus"></i>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
       </div>
     </div>
 
-    <div class="container section-card-wrap mb-5">
-      <h2 class="section-title">Catégories</h2>
-      <div class="row">
-        <% categories.forEach(cat=> { %>
-          <div class="col-md-4 mb-3">
-            <a href="/products?categoryId=<%= cat.id %>" class="text-decoration-none">
-              <div class="card h-100">
-                <div class="card-body">
-                  <h5 class="card-title">
-                    <%= cat.name %>
-                  </h5>
-                  <p class="card-text">
-                    <%= cat.description || 'Description non disponible' %>
-                  </p>
-                  <p><strong>Produits :</strong>
-                    <%= cat.Products.length %>
-                  </p>
-                </div>
-              </div>
-            </a>
+    <!-- Section Newsletter -->
+    <section class="py-5 bg-primary text-white">
+      <div class="container text-center">
+        <h2 class="mb-3">Restez informé des dernières offres</h2>
+        <p class="mb-4 opacity-75">Inscrivez-vous à notre newsletter pour recevoir des offres exclusives</p>
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <form class="d-flex gap-2">
+              <input type="email" class="form-control form-control-lg" placeholder="Votre email" required>
+              <button type="submit" class="btn btn-light btn-lg px-4">
+                <i class="fas fa-paper-plane"></i> S'inscrire
+              </button>
+            </form>
           </div>
-          <% }) %>
+        </div>
       </div>
-    </div>
+    </section>
+
 
     <div class="container section-card-wrap mb-5">
       <h2 class="section-title">Contactez-nous</h2>
