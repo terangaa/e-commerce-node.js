@@ -1,46 +1,34 @@
-<title>
-    <%= pageTitle || 'Ecommerce JIM' %>
-</title>
+<!DOCTYPE html>
+<html lang="fr">
 
-<!-- Font Awesome 6.4.0 — hash corrigé ✅ -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<!-- Bootstrap 5.3.2 CSS — hash corrigé ✅ -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <title>
+        <%= pageTitle || 'Ecommerce JIM' %>
+    </title>
 
-<!-- Animate.css 4.1.1 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
-<!-- Styles locaux -->
-<link rel="stylesheet" href="/public/css/site.css" />
-<link rel="stylesheet" href="/public/css/advanced-effects.css" />
-<link rel="stylesheet" href="/public/css/modern.css" />
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<style>
-    /* ✅ Corrige uniquement les champs de formulaire */
-    form input,
-    form select,
-    form textarea,
-    form button {
-        pointer-events: auto !important;
-        position: relative !important;
-        z-index: 1000 !important;
-    }
+    <!-- Styles locaux -->
+    <link rel="stylesheet" href="/public/css/site.css">
+    <link rel="stylesheet" href="/public/css/modern.css">
+    <link rel="stylesheet" href="/public/css/advanced-effects.css">
 
-    /* ✅ Assure visibilité correcte */
-    form .form-control,
-    form .form-select {
-        opacity: 1 !important;
-        background-color: #fff !important;
-    }
+    <!-- Fix inputs -->
+    <style>
+        form input,
+        form select,
+        form textarea,
+        form button {
+            pointer-events: auto !important;
+        }
+    </style>
+</head>
 
-    /* ✅ Corrige les overlays qui bloquent */
-    .overlay,
-    .effect-layer,
-    .animation-layer {
-        pointer-events: none !important;
-    }
-</style>
+<body>

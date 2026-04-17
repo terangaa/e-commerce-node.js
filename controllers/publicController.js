@@ -26,7 +26,11 @@ async function getCartData(req) {
 async function home(req, res, next) {
   try {
     const categories = await Category.findAll({ include: Product });
-    const topProducts = await Product.findAll({ limit: 8, order: [['createdAt', 'DESC']] });
+    const topProducts = await Product.findAll({ 
+      limit: 8, 
+      order: [['createdAt', 'DESC']],
+      include: [Category]
+    });
     const searchQuery = req.query.q || '';
     const { cartItems, totalAmount, cartCount } = await getCartData(req);
     res.render('home', { categories, topProducts, searchQuery, cartItems, totalAmount, cartCount, __: res.__, locale: req.getLocale(), user: req.session?.user || null, currentPage: 'home' });
