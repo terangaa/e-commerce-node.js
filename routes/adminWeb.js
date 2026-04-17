@@ -279,7 +279,7 @@ router.get('/orders/:id/invoice', async (req, res) => {
 
     if (!order) return res.status(404).send("Commande introuvable");
 
-    const doc = new PDFDocument({ margin: 40 });
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
@@ -290,49 +290,67 @@ router.get('/orders/:id/invoice', async (req, res) => {
     doc.pipe(res);
 
     const invoiceNumber = generateInvoiceNumber(order.id);
+    const invoiceDate = new Date().toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
 
     // ================= COLORS =================
-    const ORANGE = '#ff9900';
-    const DARK = '#111111';
+    const PRIMARY = '#1e3a8a';
+    const SECONDARY = '#3b82f6';
+    const DARK = '#1f2937';
     const GRAY = '#6b7280';
+    const LIGHT = '#f3f4f6';
+    const GOLD = '#f59e0b';
 
-    // ================= HEADER BAR =================
-    doc.rect(0, 0, 700, 90).fill(DARK);
+    // ================= HEADER =================
+    doc.rect(0, 0, 595, 120).fill(PRIMARY);
 
     doc.fillColor('#ffffff')
-      .fontSize(22)
-      .text("FACTURE", 40, 30);
+      .fontSize(28)
+      .font('Helvetica-Bold')
+      .text("FACTURE", 40, 25);
 
     doc.fontSize(10)
-      .text(`N° ${invoiceNumber}`, 400, 30)
-      .text(`Date: ${new Date().toLocaleDateString()}`, 400, 45)
-      .text("ALMANA SONO", 400, 60);
+      .font('Helvetica')
+      .text(invoiceNumber, 450, 25, { align: 'right', width: 105 })
+      .text(invoiceDate, 450, 40, { align: 'right', width: 105 })
+      .text("ALMANA SONO", 450, 55, { align: 'right', width: 105 });
 
-    // ================= CLIENT BOX =================
-    doc.moveDown(4);
-
-    doc.fillColor(DARK)
-      .fontSize(13)
-      .text("Adresse de facturation", 40, 110);
+    doc.moveDown(2);
 
     doc.fontSize(11)
+      .text("Service client: 71 564 09 82", 40, 90)
+      .text("sadikh@almana-sono.com", 40, 105);
+
+    // ================= CLIENT INFO =================
+    doc.moveDown(2);
+    doc.fillColor(DARK)
+      .fontSize(13)
+      .font('Helvetica-Bold')
+      .text("Informations client", 40);
+
+    doc.font('Helvetica')
+      .fontSize(11)
       .fillColor(GRAY)
-      .text(order.customerName, 40, 130)
-      .text(order.customerEmail, 40, 145)
-      .text(order.customerPhone, 40, 160)
-      .text(order.deliveryAddress || 'Non définie', 40, 175);
+      .text(order.customerName, 40)
+      .text(order.customerEmail, 40)
+      .text(order.customerPhone, 40)
+      .text(order.deliveryAddress || 'Non définie', 40);
 
     // ================= TABLE HEADER =================
-    let y = 220;
+    let y = 260;
 
-    doc.rect(40, y, 520, 25).fill('#f3f4f6');
+    doc.rect(40, y, 515, 30).fill(PRIMARY);
 
-    doc.fillColor(DARK)
+    doc.fillColor('#ffffff')
       .fontSize(11)
-      .text("Produit", 50, y + 7)
-      .text("Qté", 260, y + 7)
-      .text("Prix", 340, y + 7)
-      .text("Total", 440, y + 7);
+      .font('Helvetica-Bold')
+      .text("Désignation", 50, y + 8)
+      .text("Qté", 300, y + 8)
+      .text("Prix unitaire", 380, y + 8)
+      .text("Total", 490, y + 8);
 
     y += 35;
 
@@ -343,51 +361,86 @@ router.get('/orders/:id/invoice', async (req, res) => {
       const lineTotal = item.quantity * item.unitPrice;
       total += lineTotal;
 
-      // zebra effect
       if (i % 2 === 0) {
-        doc.rect(40, y - 5, 520, 22).fill('#fafafa');
+        doc.rect(40, y, 515, 28).fill(LIGHT);
       }
 
       doc.fillColor(DARK)
-        .fontSize(11)
-        .text(item.Product?.name || 'Produit', 50, y)
-        .text(String(item.quantity), 260, y)
-        .text(`${item.unitPrice} FCFA`, 340, y)
-        .text(`${lineTotal} FCFA`, 440, y);
+        .font('Helvetica')
+        .fontSize(10)
+        .text(item.Product?.name || 'Produit', 50, y + 7)
+        .text(String(item.quantity), 300, y + 7)
+        .text(`${item.unitPrice.toLocaleString('fr-FR')} CFA`, 380, y + 7)
+        .text(`${lineTotal.toLocaleString('fr-FR')} CFA`, 490, y + 7);
 
-      y += 22;
+      y += 28;
     });
 
-    // ================= TOTAL BOX =================
-    y += 20;
+    // ================= TOTALS =================
+    y += 15;
 
-    doc.rect(320, y, 240, 50).fill(ORANGE);
+    const shipping = order.shippingCost || 0;
+    const subtotal = total;
 
+    doc.rect(300, y, 255, 25).fill('#e5e7eb');
+    doc.fillColor(DARK)
+      .fontSize(10)
+      .text("Sous-total", 310, y + 7)
+      .text(`${subtotal.toLocaleString('fr-FR')} CFA`, 500, y + 7, { align: 'right' });
+
+    y += 30;
+
+    if (shipping > 0) {
+      doc.rect(300, y, 255, 25).fill('#e5e7eb');
+      doc.fillColor(DARK)
+        .fontSize(10)
+        .text("Livraison", 310, y + 7)
+        .text(`${shipping.toLocaleString('fr-FR')} CFA`, 500, y + 7, { align: 'right' });
+      y += 30;
+    }
+
+    const grandTotal = subtotal + shipping;
+
+    doc.rect(300, y, 255, 40).fill(GOLD);
     doc.fillColor('#000')
-      .fontSize(12)
-      .text("TOTAL À PAYER", 335, y + 10);
-
-    doc.fontSize(18)
-      .text(`${total} FCFA`, 335, y + 25);
+      .fontSize(14)
+      .font('Helvetica-Bold')
+      .text("TOTAL À PAYER", 310, y + 8)
+      .fontSize(18)
+      .text(`${grandTotal.toLocaleString('fr-FR')} CFA`, 310, y + 22);
 
     // ================= QR CODE =================
-    const qrData = `Facture ${invoiceNumber} - Total: ${total} FCFA`;
+    const qrData = `Facture ${invoiceNumber} - Total: ${grandTotal}FCFA`;
 
     try {
       const qrImage = await QRCode.toDataURL(qrData);
-      doc.image(qrImage, 450, 120, { width: 90 });
+      doc.image(qrImage, 450, y - 60, { width: 80 });
     } catch (err) {
       console.log("QR error");
     }
 
-    // ================= FOOTER =================
-    doc.moveDown(6);
+    // ================= PIED DE PAGE =================
+    y += 80;
+
+    doc.rect(40, y, 515, 1).fill(GRAY);
+    doc.moveDown(1);
 
     doc.fillColor(GRAY)
-      .fontSize(10)
+      .fontSize(9)
+      .font('Helvetica')
       .text(
-        "Merci pour votre confiance - ALMANA SONO",
-        { align: "center" }
+        "Merci pour votre confiance. Paiement à réception de marchandise.",
+        40,
+        y + 20,
+        { align: 'center', width: 515 }
+      );
+
+    doc.fontSize(8)
+      .text(
+        "ALMANA SONO - Dakar, Senegal | Tel: 71 564 09 82",
+        40,
+        y + 35,
+        { align: 'center', width: 515 }
       );
 
     doc.end();
@@ -477,7 +530,7 @@ router.get('/orders/:id/send-invoice', async (req, res) => {
         <p>Si vous avez des questions, contactez-nous.</p>
 
         <b>Sadikh Yade</b><br>
-Service client : 71 142 39 82<br>
+Service client : 71 564 09 82<br>
 Email : sadikh@almana-sono.com
 
       </div>
@@ -512,22 +565,91 @@ Email : sadikh@almana-sono.com
 
     doc.moveDown();
 
-    let total = 0;
+let total = 0;
 
-    order.OrderItems.forEach(item => {
-      const lineTotal = item.quantity * item.unitPrice;
-      total += lineTotal;
-
-      doc.text(
-        `${item.Product?.name} - ${item.quantity} x ${item.unitPrice} = ${lineTotal} FCFA`
-      );
+    const invoiceDate = new Date().toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
+
+    // Header
+    doc.rect(0, 0, 595, 100).fill('#1e3a8a');
+
+    doc.fillColor('#ffffff')
+      .fontSize(24)
+      .font('Helvetica-Bold')
+      .text("FACTURE", 40, 20);
+
+    doc.fontSize(10)
+      .font('Helvetica')
+      .text(invoiceNumber, 450, 20, { align: 'right', width: 105 })
+      .text(invoiceDate, 450, 35, { align: 'right', width: 105 });
+
+    doc.moveDown(3);
+
+    doc.fillColor('#1f2937')
+      .fontSize(12)
+      .font('Helvetica-Bold')
+      .text("Client:", 40);
+
+    doc.font('Helvetica')
+      .fontSize(10)
+      .fillColor('#6b7280')
+      .text(order.customerName, 40)
+      .text(order.customerEmail, 40)
+      .text(order.customerPhone, 40);
 
     doc.moveDown();
 
-    doc.fontSize(16).text(`TOTAL : ${total} FCFA`, {
-      align: "right"
+    let startY = doc.y;
+
+    doc.rect(40, startY, 515, 25).fill('#1e3a8a');
+    doc.fillColor('#ffffff')
+      .fontSize(10)
+      .font('Helvetica-Bold')
+      .text("Désignation", 50, startY + 7)
+      .text("Qté", 320, startY + 7)
+      .text("Total", 490, startY + 7);
+
+    startY += 30;
+
+    order.OrderItems.forEach((item, i) => {
+      const lineTotal = item.quantity * item.unitPrice;
+      total += lineTotal;
+
+      if (i % 2 === 0) {
+        doc.rect(40, startY, 515, 25).fill('#f3f4f6');
+      }
+
+      doc.fillColor('#1f2937')
+        .fontSize(10)
+        .font('Helvetica')
+        .text(item.Product?.name || 'Produit', 50, startY + 7)
+        .text(String(item.quantity), 320, startY + 7)
+        .text(`${lineTotal.toLocaleString('fr-FR')} CFA`, 490, startY + 7);
+
+      startY += 25;
     });
+
+    startY += 20;
+
+    doc.rect(300, startY, 255, 35).fill('#f59e0b');
+    doc.fillColor('#000')
+      .fontSize(14)
+      .font('Helvetica-Bold')
+      .text("TOTAL À PAYER", 310, startY + 5)
+      .fontSize(18)
+      .text(`${total.toLocaleString('fr-FR')} CFA`, 310, startY + 15);
+
+    doc.moveDown(3);
+
+    doc.fillColor('#6b7280')
+      .fontSize(9)
+      .text(
+        "Merci pour votre confiance - ALMANA SONO",
+        { align: 'center' }
+      );
 
     doc.end();
 

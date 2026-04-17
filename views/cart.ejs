@@ -4,197 +4,512 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <%- include('partials/head', { pageTitle: 'Panier - Ecommerce JIM' }) %>
+  <%- include('partials/head', { pageTitle: 'Panier - JIM Shopping' }) %>
+  <style>
+    :root {
+      --primary: #FF6A00;
+      --primary-light: #ff8533;
+      --secondary: #0a73f5;
+      --success: #28a745;
+      --danger: #dc3545;
+      --dark: #1a1a1a;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+    }
+
+    .cart-hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      padding: 3rem 0;
+      margin-bottom: 3rem;
+    }
+
+    .cart-title {
+      color: white;
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .cart-breadcrumb {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+    }
+
+    .cart-breadcrumb a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .empty-cart-icon {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      font-size: 3rem;
+      color: var(--gray);
+    }
+
+    .empty-cart h3 {
+      color: var(--dark);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .empty-cart p {
+      color: var(--gray);
+      margin-bottom: 2rem;
+    }
+
+    .cart-item-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .cart-item-card:hover {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .cart-item-image {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: var(--light);
+    }
+
+    .cart-item-name {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .cart-item-price {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .cart-item-price small {
+      color: var(--gray);
+      font-weight: 400;
+      text-decoration: line-through;
+      font-size: 0.9rem;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .quantity-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: white;
+      color: var(--primary);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .quantity-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .quantity-input {
+      width: 60px;
+      text-align: center;
+      font-weight: 700;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 0.5rem;
+    }
+
+    .cart-summary {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 100px;
+    }
+
+    .cart-summary-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .cart-summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      color: var(--gray);
+    }
+
+    .cart-summary-row.total {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--dark);
+      border-top: 2px solid #e9ecef;
+      margin-top: 1rem;
+      padding-top: 1rem;
+    }
+
+    .cart-summary-row.total span {
+      color: var(--primary);
+    }
+
+    .coupon-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .coupon-card h5 {
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1rem;
+    }
+
+    .checkout-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .checkout-card h4 {
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+    }
+
+    .checkout-form .form-control {
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .checkout-form .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(255,106,0,0.1);
+    }
+
+    .checkout-form .form-control::placeholder {
+      color: var(--gray);
+    }
+
+    .btn-checkout {
+      background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .btn-checkout:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(40,167,69,0.3);
+    }
+
+    .btn-clear-cart {
+      color: var(--danger);
+      border: 2px solid var(--danger);
+      background: white;
+      border-radius: 12px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+
+    .btn-clear-cart:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .remove-btn {
+      color: var(--danger);
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 0.5rem;
+    }
+
+    .remove-btn:hover {
+      transform: scale(1.2);
+      color: var(--danger);
+    }
+
+    .discount-badge {
+      background: linear-gradient(135deg, var(--success) 0%, #20c997 100%);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .cart-title {
+        font-size: 1.5rem;
+      }
+
+      .cart-item-card {
+        padding: 1rem;
+      }
+
+      .cart-item-image {
+        width: 80px;
+        height: 80px;
+      }
+
+      .cart-summary {
+        position: static;
+        margin-top: 2rem;
+      }
+
+      .checkout-card {
+        margin-top: 2rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
   <%- include('partials/nav', { user, locale, currentPage: 'cart' }) %>
 
-    <div class="container my-5">
-      <h1>Panier</h1>
-
-      <% if (cartItems.length===0) { %>
-        <p>Votre panier est vide.</p>
-        <a href="/products" class="btn btn-primary">Retour aux produits</a>
-        <% } else { %>
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th>Produit</th>
-                <th>Prix unitaire</th>
-                <th>Quantité</th>
-                <th>Total</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% cartItems.forEach(item=> { %>
-                <tr>
-                  <td>
-                    <%= item.product ? item.product.name : 'Produit supprimé' %>
-                  </td>
-                  <td>
-                    <%= item.product ? item.product.price : '--' %> FCFA
-                  </td>
-                  <td>
-                    <% if (item.product) { %>
-                      <form method="post" action="/products/cart/update" class="form-inline">
-                        <input type="hidden" name="productId" value="<%= item.product.id %>" />
-                        <input type="number" name="quantity" value="<%= item.quantity %>"
-                          class="form-control form-control-sm mr-2" min="0" />
-                        <button class="btn btn-sm btn-primary" type="submit">OK</button>
-                      </form>
-                      <% } else { %>
-                        <%= item.quantity %>
-                          <% } %>
-                  </td>
-                  <td>
-                    <%= item.total %> FCFA
-                  </td>
-                  <td>
-                    <% if (item.product) { %>
-                      <form method="post" action="/products/cart/remove" style="display:inline-block;">
-                        <input type="hidden" name="productId" value="<%= item.product.id %>" />
-                        <button class="btn btn-sm btn-danger" type="submit">Supprimer</button>
-                      </form>
-                      <% } %>
-                  </td>
-                </tr>
-                <% }); %>
-            </tbody>
-          </table>
-
-          <div class="mb-4">
-            <h4>Total panier : <strong>
-                <%= totalAmount %> FCFA
-              </strong></h4>
-            <div id="discountInfo" style="display: none;" class="alert alert-success mt-2">
-              <strong>Remise appliquée :</strong> <span id="discountAmount">0</span> FCFA
-              <br><strong>Nouveau total :</strong> <span id="finalAmount">0</span> FCFA
-            </div>
-          </div>
-
-          <div class="card p-3 mb-4">
-            <h5><i class="fa-solid fa-ticket"></i> Code promo</h5>
-            <div class="input-group">
-              <input type="text" id="couponCode" class="form-control" placeholder="Entrez votre code promo" />
-              <div class="input-group-append">
-                <button class="btn btn-outline-primary" type="button" onclick="applyCoupon()">Appliquer</button>
-              </div>
-            </div>
-            <small id="couponMessage" class="text-muted"></small>
-          </div>
-
-          <div class="card p-4 mb-4">
-            <h3>Valider la commande</h3>
-
-            <form method="post" action="/products/cart/checkout">
-
-              <div class="row">
-                <div class="form-group col-md-6">
-                  <label>Nom</label>
-                  <input type="text" name="customerName" class="form-control" required />
-                </div>
-
-                <div class="form-group col-md-6">
-                  <label>Email</label>
-                  <input type="email" name="customerEmail" class="form-control" required />
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="form-group col-md-6">
-                  <label>Téléphone</label>
-                  <input type="text" name="customerPhone" class="form-control" required />
-                </div>
-
-                <div class="form-group col-md-6">
-                  <label>Adresse</label>
-                  <input type="text" name="customerAddress" class="form-control" required />
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-success mt-3">
-                Valider la commande
-              </button>
-
-            </form>
-          </div>
-
-          <form method="post" action="/products/cart/clear">
-            <button type="submit" class="btn btn-outline-danger">Vider le panier</button>
-          </form>
-          <% } %>
+  <!-- Hero Section -->
+  <section class="cart-hero">
+    <div class="container">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div>
+          <h1 class="cart-title">Mon Panier</h1>
+        </div>
+        <div class="cart-breadcrumb mt-2 mt-md-0">
+          <a href="/">Accueil</a> / <span>Panier</span>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <%- include('partials/footer') %>
+  <div class="container pb-5">
+    <% if (!cartItems || cartItems.length === 0) { %>
+      <!-- Empty Cart -->
+      <div class="empty-cart">
+        <div class="empty-cart-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h3>Votre panier est vide</h3>
+        <p>Découvrez nos produits et ajoutez-les à votre panier</p>
+        <a href="/products" class="btn btn-primary" style="background: var(--primary); border: none; padding: 1rem 2rem; border-radius: 50px; font-weight: 600;">
+          <i class="fas fa-store me-2"></i> Découvrir les produits
+        </a>
+      </div>
+    <% } else { %>
+      <div class="row g-4">
+        <!-- Cart Items Column -->
+        <div class="col-lg-8">
+          <% cartItems.forEach(item => { %>
+            <div class="cart-item-card">
+              <div class="row align-items-center">
+                <div class="col-md-2 col-4">
+                  <% if (item.product && item.product.imageUrl) { %>
+                    <img src="/public<%= item.product.imageUrl %>" alt="<%= item.product.name %>" class="cart-item-image">
+                  <% } else { %>
+                    <img src="https://via.placeholder.com/100x100?text=Product" alt="Product" class="cart-item-image">
+                  <% } %>
+                </div>
+                <div class="col-md-4 col-8 mt-3 mt-md-0">
+                  <div class="cart-item-name">
+                    <%= item.product ? item.product.name : 'Produit supprimé' %>
+                  </div>
+                  <div class="cart-item-price">
+                    <%= item.product ? item.product.price : '--' %> Fcfa
+                  </div>
+                </div>
+                <div class="col-md-3 mt-3 mt-md-0">
+                  <% if (item.product) { %>
+                    <form method="post" action="/products/cart/update" class="quantity-control">
+                      <input type="hidden" name="productId" value="<%= item.product.id %>" />
+                      <button type="button" class="quantity-btn" onclick="updateQuantity(this, -1)">-</button>
+                      <input type="number" name="quantity" value="<%= item.quantity %>" class="quantity-input" min="1" readonly>
+                      <button type="button" class="quantity-btn" onclick="updateQuantity(this, 1)">+</button>
+                      <button type="submit" style="display: none;"></button>
+                    </form>
+                  <% } else { %>
+                    <span class="badge bg-secondary">Qty: <%= item.quantity %></span>
+                  <% } %>
+                </div>
+                <div class="col-md-2 mt-3 mt-md-0 text-md-end">
+                  <div class="cart-item-price" style="font-size: 1.1rem;">
+                    <%= item.total ? item.total : 0 %> Fcfa
+                  </div>
+                </div>
+                <div class="col-md-1 mt-3 mt-md-0 text-end">
+                  <% if (item.product) { %>
+                    <form method="post" action="/products/cart/remove" style="display: inline;">
+                      <input type="hidden" name="productId" value="<%= item.product.id %>" />
+                      <button class="remove-btn" type="submit">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </form>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% }); %>
 
-      <script>
-        const cartTotalAmount = <%= totalAmount %>;
-        let appliedCoupon = null;
-        let discountAmount = 0;
+          <!-- Clear Cart Button -->
+          <form method="post" action="/products/cart/clear">
+            <button type="submit" class="btn-clear-cart">
+              <i class="fas fa-trash-alt me-2"></i> Vider le panier
+            </button>
+          </form>
+        </div>
 
-        async function applyCoupon() {
-          const code = document.getElementById('couponCode').value.trim();
-          const messageEl = document.getElementById('couponMessage');
-          const discountInfoEl = document.getElementById('discountInfo');
-          const discountAmountEl = document.getElementById('discountAmount');
-          const finalAmountEl = document.getElementById('finalAmount');
+        <!-- Summary Column -->
+        <div class="col-lg-4">
+          <!-- Coupon Section -->
+          <div class="coupon-card">
+            <h5><i class="fas fa-tag me-2" style="color: var(--primary);"></i>Code promo</h5>
+            <div class="input-group">
+              <input type="text" id="couponCode" class="form-control" placeholder="Entrez votre code">
+              <button class="btn btn-primary" style="background: var(--primary); border: none;" onclick="applyCoupon()">
+                Appliquer
+              </button>
+            </div>
+            <small id="couponMessage" class="text-muted mt-2 d-block"></small>
+            <div id="discountInfo" class="discount-badge mt-2" style="text-align: center;">
+              <i class="fas fa-check-circle me-1"></i> 
+              Remise: <span id="discountAmount">0</span> Fcfa
+            </div>
+          </div>
 
-          if (!code) {
-            messageEl.textContent = 'Veuillez entrer un code promo';
-            messageEl.className = 'text-danger';
-            return;
-          }
+          <!-- Cart Summary -->
+          <div class="cart-summary">
+            <h4 class="cart-summary-title">Récapitulatif</h4>
+            <div class="cart-summary-row">
+              <span>Sous-total</span>
+              <span><%= totalAmount || 0 %> Fcfa</span>
+            </div>
+            <div class="cart-summary-row">
+              <span>Livraison</span>
+              <span style="color: var(--success);">Gratuite</span>
+            </div>
+            <div class="cart-summary-row" id="discountRow" style="display: none;">
+              <span>Remise</span>
+              <span style="color: var(--success);">-<span id="discountRowAmount">0</span> Fcfa</span>
+            </div>
+            <div class="cart-summary-row total">
+              <span>Total</span>
+              <span id="finalTotal"><%= totalAmount || 0 %> Fcfa</span>
+            </div>
+          </div>
 
-          try {
-            const response = await fetch('/coupons/validate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ code, orderAmount: cartTotalAmount })
-            });
+          <!-- Checkout Form -->
+          <div class="checkout-card mt-4">
+            <h4><i class="fas fa-shopping-bag me-2" style="color: var(--primary);"></i>Valider la commande</h4>
+            <form method="post" action="/products/cart/checkout" class="checkout-form">
+              <input type="text" name="customerName" class="form-control" placeholder="Nom complet" required>
+              <input type="email" name="customerEmail" class="form-control" placeholder="Adresse email" required>
+              <input type="tel" name="customerPhone" class="form-control" placeholder="Numéro de téléphone" required>
+              <textarea name="customerAddress" class="form-control" rows="2" placeholder="Adresse de livraison" required></textarea>
+              <button type="submit" class="btn-checkout">
+                <i class="fas fa-lock me-2"></i> Commander maintenant
+              </button>
+            </form>
+            <p class="text-center text-muted mt-3" style="font-size: 0.8rem;">
+              <i class="fas fa-shield-alt me-1"></i> Paiement sécurisé
+            </p>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
 
-            const result = await response.json();
+  <%- include('partials/footer') %>
 
-            if (result.success) {
-              appliedCoupon = result.data.coupon;
-              discountAmount = result.data.discount;
+  <script>
+    const cartTotalAmount = <%= totalAmount || 0 %>;
+    let appliedCoupon = null;
 
-              discountInfoEl.style.display = 'block';
-              discountAmountEl.textContent = discountAmount;
-              finalAmountEl.textContent = result.data.finalAmount;
+    function updateQuantity(btn, change) {
+      const form = btn.closest('form');
+      const input = form.querySelector('.quantity-input');
+      let newValue = parseInt(input.value) + change;
+      if (newValue < 1) newValue = 1;
+      input.value = newValue;
+      form.submit();
+    }
 
-              messageEl.textContent = `Code promo "${appliedCoupon.code}" appliqué avec succès !`;
-              messageEl.className = 'text-success';
+    async function applyCoupon() {
+      const code = document.getElementById('couponCode').value;
+      if (!code) {
+        document.getElementById('couponMessage').innerText = 'Veuillez entrer un code promo';
+        document.getElementById('couponMessage').style.color = 'var(--danger)';
+        return;
+      }
 
-              // Désactiver le champ et le bouton
-              document.getElementById('couponCode').disabled = true;
-              document.querySelector('button[onclick="applyCoupon()"]').disabled = true;
-            } else {
-              messageEl.textContent = result.error || 'Code promo invalide';
-              messageEl.className = 'text-danger';
-              discountInfoEl.style.display = 'none';
-              appliedCoupon = null;
-              discountAmount = 0;
-            }
-          } catch (error) {
-            console.error('Erreur:', error);
-            messageEl.textContent = 'Erreur lors de la validation du code promo';
-            messageEl.className = 'text-danger';
-          }
-        }
+      const res = await fetch('/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, orderAmount: cartTotalAmount })
+      });
 
-        // Ajouter le coupon au formulaire de checkout
-        document.querySelector('form[action="/products/cart/checkout"]').addEventListener('submit', function (e) {
-          if (appliedCoupon) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'couponCode';
-            input.value = appliedCoupon.code;
-            this.appendChild(input);
-          }
-        });
-      </script>
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('discountInfo').style.display = 'block';
+        document.getElementById('discountAmount').innerText = data.data.discount;
+        document.getElementById('discountRow').style.display = 'flex';
+        document.getElementById('discountRowAmount').innerText = data.data.discount;
+        document.getElementById('finalTotal').innerText = data.data.finalAmount + ' Fcfa';
+        document.getElementById('couponMessage').innerText = 'Code promo appliqué avec succès!';
+        document.getElementById('couponMessage').style.color = 'var(--success)';
+        appliedCoupon = code;
+      } else {
+        document.getElementById('couponMessage').innerText = data.error || 'Code promo invalide';
+        document.getElementById('couponMessage').style.color = 'var(--danger)';
+      }
+    }
+  </script>
 </body>
-
 </html>

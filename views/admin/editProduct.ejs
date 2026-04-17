@@ -2,61 +2,439 @@
 <html lang="fr">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <%- include('../partials/head', { pageTitle: 'Modifier le produit' }) %>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modifier le produit — JIM Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      --surface: #ffffff;
+      --surface2: #f8fafc;
+      --surface3: #f1f5f9;
+      --border: rgba(148, 163, 184, 0.1);
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --accent-hover: #1d4ed8;
+      --accent2: #0ea5e9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --sidebar-w: 280px;
+      --radius: 16px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .sidebar-logo {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.2rem;
+    }
+
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+    }
+
+    .logo-text span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    nav {
+      padding: 20px 16px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .nav-section-title {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 16px 8px;
+      font-weight: 700;
+    }
+
+    nav a {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: var(--transition);
+      margin-bottom: 4px;
+    }
+
+    nav a:hover {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    nav a.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin-right: 16px;
+    }
+
+    .mobile-menu-btn:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    .topbar-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .content {
+      padding: 32px;
+      max-width: 800px;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .card-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--surface2), var(--surface3));
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .form-input,
+    .form-select {
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      background: var(--surface);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    textarea.form-input {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    @media(max-width: 1023px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .topbar {
+        padding: 16px 20px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <%- include('../partials/nav', { user, locale: 'fr' , currentPage: 'admin' }) %>
-
-    <div class="container mt-5" style="max-width: 760px;">
-      <div class="card section-card-wrap p-4">
-        <h2 class="mb-4">Modifier le produit</h2>
-        <% if (error) { %>
-          <div class="alert alert-danger">
-            <%= error %>
-          </div>
-          <% } %>
-            <form method="post" action="/admin/products/<%= product.id %>/edit" enctype="multipart/form-data">
-              <!-- Nom -->
-              <input name="name" class="form-control" required value="<%= product.name %>" />
-
-              <!-- Description -->
-              <textarea name="description" class="form-control"><%= product.description %></textarea>
-
-              <!-- Prix -->
-              <input type="number" name="price" class="form-control" min="0" step="0.01" required
-                value="<%= product.price %>" />
-
-              <!-- Stock -->
-              <input type="number" name="stock" class="form-control" min="0" required value="<%= product.stock %>" />
-
-              <!-- Catégorie -->
-              <select name="categoryId" class="form-control" required>
-                <% categories.forEach(c=> { %>
-                  <option value="<%= c.id %>" <%=product.categoryId===c.id ? 'selected' : '' %>><%= c.name %>
-                  </option>
-                  <% }) %>
-              </select>
-
-              <!-- Statut -->
-              <select name="status" class="form-control" required>
-                <option value="available" <%=product.status==='available' ? 'selected' : '' %>>Disponible</option>
-                <option value="unavailable" <%=product.status==='unavailable' ? 'selected' : '' %>>Indisponible</option>
-              </select>
-
-              <!-- Image -->
-              <input type="file" name="image" class="form-control-file" />
-
-              <!-- Boutons -->
-              <button class="btn btn-success">Sauvegarder</button>
-              <a class="btn btn-secondary" href="/admin/dashboard">Annuler</a>
-            </form>
-      </div>
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">J</div>
+      <div class="logo-text">JIM <span>Admin</span></div>
     </div>
 
-    <%- include('../partials/footer') %>
+    <nav>
+      <div class="nav-section-title">Dashboard</div>
+      <a href="/admin/dashboard"><i class="fa fa-chart-line"></i> Dashboard</a>
+      
+      <div class="nav-section-title">Gestion</div>
+      <a href="/admin/orders"><i class="fa fa-shopping-cart"></i> Commandes</a>
+      <a href="/admin/products/add"><i class="fa fa-box"></i> Produits</a>
+      <a href="/admin/users"><i class="fa fa-users"></i> Utilisateurs</a>
+    </nav>
+  </div>
+
+  <div class="overlay" onclick="toggleMenu()"></div>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="mobile-menu-btn" onclick="toggleMenu()">
+        <i class="fa fa-bars"></i>
+      </button>
+      <h1 class="topbar-title">Modifier le produit</h1>
+    </div>
+
+    <div class="content">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><i class="fa fa-edit"></i> Modifier: <%= product.name %></h2>
+        </div>
+        <div class="card-body">
+          <form method="post" action="/admin/products/<%= product.id %>/edit" enctype="multipart/form-data">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nom du produit</label>
+                <input name="name" class="form-input" required value="<%= product.name %>">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Prix (FCFA)</label>
+                <input type="number" name="price" class="form-input" min="0" step="0.01" required value="<%= product.price %>">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Stock</label>
+                <input type="number" name="stock" class="form-input" min="0" required value="<%= product.stock %>">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Catégorie</label>
+                <select name="categoryId" class="form-select" required>
+                  <% categories.forEach(c => { %>
+                    <option value="<%= c.id %>" <%=product.categoryId === c.id ? 'selected' : '' %>><%= c.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Statut</label>
+                <select name="status" class="form-select" required>
+                  <option value="available" <%=product.status === 'available' ? 'selected' : '' %>>Disponible</option>
+                  <option value="unavailable" <%=product.status === 'unavailable' ? 'selected' : '' %>>Indisponible</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-input"><%= product.description %></textarea>
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label class="form-label">Image</label>
+                <input type="file" name="image" class="form-input" accept="image/*">
+              </div>
+            </div>
+
+            <div class="btn-group">
+              <button type="submit" class="btn btn-success">
+                <i class="fa fa-save"></i> Sauvegarder
+              </button>
+              <a class="btn btn-secondary" href="/admin/dashboard">
+                <i class="fa fa-times"></i> Annuler
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      document.querySelector('.sidebar').classList.toggle('show');
+      document.querySelector('.overlay').classList.toggle('show');
+    }
+  </script>
 </body>
 
 </html>

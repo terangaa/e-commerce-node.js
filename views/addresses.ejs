@@ -3,10 +3,10 @@
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2><i class="fas fa-map-marker-alt"></i> Mes Adresses</h2>
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-4">
+                <h2 class="mb-2 mb-sm-0"><i class="fas fa-map-marker-alt"></i> Mes Adresses</h2>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addressModal" onclick="clearAddressForm()">
-                    <i class="fas fa-plus"></i> Ajouter une adresse
+                    <i class="fas fa-plus"></i> <span class="d-none d-sm-inline">Ajouter</span>
                 </button>
             </div>
 
@@ -15,9 +15,9 @@
                     <i class="fas fa-info-circle"></i> Vous n'avez pas encore enregistré d'adresse.
                 </div>
             <% } else { %>
-                <div class="row">
+                <div class="row g-3">
                     <% addresses.forEach(address => { %>
-                        <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="col-12 col-md-6 col-lg-4 mb-3 mb-md-4">
                             <div class="card h-100 <%= address.isDefault ? 'border-primary' : '' %>">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <span class="badge <%= address.isDefault ? 'bg-primary' : 'bg-secondary' %>">

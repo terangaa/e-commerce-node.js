@@ -17,7 +17,8 @@
         categoryName=categories[i].name; break; } } } %>
 
         <div class="container my-5">
-
+      <div class="row">
+        <div class="col-12">
           <!-- TITLE -->
           <h1 class="section-title">
             <%= categoryName %>
@@ -30,9 +31,9 @@
           </p>
 
           <!-- FILTERS -->
-          <div class="filters-section bg-light p-4 rounded mb-4">
+          <div class="filters-section bg-light p-3 p-md-4 rounded mb-4">
 
-            <div class="row g-3 align-items-end">
+            <div class="row g-2 g-md-3 align-items-end">
 
               <!-- SEARCH -->
               <div class="col-lg-4 col-md-6">
@@ -110,7 +111,7 @@
 
                   <% for (let i=0; i < products.length; i++) { let product=products[i]; %>
 
-                    <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                    <div class="col-6 col-md-6 col-lg-4 col-xl-3 mb-4">
 
                       <div class="card h-100 product-card">
 
@@ -201,10 +202,12 @@
                         <% } %>
 
               </div>
-
+            </div>
+          </div>
         </div>
+      </div>
 
-        <%- include('partials/footer') %>
+      <%- include('partials/footer') %>
 
 </body>
 
