@@ -316,13 +316,13 @@ router.get('/orders/:id/invoice', async (req, res) => {
       .font('Helvetica')
       .text(invoiceNumber, 450, 25, { align: 'right', width: 105 })
       .text(invoiceDate, 450, 40, { align: 'right', width: 105 })
-      .text("ALMANA SONO", 450, 55, { align: 'right', width: 105 });
+      .text("ECOMMERCE-JIM", 450, 55, { align: 'right', width: 105 });
 
     doc.moveDown(2);
 
     doc.fontSize(11)
-      .text("Service client: 71 564 09 82", 40, 90)
-      .text("sadikh@almana-sono.com", 40, 105);
+      .text("Service client: 76 613 74 08", 40, 90)
+      .text("ceesaysamba24@gmail.com", 40, 105);
 
     // ================= CLIENT INFO =================
     doc.moveDown(2);
@@ -410,15 +410,22 @@ router.get('/orders/:id/invoice', async (req, res) => {
       .text(`${grandTotal.toLocaleString('fr-FR')} CFA`, 310, y + 22);
 
     // ================= QR CODE =================
-    const qrData = `Facture ${invoiceNumber} - Total: ${grandTotal}FCFA`;
+    // ================= QR CODE =================
+    const phone = "221766137408";
+
+    // ⚠️ message simple pour test
+    const message = encodeURIComponent("Bonjour JIM Shopping");
+
+    const qrData = `https://wa.me/${phone}?text=${message}`;
+
+    console.log("QR DATA:", qrData); // 🔍 debug
 
     try {
       const qrImage = await QRCode.toDataURL(qrData);
-      doc.image(qrImage, 450, y - 60, { width: 80 });
+      doc.image(qrImage, 450, 120, { width: 90 });
     } catch (err) {
-      console.log("QR error");
+      console.log("QR error", err);
     }
-
     // ================= PIED DE PAGE =================
     y += 80;
 
@@ -437,7 +444,7 @@ router.get('/orders/:id/invoice', async (req, res) => {
 
     doc.fontSize(8)
       .text(
-        "ALMANA SONO - Dakar, Senegal | Tel: 71 564 09 82",
+        "E-COMMERCE-JIM - Dakar, Senegal | Tel: +221 76 613 74 08",
         40,
         y + 35,
         { align: 'center', width: 515 }
@@ -459,89 +466,46 @@ router.get('/orders/:id/send-invoice', async (req, res) => {
 
     if (!order) return res.status(404).send("Commande introuvable");
 
-    const PDFDocument = require('pdfkit');
     const doc = new PDFDocument();
-
     const buffers = [];
+
+    // ✅ FIX ICI
+    const invoiceNumber = generateInvoiceNumber(order.id);
 
     doc.on('data', buffers.push.bind(buffers));
 
     doc.on('end', async () => {
       const pdfData = Buffer.concat(buffers);
 
-      const invoiceNumber = generateInvoiceNumber(order.id);
-
-      // 📧 ENVOI EMAIL AVEC PIÈCE JOINTE
       await transporter.sendMail({
         from: 'sadikhyade851@gmail.com',
         to: order.customerEmail,
         subject: `Facture ${invoiceNumber}`,
 
         html: `
-  <div style="font-family: Arial; background:#f4f6fb; padding:20px">
+        <div style="font-family: Arial; background:#f4f6fb; padding:20px">
+          <div style="max-width:600px;margin:auto;background:white;border-radius:10px">
 
-    <div style="max-width:600px; margin:auto; background:white; border-radius:10px; overflow:hidden; box-shadow:0 5px 15px rgba(0,0,0,0.1)">
+            <div style="background:#2563eb;color:white;padding:20px;text-align:center">
+              <h2>🧾 Facture - ${invoiceNumber}</h2>
+            </div>
 
-      <div style="background:#2563eb; color:white; padding:20px; text-align:center">
-        <h2>🧾 Facture - ${invoiceNumber}</h2>
-      </div>
+            <div style="padding:20px">
+              <p>Bonjour <b>${order.customerName}</b>,</p>
+              <p>Merci pour votre commande 🙏</p>
 
-      <div style="padding:20px">
+              <p><b>Commande :</b> #${order.id}</p>
+              <p><b>Total :</b> ${order.totalAmount} FCFA</p>
 
-        <p>Bonjour <b>${order.customerName}</b>,</p>
+              <a href="http://localhost:3000/admin/orders/${order.id}/invoice"
+                 style="background:#2563eb;color:white;padding:10px 15px;border-radius:5px;text-decoration:none">
+                 Télécharger la facture
+              </a>
+            </div>
 
-        <p>Merci pour votre commande 🙏</p>
-
-        <div style="background:#f1f5f9; padding:15px; border-radius:8px; margin:15px 0">
-          <p><b>Commande :</b> #${order.id}</p>
-          <p><b>Total :</b> ${order.totalAmount} FCFA</p>
-          <p><b>Statut :</b> ${order.status}</p>
+          </div>
         </div>
-
-        <p>Votre facture est jointe en PDF 📎</p>
-
-        <div style="text-align:center; margin:25px 0">
-          <a href="http://localhost:3000/admin/orders/${order.id}/invoice"
-             style="background:#2563eb; color:white; padding:12px 20px; text-decoration:none; border-radius:6px; font-weight:bold">
-             Télécharger la facture
-          </a>
-        </div>
-
-<div style="text-align:center; margin:25px 0">
-
- <div style="text-align:center; margin:20px 0">
-      <a href="https://wa.me/221711423982?text=Bonjour%20votre%20commande%20%23${order.id}%20est%20confirm%C3%A9e%20-%20Total%20${order.totalAmount}%20FCFA"
-         style="background:#25D366; color:white; padding:12px 18px; text-decoration:none; border-radius:6px;">
-        💬 Confirmer sur WhatsApp
-      </a>
-    </div>
-
-    <!-- APPEL -->
-    <div style="text-align:center; margin:20px 0">
-      <a href="tel:+221711423982"
-         style="background:#2563eb; color:white; padding:12px 18px; text-decoration:none; border-radius:6px;">
-        📞 Appeler
-      </a>
-    </div>
-
-</div>
-
-
-        <p>Si vous avez des questions, contactez-nous.</p>
-
-        <b>Sadikh Yade</b><br>
-Service client : 71 564 09 82<br>
-Email : sadikh@almana-sono.com
-
-      </div>
-
-      <div style="background:#f1f5f9; padding:15px; text-align:center; font-size:12px; color:#666">
-        © ${new Date().getFullYear()} sadikh yade
-      </div>
-
-    </div>
-  </div>
-  `,
+        `,
 
         attachments: [
           {
@@ -550,122 +514,24 @@ Email : sadikh@almana-sono.com
           }
         ]
       });
+
       res.redirect('/admin/orders/' + order.id);
     });
 
-    // ================= CONTENU PDF =================
+    // ================= PDF =================
     doc.fontSize(20).text("FACTURE", { align: "center" });
 
-    doc.moveDown();
-    doc.text(`Commande #: ${order.id}`);
+    doc.text(`Facture: ${invoiceNumber}`);
     doc.text(`Client: ${order.customerName}`);
-    doc.text(`Email: ${order.customerEmail}`);
-    doc.text(`Téléphone: ${order.customerPhone}`);
-    doc.text(`Adresse: ${order.deliveryAddress}`);
-
-    doc.moveDown();
-
-let total = 0;
-
-    const invoiceDate = new Date().toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-
-    // Header
-    doc.rect(0, 0, 595, 100).fill('#1e3a8a');
-
-    doc.fillColor('#ffffff')
-      .fontSize(24)
-      .font('Helvetica-Bold')
-      .text("FACTURE", 40, 20);
-
-    doc.fontSize(10)
-      .font('Helvetica')
-      .text(invoiceNumber, 450, 20, { align: 'right', width: 105 })
-      .text(invoiceDate, 450, 35, { align: 'right', width: 105 });
-
-    doc.moveDown(3);
-
-    doc.fillColor('#1f2937')
-      .fontSize(12)
-      .font('Helvetica-Bold')
-      .text("Client:", 40);
-
-    doc.font('Helvetica')
-      .fontSize(10)
-      .fillColor('#6b7280')
-      .text(order.customerName, 40)
-      .text(order.customerEmail, 40)
-      .text(order.customerPhone, 40);
-
-    doc.moveDown();
-
-    let startY = doc.y;
-
-    doc.rect(40, startY, 515, 25).fill('#1e3a8a');
-    doc.fillColor('#ffffff')
-      .fontSize(10)
-      .font('Helvetica-Bold')
-      .text("Désignation", 50, startY + 7)
-      .text("Qté", 320, startY + 7)
-      .text("Total", 490, startY + 7);
-
-    startY += 30;
-
-    order.OrderItems.forEach((item, i) => {
-      const lineTotal = item.quantity * item.unitPrice;
-      total += lineTotal;
-
-      if (i % 2 === 0) {
-        doc.rect(40, startY, 515, 25).fill('#f3f4f6');
-      }
-
-      doc.fillColor('#1f2937')
-        .fontSize(10)
-        .font('Helvetica')
-        .text(item.Product?.name || 'Produit', 50, startY + 7)
-        .text(String(item.quantity), 320, startY + 7)
-        .text(`${lineTotal.toLocaleString('fr-FR')} CFA`, 490, startY + 7);
-
-      startY += 25;
-    });
-
-    startY += 20;
-
-    doc.rect(300, startY, 255, 35).fill('#f59e0b');
-    doc.fillColor('#000')
-      .fontSize(14)
-      .font('Helvetica-Bold')
-      .text("TOTAL À PAYER", 310, startY + 5)
-      .fontSize(18)
-      .text(`${total.toLocaleString('fr-FR')} CFA`, 310, startY + 15);
-
-    doc.moveDown(3);
-
-    doc.fillColor('#6b7280')
-      .fontSize(9)
-      .text(
-        "Merci pour votre confiance - ALMANA SONO",
-        { align: 'center' }
-      );
+    doc.text(`Total: ${order.totalAmount} CFA`);
 
     doc.end();
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("Erreur envoi facture PDF");
+    res.status(500).send("Erreur envoi facture");
   }
 });
-
-
-router.get('/settings', (req, res) => {
-  res.render('admin/settings', {
-    user: req.session.user
-  });
-});
-
 
 /////////////////////
 // DELIVERY THIAK-THIAK
