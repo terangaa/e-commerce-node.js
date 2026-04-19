@@ -48,6 +48,13 @@ app.use(session({
   },
 }));
 
+app.use((req, res, next) => {
+  res.locals.user = req.session?.user || null;
+  res.locals.locale = req.getLocale?.() || 'fr';
+  res.locals.ownerWhatsApp = process.env.OWNER_WHATSAPP || "221711423982";
+  next();
+});
+
 // ─── Moteur de vues ─────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -71,6 +78,7 @@ app.use((req, res, next) => {
   res.locals.locale = (req.getLocale && req.getLocale()) ? req.getLocale() : 'fr';
   const cart = req.session && req.session.cart ? req.session.cart : [];
   res.locals.cartCount = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  res.locals.ownerWhatsApp = global.ownerWhatsApp || '';
   next();
 });
 

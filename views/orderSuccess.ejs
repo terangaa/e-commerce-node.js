@@ -50,9 +50,20 @@
               </strong>
             </p>
 
-            <a href="/products" class="btn btn-primary">
-              Retour aux produits
-            </a>
+            <% if (typeof ownerWhatsApp !=='undefined' && ownerWhatsApp) { %>
+              <% const waMessage=encodeURIComponent( `Bonjour, je viens de passer la commande n°${order.id}. Montant:
+                ${order.totalAmount} FCFA. Merci!` ); const waLink=`https://wa.me/${ownerWhatsApp}?text=${waMessage}`;
+                %>
+
+                <a href="<%= waLink %>" target="_blank" class="btn btn-success mb-3">
+                  <i class="fab fa-whatsapp"></i> Contacter le vendeur sur WhatsApp
+                </a>
+                <br>
+                <% } %>
+
+                  <a href="/products" class="btn btn-primary">
+                    Retour aux produits
+                  </a>
       </div>
 
     </div>

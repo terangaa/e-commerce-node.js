@@ -534,6 +534,33 @@ router.get('/orders/:id/send-invoice', async (req, res) => {
 });
 
 /////////////////////
+// SETTINGS
+/////////////////////
+router.get('/settings', async (req, res) => {
+  const settings = global.siteSettings || {
+    shopName: 'JIM Shopping',
+    shopAddress: 'Dakar, Sénégal',
+    contactEmail: 'contact@jim-shopping.com',
+    contactPhone: '+221 77 000 00 00',
+    ownerWhatsApp: '221770000000'
+  };
+  res.render('admin/settings', { user: req.session.user, settings });
+});
+
+router.post('/settings', async (req, res) => {
+  const { shopName, shopAddress, contactEmail, contactPhone, ownerWhatsApp } = req.body;
+  global.siteSettings = {
+    shopName: shopName || 'JIM Shopping',
+    shopAddress: shopAddress || 'Dakar, Sénégal',
+    contactEmail: contactEmail || 'contact@jim-shopping.com',
+    contactPhone: contactPhone || '+221 77 000 00 00',
+    ownerWhatsApp: ownerWhatsApp ? ownerWhatsApp.replace(/\D/g, '') : '221770000000'
+  };
+  global.ownerWhatsApp = global.siteSettings.ownerWhatsApp;
+  res.redirect('/admin/settings');
+});
+
+/////////////////////
 // DELIVERY THIAK-THIAK
 /////////////////////
 router.get('/orders/:id/delivery/thiak-thiak', showThiakThiakDelivery);

@@ -391,6 +391,8 @@
             </div>
         </div>
 
+        <form method="POST" action="/admin/settings">
+
         <!-- ABOUT -->
         <div class="card-modern">
             <div class="section-title">📌 À propos</div>
@@ -421,19 +423,19 @@
             </ul>
         </div>
 
-        <!-- CONTACT -->
+        <!-- WHATSAPP -->
         <div class="card-modern">
-            <div class="section-title">📞 Contact</div>
+            <div class="section-title">💬 WhatsApp Propriétaire</div>
 
             <div class="form-row">
                 <div class="col-md-6">
-                    <label class="form-label">Email</label>
-                    <input class="input-dark" value="contact@jim-shopping.com">
+                    <label class="form-label">Numéro WhatsApp (sans +, ex: 221770000000)</label>
+                    <input class="input-dark" name="ownerWhatsApp" value="<%= settings.ownerWhatsApp || '' %>" placeholder="221770000000">
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Téléphone</label>
-                    <input class="input-dark" value="+221 77 000 00 00">
+                    <label class="form-label">Message de commande auto</label>
+                    <input class="input-dark" value="Nouvelle commande reçue" readonly>
                 </div>
             </div>
         </div>
@@ -445,19 +447,33 @@
             <div class="form-row">
                 <div class="col-md-6">
                     <label class="form-label">Nom boutique</label>
-                    <input class="input-dark" value="JIM Shopping">
+                    <input class="input-dark" name="shopName" value="<%= settings.shopName || '' %>">
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label">Adresse</label>
-                    <input class="input-dark" value="Dakar, Sénégal">
+                    <input class="input-dark" name="shopAddress" value="<%= settings.shopAddress || '' %>">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input class="input-dark" name="contactEmail" value="<%= settings.contactEmail || '' %>">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Téléphone</label>
+                    <input class="input-dark" name="contactPhone" value="<%= settings.contactPhone || '' %>">
                 </div>
             </div>
         </div>
 
-        <button class="btn-save">
+        <button type="submit" class="btn-save">
             💾 Sauvegarder les paramètres
         </button>
+
+    </form>
 
     </div>
 
