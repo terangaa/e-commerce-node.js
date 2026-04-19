@@ -276,8 +276,13 @@
       }
 
       @keyframes shimmer {
-        0% { left: -100%; }
-        100% { left: 200%; }
+        0% {
+          left: -100%;
+        }
+
+        100% {
+          left: 200%;
+        }
       }
 
       .section-header p {
@@ -504,7 +509,7 @@
         right: 0;
         bottom: 0;
         background: radial-gradient(ellipse at 20% 50%, rgba(255, 106, 0, 0.03) 0%, transparent 50%),
-                    radial-gradient(ellipse at 80% 50%, rgba(10, 115, 245, 0.03) 0%, transparent 50%);
+          radial-gradient(ellipse at 80% 50%, rgba(10, 115, 245, 0.03) 0%, transparent 50%);
         pointer-events: none;
       }
 
@@ -593,6 +598,7 @@
           opacity: 0;
           transform: translateY(-10px);
         }
+
         to {
           opacity: 1;
           transform: translateY(0);
@@ -1034,47 +1040,47 @@
           font-size: 1.75rem;
         }
 
-       .products-section {
-         padding: 4rem 0;
-         background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%);
-       }
+        .products-section {
+          padding: 4rem 0;
+          background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 50%, #ffffff 100%);
+        }
 
-       .products-section::before {
-         display: none;
-       }
+        .products-section::before {
+          display: none;
+        }
 
-       .product-card-modern {
-         border-radius: 20px;
-       }
+        .product-card-modern {
+          border-radius: 20px;
+        }
 
-       .product-image-wrapper {
-         padding-top: 100%;
-       }
+        .product-image-wrapper {
+          padding-top: 100%;
+        }
 
-       .product-content {
-         padding: 1.25rem;
-       }
+        .product-content {
+          padding: 1.25rem;
+        }
 
-       .product-title-modern {
-         font-size: 1rem;
-       }
+        .product-title-modern {
+          font-size: 1rem;
+        }
 
-       .current-price-modern {
-         font-size: 1.35rem;
-       }
+        .current-price-modern {
+          font-size: 1.35rem;
+        }
 
-       .feature-card-modern,
-       .category-card-modern {
-         border-radius: 20px;
-       }
+        .feature-card-modern,
+        .category-card-modern {
+          border-radius: 20px;
+        }
 
-       .category-icon-wrapper,
-       .feature-icon-wrapper {
-         width: 80px;
-         height: 80px;
-         font-size: 2rem;
-         border-radius: 20px;
-       }
+        .category-icon-wrapper,
+        .feature-icon-wrapper {
+          width: 80px;
+          height: 80px;
+          font-size: 2rem;
+          border-radius: 20px;
+        }
       }
     </style>
 </head>
@@ -1104,7 +1110,7 @@
 
             <h1 class="hero-title animate__animated animate__fadeInUp">
               Tout ce dont vous avez besoin
-              <span>Valises, Drap, Jalabi,Chaussures, Literie & Accessoires Moto</span>
+              <span>Valises, Draps, Rideaux, Jalabis, Vetements, Chaussures, Literie & Accessoires Moto</span>
             </h1>
             <p class="hero-subtitle animate__animated animate__fadeInUp animate__delay-1s">
               Qualité premium, prix compétitionnels, livraison rapide dans toute la région
@@ -1261,7 +1267,7 @@
         <div class="row g-4">
           <% if (topProducts && topProducts.length> 0) { %>
             <% topProducts.forEach((product, index)=> { %>
-               <div class="col-6 col-lg-4 col-md-6">
+              <div class="col-6 col-lg-4 col-md-6">
                 <div class="product-card-modern">
                   <div class="product-image-wrapper">
                     <% if(product.imageUrl){ %>

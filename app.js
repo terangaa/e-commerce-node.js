@@ -143,15 +143,18 @@ app.use((err, req, res, next) => {
 // ─── Démarrage ───────────────────────────────────────────────────────────────
 async function start() {
   try {
+    console.log("DATABASE_URL =", process.env.DATABASE_URL);
+
     await sequelize.authenticate();
     console.log('✅ Base de données connectée.');
-    await sequelize.sync({ alter: true });
-    console.log('✅ Tables synchronisées.');
+
+    // 🔥 IMPORTANT
+    await sequelize.sync(); // PAS alter: true
+
     app.listen(PORT, () => {
-      console.log(`✅ Serveur démarré sur http://localhost:${PORT}`);
-      console.log(`   → http://localhost:${PORT}?lang=fr`);
-      console.log(`   → http://localhost:${PORT}?lang=en`);
+      console.log(`✅ Serveur démarré sur port ${PORT}`);
     });
+
   } catch (err) {
     console.error('❌ Erreur au démarrage :', err);
     process.exit(1);

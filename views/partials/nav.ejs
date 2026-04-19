@@ -8,17 +8,20 @@
     <nav class="navbar navbar-expand-xl navbar-light bg-white shadow-sm">
       <div class="container-fluid px-2 px-md-4">
 
+        <!-- LOGO -->
         <a class="navbar-brand d-flex align-items-center" href="/">
           <img src="/public/uploads/logos.jpeg" style="height:40px;width:40px;border-radius:8px;">
           <span class="fw-bold ms-2">JIM Shopping</span>
         </a>
 
+        <!-- MOBILE BTN -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarMain">
 
+          <!-- MENU -->
           <ul class="navbar-nav me-auto">
 
             <li class="nav-item">
@@ -29,37 +32,42 @@
               <a class="nav-link <%= _currentPage === 'products' ? 'active' : '' %>" href="/products">Produits</a>
             </li>
 
-            <!-- CART -->
+            <!-- PANIER -->
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="/products/cart" data-bs-toggle="dropdown">
                 🛒 (<%= _cartCount %>)
               </a>
 
-              <ul class="dropdown-menu dropdown-menu-end">
+              <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width:300px;">
 
-                <% if (_cartItems && _cartItems.length> 0) { %>
+                <% if (_cartItems.length> 0) { %>
 
                   <% _cartItems.slice(0,3).forEach(function(item) { %>
 
-                    <li class="dropdown-item d-flex align-items-center">
+                    <li class="d-flex align-items-center mb-2">
 
+                      <!-- IMAGE -->
                       <% if (item.product && item.product.imageUrl) { %>
-                        <img src="/public/<%= item.product.imageUrl %>" style="width:40px;height:40px;">
+                        <img src="/public/<%= item.product.imageUrl %>"
+                          style="width:40px;height:40px;border-radius:5px;">
                         <% } else { %>
                           <img src="https://via.placeholder.com/40">
                           <% } %>
 
+                            <!-- INFOS -->
                             <div class="ms-2 flex-grow-1">
-                              <div>
+                              <div style="font-size:14px;">
                                 <%= item.product ? item.product.name : 'Produit supprimé' %>
                               </div>
                               <small>
-                                <%= item.quantity %> x <%= item.product ? item.product.price : 0 %>
+                                <%= item.quantity %> x
+                                  <%= item.product ? item.product.price : 0 %> Fcfa
                               </small>
                             </div>
 
+                            <!-- DELETE -->
                             <button class="btn btn-sm btn-danger"
-                              onclick="removeFromCart(<%= item.product ? item.product.id : 0 %>)">
+                              onclick="removeFromCart('<%= item.product ? item.product.id : 0 %>')">
                               X
                             </button>
 
@@ -70,12 +78,23 @@
                       <li>
                         <hr>
                       </li>
-                      <li class="dropdown-item">
+
+                      <li class="text-end fw-bold">
                         Total: <%= _totalAmount %> Fcfa
                       </li>
 
+                      <li class="text-center mt-2">
+                        <a href="/products/cart" class="btn btn-sm btn-primary">
+                          Voir panier
+                        </a>
+                      </li>
+
                       <% } else { %>
-                        <li class="dropdown-item text-center">Panier vide</li>
+
+                        <li class="text-center text-muted">
+                          Panier vide
+                        </li>
+
                         <% } %>
 
               </ul>
@@ -83,20 +102,34 @@
 
           </ul>
 
-          <ul class="navbar-nav">
+          <!-- DROITE -->
+          <ul class="navbar-nav align-items-center">
 
-            <li class="nav-item">
+            <!-- LANGUE -->
+            <li class="nav-item me-3">
               <a href="?lang=<%= _locale === 'fr' ? 'en' : 'fr' %>">
                 <%= _locale==='fr' ? 'EN' : 'FR' %>
               </a>
             </li>
 
+            <!-- USER -->
             <% if (_user) { %>
-              <li class="nav-item">Bonjour <%= _user.name %>
+              <li class="nav-item me-2">
+                Bonjour <strong>
+                  <%= _user.name %>
+                </strong>
               </li>
-              <li class="nav-item"><a href="/auth/logout">Logout</a></li>
+              <li class="nav-item">
+                <a href="/auth/logout" class="btn btn-sm btn-outline-danger">
+                  Logout
+                </a>
+              </li>
               <% } else { %>
-                <li class="nav-item"><a href="/auth/login">Login</a></li>
+                <li class="nav-item">
+                  <a href="/auth/login" class="btn btn-sm btn-outline-primary">
+                    Login
+                  </a>
+                </li>
                 <% } %>
 
           </ul>
@@ -105,13 +138,18 @@
       </div>
     </nav>
 
+    <!-- SCRIPT -->
     <script>
       function removeFromCart(productId) {
         fetch('/products/cart/remove', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: 'productId=' + productId
-        }).then(() => location.reload());
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: 'productId=' + encodeURIComponent(productId)
+        })
+          .then(() => location.reload())
+          .catch(err => console.error(err));
       }
     </script>
 

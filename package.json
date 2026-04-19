@@ -1,8 +1,11 @@
 {
     "name": "ecommerce_jim",
     "version": "1.0.0",
-    "description": "Application e-commerce (Node.js, Express, MySQL) - multi-langues, Wave/Orange Money, notifications email",
+    "description": "Application e-commerce (Node.js, Express, PostgreSQL) - multi-langues, Wave/Orange Money, notifications email",
     "main": "app.js",
+    "engines": {
+        "node": "18.x"
+    },
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
@@ -13,7 +16,6 @@
     "dependencies": {
         "@sendgrid/mail": "^8.1.6",
         "axios": "^1.15.0",
-        "bcrypt": "^6.0.0",
         "bcryptjs": "^2.4.3",
         "body-parser": "^1.20.2",
         "connect-flash": "^0.1.1",
