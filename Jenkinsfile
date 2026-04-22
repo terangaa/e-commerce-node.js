@@ -12,7 +12,7 @@ pipeline {
         stage('Recuperer le code') {
             steps {
                 git branch: 'master',
-                    url: 'https://github.com/tonnom/ecommerce-jim'
+                    url: 'https://github.com/terangaa/e-commerce-node.js.git'
             }
         }
 
