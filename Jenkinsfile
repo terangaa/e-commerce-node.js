@@ -17,10 +17,11 @@ pipeline {
         }
 
         stage('Installer les dependances') {
-            steps {
-                bat 'npm install'
-            }
-        }
+    steps {
+        bat 'npm cache clean --force'
+        bat 'npm install --legacy-peer-deps'
+    }
+}
 
         stage('Lancer les tests') {
             steps {
