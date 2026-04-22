@@ -11,7 +11,7 @@ pipeline {
 
         stage('Recuperer le code') {
             steps {
-                git branch: 'main',
+                git branch: 'master',
                     url: 'https://github.com/tonnom/ecommerce-jim'
             }
         }
