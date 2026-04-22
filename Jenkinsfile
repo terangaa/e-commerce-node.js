@@ -11,16 +11,17 @@ pipeline {
 
         stage('Recuperer le code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/tonnom/ecommerce-jim'
+                git branch: 'master',
+                    url: 'https://github.com/terangaa/e-commerce-node.js.git'
             }
         }
 
         stage('Installer les dependances') {
-            steps {
-                bat 'npm install'
-            }
-        }
+    steps {
+        bat 'npm cache clean --force'
+        bat 'npm install --legacy-peer-deps'
+    }
+}
 
         stage('Lancer les tests') {
             steps {
