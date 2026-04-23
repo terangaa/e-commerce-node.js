@@ -4,7 +4,6 @@ pipeline {
     environment {
         NEXUS_URL = 'http://localhost:8081'
         NEXUS_REPO = 'npm-hosted'
-        SONAR_URL = 'http://localhost:9000'
     }
 
     stages {
@@ -17,11 +16,11 @@ pipeline {
         }
 
         stage('Installer les dependances') {
-    steps {
-        bat 'npm cache clean --force'
-        bat 'npm install --legacy-peer-deps'
-    }
-}
+            steps {
+                bat 'npm cache clean --force'
+                bat 'npm install --legacy-peer-deps'
+            }
+        }
 
         stage('Lancer les tests') {
             steps {
