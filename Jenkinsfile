@@ -2,69 +2,71 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_URL = 'http://localhost:8081'
-        NEXUS_REPO = 'npm-hosted'
         NEXUS_REGISTRY = 'http://localhost:8081/repository/npm-hosted/'
     }
 
     stages {
 
-        stage('📥 Récupérer le code') {
+        stage('Récupérer code') {
             steps {
                 git branch: 'master',
                     url: 'https://github.com/terangaa/e-commerce-node.js.git'
             }
         }
 
-        stage('📦 Installer dépendances') {
+        stage('Install') {
             steps {
-                bat '''
-                    npm cache clean --force
-                    npm install --legacy-peer-deps
-                '''
+                bat 'npm install --legacy-peer-deps'
             }
         }
 
-        stage('🧪 Tests') {
+        stage('Tests') {
             steps {
                 bat 'npm test'
             }
         }
 
-        stage('🔐 Configurer authentification Nexus (.npmrc)') {
+        stage('Configurer Nexus AUTH (FIX FINAL)') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'nexus-cred',
-                                                  usernameVariable: 'NEXUS_USER',
-                                                  passwordVariable: 'NEXUS_PASS')]) {
+                                                  usernameVariable: 'USER',
+                                                  passwordVariable: 'PASS')]) {
                     bat """
                         echo registry=%NEXUS_REGISTRY% > .npmrc
                         echo always-auth=true >> .npmrc
-                        echo email=jenkins@local >> .npmrc
 
-                        echo //localhost:8081/repository/npm-hosted/:username=%NEXUS_USER% >> .npmrc
-                        echo //localhost:8081/repository/npm-hosted/:_password=%NEXUS_PASS% >> .npmrc
-                        echo //localhost:8081/repository/npm-hosted/:always-auth=true >> .npmrc
+                        echo //localhost:8081/repository/npm-hosted/:username=%USER% >> .npmrc
+                        echo //localhost:8081/repository/npm-hosted/:_password=%PASS% >> .npmrc
+                        echo //localhost:8081/repository/npm-hosted/:email=jenkins@local >> .npmrc
+
+                        npm config set registry %NEXUS_REGISTRY%
+                        npm config set always-auth true
                     """
                 }
             }
         }
 
-        stage('🚀 Publication vers Nexus') {
+        stage('Vérifier auth (IMPORTANT DEBUG)') {
             steps {
-                bat '''
-                    npm whoami --registry http://localhost:8081/repository/npm-hosted/ || echo "Login OK"
-                    npm publish --registry http://localhost:8081/repository/npm-hosted/
-                '''
+                bat 'npm whoami --registry http://localhost:8081/repository/npm-hosted/ || echo "NON LOGGÉ MAIS CONTINUE"'
+            }
+        }
+
+        stage('Publish Nexus') {
+            steps {
+                bat """
+                    npm publish --registry http://localhost:8081/repository/npm-hosted/ --verbose
+                """
             }
         }
     }
 
     post {
         success {
-            echo '✅ Pipeline terminé avec succès !'
+            echo '✅ Pipeline OK'
         }
         failure {
-            echo '❌ Pipeline échoué ! Vérifie Nexus / auth / credentials'
+            echo '❌ Pipeline échoué - vérifier Nexus permissions'
         }
     }
 }
