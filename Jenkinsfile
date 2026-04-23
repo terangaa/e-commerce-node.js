@@ -27,29 +27,26 @@ pipeline {
             }
         }
 
-       stage('Configurer Nexus (npmrc)') {
+    stage('Configurer Nexus (npmrc)') {
     steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-cred',
                                           usernameVariable: 'NEXUS_USER',
                                           passwordVariable: 'NEXUS_PASS')]) {
             bat """
-                set NEXUS_AUTH=echo -n %NEXUS_USER%:%NEXUS_PASS% ^| openssl base64
-
                 npm config set registry http://localhost:8081/repository/npm-hosted/
                 npm config set always-auth true
 
-                echo registry=http://localhost:8081/repository/npm-hosted/ > .npmrc
-                echo always-auth=true >> .npmrc
-                echo email=jenkins@local >> .npmrc
+                node -e "console.log('registry=http://localhost:8081/repository/npm-hosted/')" > .npmrc
 
-                for /f %%i in ('node -e "console.log(Buffer.from(process.env.NEXUS_USER+':'+process.env.NEXUS_PASS).toString('base64'))"') do set AUTH=%%i
+                node -e "console.log('always-auth=true')" >> .npmrc
 
-                echo //localhost:8081/repository/npm-hosted/:_auth=%AUTH% >> .npmrc
+                node -e "console.log('email=jenkins@local')" >> .npmrc
+
+                node -e "console.log('//' + 'localhost:8081/repository/npm-hosted/:_auth=' + Buffer.from(process.env.NEXUS_USER + ':' + process.env.NEXUS_PASS).toString('base64'))" >> .npmrc
             """
         }
     }
 }
-        }
 
       stage('Publier vers Nexus') {
     steps {
