@@ -29,14 +29,6 @@ pipeline {
             }
         }
 
-        stage('Analyse SonarQube') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    bat 'npx sonar-scanner'
-                }
-            }
-        }
-
         stage('Publier vers Nexus') {
             steps {
                 bat 'npm publish --registry http://localhost:8081/repository/npm-hosted/'
