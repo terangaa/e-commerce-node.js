@@ -9,7 +9,8 @@
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
-        "migrate": "node scripts/init-db.js"
+        "migrate": "node scripts/init-db.js",
+        "test": "echo \"No tests yet\" && exit 0"
     },
     "author": "GitHub Copilot",
     "license": "MIT",
