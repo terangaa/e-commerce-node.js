@@ -17,42 +17,39 @@ pipeline {
 
         stage('Installer les dependances') {
             steps {
-                bat 'npm cache clean --force'
                 bat 'npm install --legacy-peer-deps'
             }
         }
 
-        stage('Lancer les tests') {
+        stage('Tests') {
             steps {
                 bat 'npm test'
             }
         }
-	
-       stage('Configurer Nexus') {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'nexus-cred',
-                                          usernameVariable: 'NEXUS_USER',
-                                          passwordVariable: 'NEXUS_PASS')]) {
-            bat """
-                npm config set registry http://localhost:8081/repository/npm-hosted/
-                npm config set always-auth true
 
-                echo registry=http://localhost:8081/repository/npm-hosted/ > .npmrc
-                echo //localhost:8081/repository/npm-hosted/:username=%NEXUS_USER% >> .npmrc
-                echo //localhost:8081/repository/npm-hosted/:password=%NEXUS_PASS% >> .npmrc
-                echo //localhost:8081/repository/npm-hosted/:email=jenkins@local >> .npmrc
-                echo always-auth=true >> .npmrc
-            """
-        }
-    }
-}
-
-        stage('Publier vers Nexus') {
+        stage('Configurer Nexus (npmrc)') {
             steps {
-                bat 'npm publish --registry http://localhost:8081/repository/npm-hosted/'
+                withCredentials([usernamePassword(credentialsId: 'nexus-cred',
+                                                  usernameVariable: 'NEXUS_USER',
+                                                  passwordVariable: 'NEXUS_PASS')]) {
+                    bat """
+                        if exist .npmrc del .npmrc
+
+                        echo registry=http://localhost:8081/repository/npm-hosted/ > .npmrc
+                        echo always-auth=true >> .npmrc
+                        echo //localhost:8081/repository/npm-hosted/:username=%NEXUS_USER% >> .npmrc
+                        echo //localhost:8081/repository/npm-hosted/:password=%NEXUS_PASS% >> .npmrc
+                        echo //localhost:8081/repository/npm-hosted/:email=jenkins@local >> .npmrc
+                    """
+                }
             }
         }
 
+        stage('Publier vers Nexus') {
+            steps {
+                bat 'npm publish --userconfig .npmrc'
+            }
+        }
     }
 
     post {
