@@ -45,12 +45,11 @@ pipeline {
             }
         }
 
-        stage('Publier vers Nexus') {
-            steps {
-                bat 'npm publish --userconfig .npmrc'
-            }
-        }
+      stage('Publier vers Nexus') {
+    steps {
+        bat 'npm publish'
     }
+}
 
     post {
         success {
