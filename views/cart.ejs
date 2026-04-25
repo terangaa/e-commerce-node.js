@@ -640,6 +640,8 @@
         margin-top: 0.75rem;
         position: relative;
         overflow: hidden;
+        cursor: pointer;
+        z-index: 1;
       }
 
       .btn-whatsapp-order::before {
@@ -1038,17 +1040,19 @@
                   <div class="checkout-separator">
                     <span>ou</span>
                   </div>
-                  <button onclick="orderViaWhatsApp()" class="btn-whatsapp-order">
-                    <i class="fab fa-whatsapp me-2"></i> Commander via WhatsApp
-                  </button>
+                   <button type="button" id="whatsappOrderBtn" class="btn-whatsapp-order">
+                     <i class="fab fa-whatsapp me-2"></i> Commander via WhatsApp
+                   </button>
                   <p class="info-text">
                     <i class="fas fa-bolt"></i> Simple et rapide - Pas de formulaire à remplir
                   </p>
-                  
+
                   <div class="qr-code-section">
                     <p class="qr-text"><i class="fas fa-qrcode me-2"></i>Scanner pour commander</p>
-                    <a href="#" onclick="orderViaWhatsApp()" class="qr-code-btn">
-                      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/<%= typeof ownerWhatsApp !== 'undefined' ? ownerWhatsApp : '221711423982' %>" alt="QR Code WhatsApp" class="qr-code-img">
+                    <a href="#" id="whatsappQrBtn" class="qr-code-btn">
+                      <img
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/<%= typeof ownerWhatsApp !== 'undefined' ? ownerWhatsApp : '221765957481' %>"
+                        alt="QR Code WhatsApp" class="qr-code-img">
                     </a>
                   </div>
                   <% } %>
@@ -1067,7 +1071,8 @@
 
       <script>
         const cartTotalAmount = <%= totalAmount || 0 %>;
-        const ownerWhatsApp = '<%= typeof ownerWhatsApp !== "undefined" ? ownerWhatsApp : "221711423982" %>';
+        const ownerWhatsApp = "<%= ownerWhatsApp || '221765957481' %>";
+        const cartItems = <%- JSON.stringify(cartItems || []) %>;
         let appliedCoupon = null;
 
         function updateQuantity(btn, change) {
@@ -1080,11 +1085,8 @@
         }
 
         function orderViaWhatsApp() {
-          const cartItems = <%- JSON.stringify(cartItems || []) %>;
-
           let message = "🛒 *NOUVELLE COMMANDE*\n\n";
           message += "*Articles commandés:*\n";
-
           let total = 0;
           cartItems.forEach(item => {
             const name = item.product ? item.product.name : 'Produit';
@@ -1092,10 +1094,8 @@
             const qty = item.quantity || 1;
             const itemTotal = price * qty;
             total += itemTotal;
-
             message += `• ${name} x${qty} = ${itemTotal} Fcfa\n`;
           });
-
           if (appliedCoupon) {
             const discount = cartTotalAmount - total;
             if (discount > 0) {
@@ -1103,46 +1103,57 @@
               message += `*Remise:* -${discount} Fcfa\n`;
             }
           }
-
-          message += `\n💰 *Total de ma commande:* ${cartTotalAmount} Fcfa\n`;
-          message += `\n📍 *Merci de me contacter pour confirmer mon adresse de livraison et les détails de ma commande.*`;
-
-          const encodedMessage = encodeURIComponent(message);
-          const whatsappUrl = `https://wa.me/${ownerWhatsApp}?text=${encodedMessage}`;
-
-          window.open(whatsappUrl, '_blank');
+          message += `\n💰 *Total:* ${cartTotalAmount} Fcfa\n`;
+          message += `\n📍 Merci de confirmer la livraison.`;
+          const url = `https://wa.me/${ownerWhatsApp}?text=${encodeURIComponent(message)}`;
+          window.open(url, '_blank');
         }
 
-        async function applyCoupon() {
-          const code = document.getElementById('couponCode').value;
+        function applyCoupon() {
+          const code = document.getElementById('couponCode').value.trim().toUpperCase();
+          const messageEl = document.getElementById('couponMessage');
+          const discountInfo = document.getElementById('discountInfo');
+          const discountRow = document.getElementById('discountRow');
+          const discountAmount = document.getElementById('discountAmount');
+          const discountRowAmount = document.getElementById('discountRowAmount');
+          const finalTotal = document.getElementById('finalTotal');
+          const coupons = {
+            'PROMO10': 10,
+            'PROMO20': 20,
+            'PROMO50': 50,
+          };
           if (!code) {
-            document.getElementById('couponMessage').innerText = 'Veuillez entrer un code promo';
-            document.getElementById('couponMessage').style.color = 'var(--danger)';
+            messageEl.textContent = "Veuillez entrer un code promo.";
+            messageEl.style.color = 'var(--danger)';
             return;
           }
-
-          const res = await fetch('/coupons/validate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, orderAmount: cartTotalAmount })
-          });
-
-          const data = await res.json();
-
-          if (data.success) {
-            document.getElementById('discountInfo').style.display = 'block';
-            document.getElementById('discountAmount').innerText = data.data.discount;
-            document.getElementById('discountRow').style.display = 'flex';
-            document.getElementById('discountRowAmount').innerText = data.data.discount;
-            document.getElementById('finalTotal').innerText = data.data.finalAmount + ' Fcfa';
-            document.getElementById('couponMessage').innerText = 'Code promo appliqué avec succès!';
-            document.getElementById('couponMessage').style.color = 'var(--success)';
+          if (coupons[code] !== undefined) {
+            const percent = coupons[code];
+            const discount = Math.round(cartTotalAmount * percent / 100);
+            const newTotal = cartTotalAmount - discount;
             appliedCoupon = code;
+            discountAmount.textContent = discount;
+            discountRowAmount.textContent = discount;
+            discountInfo.style.display = 'block';
+            discountRow.style.display = 'flex';
+            finalTotal.textContent = `${newTotal} Fcfa`;
+            messageEl.textContent = `✅ Code "${code}" appliqué — ${percent}% de remise !`;
+            messageEl.style.color = 'var(--success)';
           } else {
-            document.getElementById('couponMessage').innerText = data.error || 'Code promo invalide';
-            document.getElementById('couponMessage').style.color = 'var(--danger)';
+            appliedCoupon = null;
+            discountInfo.style.display = 'none';
+            discountRow.style.display = 'none';
+            finalTotal.textContent = `${cartTotalAmount} Fcfa`;
+            messageEl.textContent = "❌ Code promo invalide.";
+            messageEl.style.color = 'var(--danger)';
           }
         }
+
+        document.getElementById('whatsappOrderBtn')?.addEventListener('click', orderViaWhatsApp);
+        document.getElementById('whatsappQrBtn')?.addEventListener('click', function(e) {
+          e.preventDefault();
+          orderViaWhatsApp();
+        });
       </script>
 </body>
 

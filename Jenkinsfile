@@ -2,47 +2,71 @@ pipeline {
     agent any
 
     environment {
-        NEXUS_URL = 'http://localhost:8081'
-        NEXUS_REPO = 'npm-hosted'
-        SONAR_URL = 'http://localhost:9000'
+        NEXUS_REGISTRY = 'http://localhost:8081/repository/npm-hosted/'
     }
 
     stages {
 
-        stage('Recuperer le code') {
+        stage('Récupérer code') {
             steps {
                 git branch: 'master',
                     url: 'https://github.com/terangaa/e-commerce-node.js.git'
             }
         }
 
-        stage('Installer les dependances') {
-    steps {
-        bat 'npm cache clean --force'
-        bat 'npm install --legacy-peer-deps'
-    }
-}
+        stage('Install') {
+            steps {
+                bat 'npm install --legacy-peer-deps'
+            }
+        }
 
-        stage('Lancer les tests') {
+        stage('Tests') {
             steps {
                 bat 'npm test'
             }
         }
 
-        stage('Publier vers Nexus') {
+        stage('Configurer Nexus AUTH (FIX FINAL)') {
             steps {
-                bat 'npm publish --registry http://localhost:8081/repository/npm-hosted/'
+                withCredentials([usernamePassword(credentialsId: 'nexus-cred',
+                                                  usernameVariable: 'USER',
+                                                  passwordVariable: 'PASS')]) {
+                    bat """
+                        echo registry=%NEXUS_REGISTRY% > .npmrc
+                        echo always-auth=true >> .npmrc
+
+                        echo //localhost:8081/repository/npm-hosted/:username=%USER% >> .npmrc
+                        echo //localhost:8081/repository/npm-hosted/:_password=%PASS% >> .npmrc
+                        echo //localhost:8081/repository/npm-hosted/:email=jenkins@local >> .npmrc
+
+                        npm config set registry %NEXUS_REGISTRY%
+                        npm config set always-auth true
+                    """
+                }
             }
         }
 
+        stage('Vérifier auth (IMPORTANT DEBUG)') {
+            steps {
+                bat 'npm whoami --registry http://localhost:8081/repository/npm-hosted/ || echo "NON LOGGÉ MAIS CONTINUE"'
+            }
+        }
+
+        stage('Publish Nexus') {
+            steps {
+                bat """
+                    npm publish --registry http://localhost:8081/repository/npm-hosted/ --verbose
+                """
+            }
+        }
     }
 
     post {
         success {
-            echo 'Pipeline termine avec succes !'
+            echo '✅ Pipeline OK'
         }
         failure {
-            echo 'Pipeline echoue !'
+            echo '❌ Pipeline échoué - vérifier Nexus permissions'
         }
     }
 }

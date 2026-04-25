@@ -321,7 +321,7 @@ router.get('/orders/:id/invoice', async (req, res) => {
     doc.moveDown(2);
 
     doc.fontSize(11)
-      .text("Service client: 76 613 74 08", 40, 90)
+      .text("Service client: 765957481", 40, 90)
       .text("ceesaysamba24@gmail.com", 40, 105);
 
     // ================= CLIENT INFO =================
@@ -410,8 +410,7 @@ router.get('/orders/:id/invoice', async (req, res) => {
       .text(`${grandTotal.toLocaleString('fr-FR')} CFA`, 310, y + 22);
 
     // ================= QR CODE =================
-    // ================= QR CODE =================
-    const phone = "221766137408";
+    const phone = "221765957481";
 
     // ⚠️ message simple pour test
     const message = encodeURIComponent("Bonjour JIM Shopping");
@@ -444,7 +443,7 @@ router.get('/orders/:id/invoice', async (req, res) => {
 
     doc.fontSize(8)
       .text(
-        "E-COMMERCE-JIM - Dakar, Senegal | Tel: +221 76 613 74 08",
+        "E-COMMERCE-JIM - Dakar, Senegal | Tel: +221 765957481",
         40,
         y + 35,
         { align: 'center', width: 515 }
@@ -540,9 +539,9 @@ router.get('/settings', async (req, res) => {
   const settings = global.siteSettings || {
     shopName: 'JIM Shopping',
     shopAddress: 'Dakar, Sénégal',
-    contactEmail: 'contact@jim-shopping.com',
-    contactPhone: '+221 77 000 00 00',
-    ownerWhatsApp: '221770000000'
+    contactEmail: 'ceesaysamba24@gmail.com',
+    contactPhone: '+221 765957481',
+    ownerWhatsApp: '221765957481'
   };
   res.render('admin/settings', { user: req.session.user, settings });
 });
@@ -552,9 +551,9 @@ router.post('/settings', async (req, res) => {
   global.siteSettings = {
     shopName: shopName || 'JIM Shopping',
     shopAddress: shopAddress || 'Dakar, Sénégal',
-    contactEmail: contactEmail || 'contact@jim-shopping.com',
-    contactPhone: contactPhone || '+221 77 000 00 00',
-    ownerWhatsApp: ownerWhatsApp ? ownerWhatsApp.replace(/\D/g, '') : '221770000000'
+    contactEmail: contactEmail || 'ceesaysamba24@gmail.com',
+    contactPhone: contactPhone || '+221 765957481',
+    ownerWhatsApp: ownerWhatsApp ? ownerWhatsApp.replace(/\D/g, '') : '221765957481'
   };
   global.ownerWhatsApp = global.siteSettings.ownerWhatsApp;
   res.redirect('/admin/settings');

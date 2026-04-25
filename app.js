@@ -51,7 +51,7 @@ app.use(session({
 app.use((req, res, next) => {
   res.locals.user = req.session?.user || null;
   res.locals.locale = req.getLocale?.() || 'fr';
-  res.locals.ownerWhatsApp = process.env.OWNER_WHATSAPP || "221711423982";
+  res.locals.ownerWhatsApp = process.env.OWNER_WHATSAPP || "221765957481";
   next();
 });
 
@@ -157,7 +157,9 @@ async function start() {
     console.log('✅ Base de données connectée.');
 
     // 🔥 IMPORTANT
-    await sequelize.sync(); // PAS alter: true
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync();
+    }
 
     app.listen(PORT, () => {
       console.log(`✅ Serveur démarré sur port ${PORT}`);
