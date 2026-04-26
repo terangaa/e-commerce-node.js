@@ -1270,28 +1270,35 @@
               <div class="col-6 col-lg-4 col-md-6">
                 <div class="product-card-modern">
                   <div class="product-image-wrapper">
-                    <% if(product.imageUrl){ %>
-                      <img src="/public<%= product.imageUrl %>" alt="<%= product.name %>">
-                      <% } else { %>
-                        <img src="https://via.placeholder.com/400x300?text=JIM+Product" alt="Product">
-                        <% } %>
-                          <div class="product-badges-modern">
-                            <span class="badge-modern new">Nouveau</span>
-                            <% if(product.price> 50000) { %>
-                              <span class="badge-modern hot">Hot</span>
-                              <% } %>
-                          </div>
-                          <div class="product-actions-modern">
-                            <button class="action-btn-modern" title="Favoris">
-                              <i class="fas fa-heart"></i>
-                            </button>
-                            <button class="action-btn-modern" title="Vue rapide">
-                              <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn-modern" title="Comparer">
-                              <i class="fas fa-balance-scale"></i>
-                            </button>
-                          </div>
+                    <% if (product.imageUrl && product.imageUrl.startsWith('http')) { %>
+                      <!-- IMAGE CLOUD (Cloudinary, URL externe) -->
+                      <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
+
+                      <% } else if (product.imageUrl) { %>
+                        <!-- IMAGE LOCALE (upload serveur) -->
+                        <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
+
+                        <% } else { %>
+                          <!-- FALLBACK -->
+                          <img src="https://via.placeholder.com/400x300?text=JIM+Product" alt="Product">
+                          <% } %>
+                            <div class="product-badges-modern">
+                              <span class="badge-modern new">Nouveau</span>
+                              <% if(product.price> 50000) { %>
+                                <span class="badge-modern hot">Hot</span>
+                                <% } %>
+                            </div>
+                            <div class="product-actions-modern">
+                              <button class="action-btn-modern" title="Favoris">
+                                <i class="fas fa-heart"></i>
+                              </button>
+                              <button class="action-btn-modern" title="Vue rapide">
+                                <i class="fas fa-eye"></i>
+                              </button>
+                              <button class="action-btn-modern" title="Comparer">
+                                <i class="fas fa-balance-scale"></i>
+                              </button>
+                            </div>
                   </div>
                   <div class="product-content">
                     <div class="product-category-modern">

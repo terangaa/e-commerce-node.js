@@ -2943,12 +2943,12 @@
 
     <div class="content">
 
-      <% if (error) { %>
-        <div class="alert alert-danger"><i class="fa fa-circle-exclamation"></i>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger"><i class="fa fa-circle-exception"></i>
           <%= error %>
         </div>
         <% } %>
-          <% if (success) { %>
+          <% if (typeof success !== 'undefined' && success) { %>
             <div class="alert alert-success"><i class="fa fa-circle-check"></i>
               <%= success %>
             </div>
