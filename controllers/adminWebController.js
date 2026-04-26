@@ -75,55 +75,100 @@ async function dashboard(req, res, next) {
 }
 
 // ================= ADD PRODUCT PAGE =================
+// ================= ADD PRODUCT PAGE =================
 async function showAddProduct(req, res) {
-  const categories = await Category.findAll();
+  try {
+    const categories = await Category.findAll();
 
-  res.render('admin/addProduct', {
-    categories: categories || [],
-    formData: {},
-    selectedTab: 'products'
-  });
+    return res.render('admin/addProduct', {
+      user: req.session.user,
+      formData: {},              // ✅ FIX IMPORTANT
+      categories: categories || [],
+      error: null,
+      success: null
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).render('admin/addProduct', {
+      user: req.session.user,
+      formData: {},
+      categories: [],
+      error: "Erreur serveur",
+      success: null
+    });
+  }
 }
 
 // ================= CREATE PRODUCT =================
-async function addProduct(req, res, next) {
+async function addProduct(req, res) {
   try {
-    const { name, description, price, stock, categoryId, status } = req.body;
+    const { name, price, description, stock, categoryId, status } = req.body;
+    const categories = await Category.findAll();
 
-    let imageUrl = null;
-
-    if (req.file) {
-      const result = await uploadToCloudinary(req.file.buffer);
-      imageUrl = result.secure_url;
+    if (!name || !price) {
+      return res.render('admin/addProduct', {
+        user: req.session.user,
+        formData: req.body,   // ✅ pour re-remplir le form
+        categories,
+        error: "Nom et prix obligatoires",
+        success: null
+      });
     }
 
     await Product.create({
       name,
-      description,
       price,
+      description,
       stock,
       categoryId,
-      status: status === 'actif' ? 'available' : 'unavailable',
-      imageUrl
+      status: status || 'available'
     });
 
-    res.redirect('/admin/dashboard?tab=products');
+    return res.render('admin/addProduct', {
+      user: req.session.user,
+      formData: {},
+      categories,
+      error: null,
+      success: "Produit ajouté avec succès"
+    });
 
   } catch (err) {
-    next(err);
+    console.error(err);
+
+    return res.render('admin/addProduct', {
+      user: req.session.user,
+      formData: req.body,
+      categories: [],
+      error: "Erreur serveur",
+      success: null
+    });
   }
 }
 
 // ================= EDIT PRODUCT =================
 async function showEditProduct(req, res) {
-  const product = await Product.findByPk(req.params.id);
-  const categories = await Category.findAll();
+  try {
+    const product = await Product.findByPk(req.params.id);
+    const categories = await Category.findAll();
 
-  res.render('admin/addProduct', {
-    product,
-    categories: categories || [],
-    selectedTab: 'products'
-  });
+    if (!product) {
+      return res.redirect('/admin/dashboard?tab=products');
+    }
+
+    return res.render('admin/addProduct', {
+      user: req.session.user,
+      formData: product,   // ✅ IMPORTANT
+      categories,
+      error: null,
+      success: null
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.redirect('/admin/dashboard');
+  }
 }
 
 async function updateProduct(req, res, next) {
