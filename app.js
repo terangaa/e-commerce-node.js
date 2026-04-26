@@ -157,9 +157,7 @@ async function start() {
     console.log('✅ Base de données connectée.');
 
     // 🔥 IMPORTANT
-    if (process.env.NODE_ENV !== 'production') {
-      await sequelize.sync();
-    }
+    await sequelize.sync({ alter: true });
 
     app.listen(PORT, () => {
       console.log(`✅ Serveur démarré sur port ${PORT}`);
