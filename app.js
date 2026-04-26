@@ -40,8 +40,11 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+/* 🔥 IMPORTANT POUR RENDER (proxy HTTPS) */
+app.set('trust proxy', 1);
+
 /* ─────────────────────────────
-   🔐 Session
+   🔐 Session (CORRIGÉ)
 ───────────────────────────── */
 app.use(session({
   secret: process.env.SESSION_SECRET || 'change-this-secret',
@@ -49,9 +52,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 7 * 24 * 3600 * 1000,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production', // HTTPS only en prod
     httpOnly: true,
-    sameSite: 'strict'
+    sameSite: 'lax' // 🔥 IMPORTANT (évite blocage login)
   },
 }));
 
@@ -76,13 +79,9 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 /* ─────────────────────────────
-   📁 STATIC FILES (FIX IMPORTANT)
+   📁 STATIC FILES
 ───────────────────────────── */
-
-/* ✅ UNIQUEMENT CETTE VERSION (PROPRE + PRODUCTION SAFE) */
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-
-/* optionnel si tu utilises /public */
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 /* ─────────────────────────────
@@ -162,7 +161,10 @@ async function start() {
     await sequelize.authenticate();
     console.log('✅ DB connectée');
 
-    await sequelize.sync({ alter: true });
+    // 🔥 IMPORTANT: PAS DE SYNC EN PROD
+    if (process.env.NODE_ENV !== 'production') {
+      await sequelize.sync({ alter: true });
+    }
 
     app.listen(PORT, () => {
       console.log(`🚀 Serveur lancé sur port ${PORT}`);
