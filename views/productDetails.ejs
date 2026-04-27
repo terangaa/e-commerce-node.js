@@ -30,7 +30,7 @@
         <div class="col-lg-6">
 
           <% if (product.imageUrl) { %>
-            <img src="/public/<%= product.imageUrl %>" class="img-fluid rounded shadow w-100"
+            <img src="<%= product.imageUrl %>" class="img-fluid rounded shadow w-100"
               style="max-height:400px; object-fit:cover;">
             <% } else { %>
               <img src="https://via.placeholder.com/600x400?text=<%= product.name %>"
