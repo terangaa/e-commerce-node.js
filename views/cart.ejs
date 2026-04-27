@@ -917,11 +917,12 @@
                   <div class="row align-items-center">
                     <div class="col-md-2 col-4">
                       <% if (item.product && item.product.imageUrl) { %>
-                        <img src="/public<%= item.product.imageUrl %>" alt="<%= item.product.name %>"
-                          class="cart-item-image">
+                        <img src="<%= item.product.imageUrl %>" class="img-fluid rounded shadow w-100"
+                          style="max-height:400px; object-fit:cover;">
                         <% } else { %>
-                          <img src="https://via.placeholder.com/100x100?text=Product" alt="Product"
-                            class="cart-item-image">
+                          <img
+                            src="https://via.placeholder.com/600x400?text=<%= item.product ? item.product.name : 'Produit' %>"
+                            class="img-fluid rounded shadow w-100" style="max-height:400px; object-fit:cover;">
                           <% } %>
                     </div>
                     <div class="col-md-4 col-8 mt-3 mt-md-0">
@@ -1040,9 +1041,9 @@
                   <div class="checkout-separator">
                     <span>ou</span>
                   </div>
-                   <button type="button" id="whatsappOrderBtn" class="btn-whatsapp-order">
-                     <i class="fab fa-whatsapp me-2"></i> Commander via WhatsApp
-                   </button>
+                  <button type="button" id="whatsappOrderBtn" class="btn-whatsapp-order">
+                    <i class="fab fa-whatsapp me-2"></i> Commander via WhatsApp
+                  </button>
                   <p class="info-text">
                     <i class="fas fa-bolt"></i> Simple et rapide - Pas de formulaire à remplir
                   </p>
@@ -1072,7 +1073,7 @@
       <script>
         const cartTotalAmount = <%= totalAmount || 0 %>;
         const ownerWhatsApp = "<%= ownerWhatsApp || '221765957481' %>";
-        const cartItems = <%- JSON.stringify(cartItems || []) %>;
+        const cartItems = <% - JSON.stringify(cartItems || []) %>;
         let appliedCoupon = null;
 
         function updateQuantity(btn, change) {
@@ -1150,7 +1151,7 @@
         }
 
         document.getElementById('whatsappOrderBtn')?.addEventListener('click', orderViaWhatsApp);
-        document.getElementById('whatsappQrBtn')?.addEventListener('click', function(e) {
+        document.getElementById('whatsappQrBtn')?.addEventListener('click', function (e) {
           e.preventDefault();
           orderViaWhatsApp();
         });

@@ -104,6 +104,13 @@ async function showAddProduct(req, res) {
 // ================= CREATE PRODUCT =================
 async function addProduct(req, res) {
   try {
+    // 🔍 DEBUG TEMPORAIRE
+    console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME);
+    console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ présent' : '❌ manquant');
+    console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ présent' : '❌ manquant');
+    console.log('req.file:', req.file);
+    console.log('req.body:', req.body);
+
     const { name, price, description, stock, categoryId, status } = req.body;
     const categories = await Category.findAll();
 
@@ -120,31 +127,39 @@ async function addProduct(req, res) {
     // ✅ Upload Cloudinary
     let imageUrl = null;
     if (req.file) {
+      console.log('📤 Upload vers Cloudinary...');
       const result = await uploadToCloudinary(req.file.buffer);
+      console.log('✅ Cloudinary result:', result);
       imageUrl = result.secure_url;
     }
 
     const newProduct = await Product.create({
       name, price, description, stock, categoryId,
       status: status || 'available',
-      imageUrl  // ✅ URL Cloudinary
+      imageUrl
     });
+
+    console.log('✅ Produit créé:', newProduct.dataValues);
 
     return res.render('admin/addProduct', {
       user: req.session.user,
-      formData: newProduct.dataValues, // ✅ imageUrl renvoyé au template
+      formData: newProduct.dataValues,
       categories,
       error: null,
       success: "Produit ajouté avec succès"
     });
 
   } catch (err) {
-    console.error(err);
+    console.error('❌ ERREUR addProduct:', err.message);
+    console.error('❌ STACK:', err.stack);
+    console.error('❌ req.file:', req.file);
+    console.error('❌ req.body:', req.body);
+
     return res.render('admin/addProduct', {
       user: req.session.user,
       formData: req.body,
       categories: [],
-      error: "Erreur serveur",
+      error: err.message, // ← vrai message affiché sur l'écran
       success: null
     });
   }
