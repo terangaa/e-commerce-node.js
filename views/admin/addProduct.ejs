@@ -4,9 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= formData && formData.id ? 'Modifier un produit' : 'Ajouter un produit' %> — JIM Admin</title>
+  <title>
+    <%= formData && formData.id ? 'Modifier un produit' : 'Ajouter un produit' %> — JIM Admin
+  </title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -385,8 +389,15 @@
     }
 
     @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @media(max-width: 1023px) {
@@ -461,7 +472,7 @@
     <nav>
       <div class="nav-section-title">Dashboard</div>
       <a href="/admin/dashboard"><i class="fa fa-chart-line"></i> Dashboard</a>
-      
+
       <div class="nav-section-title">Gestion</div>
       <a href="/admin/orders"><i class="fa fa-shopping-cart"></i> Commandes</a>
       <a href="/admin/products/add" class="active"><i class="fa fa-box"></i> Produits</a>
@@ -480,7 +491,9 @@
           <i class="fa fa-bars"></i>
         </button>
         <div>
-          <h1 class="topbar-title"><%= formData && formData.id ? 'Modifier' : 'Ajouter' %> un produit</h1>
+          <h1 class="topbar-title">
+            <%= formData && formData.id ? 'Modifier' : 'Ajouter' %> un produit
+          </h1>
           <div class="topbar-sub">Gestion du catalogue produits</div>
         </div>
       </div>
@@ -488,94 +501,102 @@
 
     <!-- Content -->
     <div class="content">
-      <% if (error) { %>
+      <% if (typeof error !=='undefined' && error) { %>
         <div class="alert alert-danger">
           <i class="fa fa-circle-exclamation"></i>
           <%= error %>
         </div>
-      <% } %>
+        <% } %>
 
-      <% if (success) { %>
-        <div class="alert alert-success">
-          <i class="fa fa-circle-check"></i>
-          <%= success %>
-        </div>
-      <% } %>
-
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">
-            <i class="fa fa-box"></i>
-            <%= formData && formData.id ? 'Modifier le produit' : 'Nouveau produit' %>
-          </h2>
-        </div>
-        <div class="card-body">
-          <form action="<%= formData && formData.id ? '/admin/products/' + formData.id + '/edit' : '/admin/products/add' %>" method="POST" enctype="multipart/form-data">
-            <div class="form-grid">
-              <div class="form-group">
-                <label class="form-label" for="name">Nom du produit *</label>
-                <input type="text" id="name" name="name" class="form-input" value="<%= formData?.name || '' %>" required>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="price">Prix (FCFA) *</label>
-                <input type="number" id="price" name="price" class="form-input" step="0.01" value="<%= formData?.price || '' %>" required>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="stock">Stock</label>
-                <input type="number" id="stock" name="stock" class="form-input" value="<%= formData?.stock || '' %>">
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="categoryId">Catégorie *</label>
-                <select id="categoryId" name="categoryId" class="form-select" required>
-                  <option value="">Sélectionner une catégorie</option>
-                  <% if (categories && categories.length) { %>
-                    <% categories.forEach(cat => { %>
-                      <option value="<%= cat.id %>" <%=formData?.categoryId == cat.id ? 'selected' : '' %>>
-                        <%= cat.name %>
-                      </option>
-                    <% }) %>
-                  <% } %>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="status">Statut *</label>
-                <select id="status" name="status" class="form-select" required>
-                  <option value="available" <%=formData?.status === 'available' ? 'selected' : '' %>>Actif</option>
-                  <option value="unavailable" <%=formData?.status === 'unavailable' ? 'selected' : '' %>>Inactif</option>
-                </select>
-              </div>
-
-              <div class="form-group full-width">
-                <label class="form-label" for="description">Description</label>
-                <textarea id="description" name="description" class="form-input"><%= formData?.description || '' %></textarea>
-              </div>
-
-              <div class="form-group full-width">
-                <label class="form-label" for="image">Image du produit</label>
-                <input type="file" id="image" name="image" class="form-input" accept="image/*">
-                <% if (formData?.imageUrl) { %>
-                  <img src="<%= formData.imageUrl %>" alt="Image produit" class="image-preview">
-                <% } %>
-              </div>
+          <% if (success) { %>
+            <div class="alert alert-success">
+              <i class="fa fa-circle-check"></i>
+              <%= success %>
             </div>
+            <% } %>
 
-            <div class="btn-group">
-              <button type="submit" class="btn btn-primary">
-                <i class="fa fa-save"></i>
-                <%= formData && formData.id ? 'Mettre à jour' : 'Ajouter le produit' %>
-              </button>
-              <a href="/admin/dashboard" class="btn btn-secondary">
-                <i class="fa fa-times"></i>
-                Annuler
-              </a>
-            </div>
-          </form>
-        </div>
-      </div>
+              <div class="card">
+                <div class="card-header">
+                  <h2 class="card-title">
+                    <i class="fa fa-box"></i>
+                    <%= formData && formData.id ? 'Modifier le produit' : 'Nouveau produit' %>
+                  </h2>
+                </div>
+                <div class="card-body">
+                  <form
+                    action="<%= formData && formData.id ? '/admin/products/' + formData.id + '/edit' : '/admin/products/add' %>"
+                    method="POST" enctype="multipart/form-data">
+                    <div class="form-grid">
+                      <div class="form-group">
+                        <label class="form-label" for="name">Nom du produit *</label>
+                        <input type="text" id="name" name="name" class="form-input" value="<%= formData?.name || '' %>"
+                          required>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label" for="price">Prix (FCFA) *</label>
+                        <input type="number" id="price" name="price" class="form-input" step="0.01"
+                          value="<%= formData?.price || '' %>" required>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label" for="stock">Stock</label>
+                        <input type="number" id="stock" name="stock" class="form-input"
+                          value="<%= formData?.stock || '' %>">
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label" for="categoryId">Catégorie *</label>
+                        <select id="categoryId" name="categoryId" class="form-select" required>
+                          <option value="">Sélectionner une catégorie</option>
+                          <% if (categories && categories.length) { %>
+                            <% categories.forEach(cat=> { %>
+                              <option value="<%= cat.id %>" <%=formData?.categoryId==cat.id ? 'selected' : '' %>>
+                                <%= cat.name %>
+                              </option>
+                              <% }) %>
+                                <% } %>
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label" for="status">Statut *</label>
+                        <select id="status" name="status" class="form-select" required>
+                          <option value="available" <%=formData?.status==='available' ? 'selected' : '' %>>Actif
+                          </option>
+                          <option value="unavailable" <%=formData?.status==='unavailable' ? 'selected' : '' %>>Inactif
+                          </option>
+                        </select>
+                      </div>
+
+                      <div class="form-group full-width">
+                        <label class="form-label" for="description">Description</label>
+                        <textarea id="description" name="description"
+                          class="form-input"><%= formData?.description || '' %></textarea>
+                      </div>
+
+                      <div class="form-group full-width">
+                        <label class="form-label" for="image">Image du produit</label>
+                        <input type="file" id="image" name="image" class="form-input" accept="image/*">
+                        <% if (formData?.imageUrl) { %>
+                          <img src="<%= formData.imageUrl %>" alt="Image produit" class="image-preview">
+                          <% } %>
+                      </div>
+                    </div>
+
+                    <div class="btn-group">
+                      <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save"></i>
+                        <%= formData && formData.id ? 'Mettre à jour' : 'Ajouter le produit' %>
+                      </button>
+                      <a href="/admin/dashboard" class="btn btn-secondary">
+                        <i class="fa fa-times"></i>
+                        Annuler
+                      </a>
+                    </div>
+                  </form>
+                </div>
+              </div>
     </div>
   </div>
 
