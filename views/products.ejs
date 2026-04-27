@@ -11,11 +11,9 @@
 
   <%- include('partials/nav', { user, locale, currentPage: 'products' }) %>
 
-    <% //=========================// SAFE CATEGORY NAME //=========================let categoryName=__('product_list');
-      if (selectedCategoryId && categories && categories.length> 0) {
+    <% let categoryName=__('product_list'); if (selectedCategoryId && categories && categories.length> 0) {
       for (let i = 0; i < categories.length; i++) { if (categories[i].id==selectedCategoryId) {
         categoryName=categories[i].name; break; } } } %>
-
         <div class="container my-5">
           <div class="row">
             <div class="col-12">
