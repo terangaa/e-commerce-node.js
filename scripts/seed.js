@@ -12,7 +12,7 @@ async function seed() {
         await sequelize.sync({ alter: true });
 
         /* =========================
-           👤 ADMIN
+    👤 ADMIN
         ========================= */
         const adminExists = await User.findOne({
             where: { email: "admin@ecommercejim.com" }

@@ -110,25 +110,29 @@ async function addProduct(req, res) {
     if (!name || !price) {
       return res.render('admin/addProduct', {
         user: req.session.user,
-        formData: req.body,   // ✅ pour re-remplir le form
+        formData: req.body,
         categories,
         error: "Nom et prix obligatoires",
         success: null
       });
     }
 
-    await Product.create({
-      name,
-      price,
-      description,
-      stock,
-      categoryId,
-      status: status || 'available'
+    // ✅ Upload Cloudinary
+    let imageUrl = null;
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+      imageUrl = result.secure_url;
+    }
+
+    const newProduct = await Product.create({
+      name, price, description, stock, categoryId,
+      status: status || 'available',
+      imageUrl  // ✅ URL Cloudinary
     });
 
     return res.render('admin/addProduct', {
       user: req.session.user,
-      formData: {},
+      formData: newProduct.dataValues, // ✅ imageUrl renvoyé au template
       categories,
       error: null,
       success: "Produit ajouté avec succès"
@@ -136,7 +140,6 @@ async function addProduct(req, res) {
 
   } catch (err) {
     console.error(err);
-
     return res.render('admin/addProduct', {
       user: req.session.user,
       formData: req.body,
@@ -146,7 +149,6 @@ async function addProduct(req, res) {
     });
   }
 }
-
 // ================= EDIT PRODUCT =================
 async function showEditProduct(req, res) {
   try {
