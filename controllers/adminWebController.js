@@ -29,20 +29,20 @@ const uploadToCloudinary = (fileBuffer) => {
 // ================= DASHBOARD =================
 async function dashboard(req, res, next) {
   try {
-    const products = await Product.findAll({ include: Category });
-
-    const categories = await Category.findAll(); // ✅ IMPORTANT FIX
-
+    const products = await Product.findAll({ 
+      include: [{ model: Category, as: 'category' }] // ✅ ajout as: 'category'
+    });
+    const categories = await Category.findAll();
     const orders = await Order.findAll({
-      include: [{ model: OrderItem, include: [Product] }],
+      include: [{ 
+        model: OrderItem, 
+        include: [{ model: Product, include: [{ model: Category, as: 'category' }] }] // ✅ ajout as
+      }],
       order: [['createdAt', 'DESC']]
     });
-
     const users = await User.findAll();
 
-    // 🔥 données pour charts (sinon EJS crash)
     const recentOrders = orders.slice(0, 10);
-
     const ordersByStatus = {
       pending: orders.filter(o => o.status === 'pending').length,
       paid: orders.filter(o => o.status === 'paid').length,
@@ -53,22 +53,15 @@ async function dashboard(req, res, next) {
 
     res.render('admin/dashboard', {
       user: req.session.user,
-
-      // DATA PRINCIPALE
       products,
       categories,
       orders,
       users,
-
-      // FIX EJS ERROR VARIABLES
       selectedTab: req.query.tab || 'dashboard',
       error: null,
-
-      // CHART DATA
       recentOrders,
       ordersByStatus
     });
-
   } catch (err) {
     next(err);
   }
