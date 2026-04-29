@@ -1,156 +1,240 @@
-<% const _user=typeof user !=='undefined' ? user : null; const _locale=typeof locale !=='undefined' ? locale : 'fr' ;
-  const _currentPage=typeof currentPage !=='undefined' ? currentPage : '' ; const _cartCount=typeof cartCount
-  !=='undefined' ? cartCount : 0; const _cartItems=typeof cartItems !=='undefined' ? cartItems : []; const
-  _totalAmount=typeof totalAmount !=='undefined' ? totalAmount : 0; %>
+<%
+const _user = typeof user !== 'undefined' ? user : null;
+const _locale = typeof locale !== 'undefined' ? locale : 'fr';
+const _currentPage = typeof currentPage !== 'undefined' ? currentPage : '';
+const _cartCount = typeof cartCount !== 'undefined' ? cartCount : 0;
+const _cartItems = typeof cartItems !== 'undefined' ? cartItems : [];
+const _totalAmount = typeof totalAmount !== 'undefined' ? totalAmount : 0;
+%>
 
-  <% if (!(_user && _user.role==='admin' )) { %>
+<% if (!(_user && _user.role === 'admin')) { %>
 
-    <nav class="navbar navbar-expand-xl navbar-light bg-white shadow-sm">
-      <div class="container-fluid px-2 px-md-4">
+<style>
+  .navbar-modern {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
 
-        <!-- LOGO -->
-        <a class="navbar-brand d-flex align-items-center" href="/">
-          <img src="/public/uploads/logos.jpeg" style="height:40px;width:40px;border-radius:8px;">
-          <span class="fw-bold ms-2">JIM Shopping</span>
-        </a>
+  .brand-modern {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: #ff6a00;
+    text-decoration: none;
+  }
 
-        <!-- MOBILE BTN -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+  .brand-modern img {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(255,106,0,0.25);
+  }
 
-        <div class="collapse navbar-collapse" id="navbarMain">
+  .nav-link {
+    font-weight: 500;
+    position: relative;
+    transition: 0.3s;
+  }
 
-          <!-- MENU -->
-          <ul class="navbar-nav me-auto">
+  .nav-link:hover {
+    color: #ff6a00 !important;
+    transform: translateY(-1px);
+  }
 
-            <li class="nav-item">
-              <a class="nav-link <%= _currentPage === 'home' ? 'active' : '' %>" href="/">Accueil</a>
-            </li>
+  .nav-link.active {
+    color: #ff6a00 !important;
+    font-weight: 700;
+  }
 
-            <li class="nav-item">
-              <a class="nav-link <%= _currentPage === 'products' ? 'active' : '' %>" href="/products">Produits</a>
-            </li>
+  .nav-link.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background: #ff6a00;
+    border-radius: 10px;
+  }
 
-            <!-- PANIER -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="/products/cart" data-bs-toggle="dropdown">
-                🛒 (<%= _cartCount %>)
-              </a>
+  .cart-badge {
+    background: linear-gradient(135deg,#ff6a00,#ff8533);
+    color: white;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+    margin-left: 5px;
+  }
 
-              <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width:300px;">
+  .btn-modern {
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-weight: 600;
+    transition: 0.3s;
+  }
 
-                <% if (_cartItems.length> 0) { %>
+  .btn-modern:hover {
+    transform: translateY(-2px);
+  }
 
-                  <% _cartItems.slice(0,3).forEach(function(item) { %>
+  .dropdown-menu {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  }
 
-                    <li class="d-flex align-items-center mb-2">
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
 
-                      <!-- IMAGE -->
-                      <% if (item.product && item.product.imageUrl) { %>
-                        <img src="/public/<%= item.product.imageUrl %>"
-                          style="width:40px;height:40px;border-radius:5px;">
-                        <% } else { %>
-                          <img src="https://via.placeholder.com/40">
-                          <% } %>
+  .cart-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
 
-                            <!-- INFOS -->
-                            <div class="ms-2 flex-grow-1">
-                              <div style="font-size:14px;">
-                                <%= item.product ? item.product.name : 'Produit supprimé' %>
-                              </div>
-                              <small>
-                                <%= item.quantity %> x
-                                  <%= item.product ? item.product.price : 0 %> Fcfa
-                              </small>
-                            </div>
+  .cart-total {
+    font-weight: 800;
+    text-align: right;
+    padding: 8px 0;
+  }
+</style>
 
-                            <!-- DELETE -->
-                            <button class="btn btn-sm btn-danger"
-                              onclick="removeFromCart('<%= item.product ? item.product.id : 0 %>')">
-                              X
-                            </button>
+<nav class="navbar navbar-expand-xl navbar-light navbar-modern shadow-sm sticky-top">
+  <div class="container-fluid px-3">
 
-                    </li>
+    <!-- BRAND -->
+    <a class="brand-modern" href="/">
+      <img src="/public/uploads/logos.jpeg" alt="logo">
+      <span>JIM Shopping</span>
+    </a>
 
-                    <% }); %>
+    <!-- MOBILE -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-                      <li>
-                        <hr>
-                      </li>
+    <div class="collapse navbar-collapse" id="navMain">
 
-                      <li class="text-end fw-bold">
-                        Total: <%= _totalAmount %> Fcfa
-                      </li>
+      <!-- LEFT MENU -->
+      <ul class="navbar-nav me-auto gap-2">
 
-                      <li class="text-center mt-2">
-                        <a href="/products/cart" class="btn btn-sm btn-primary">
-                          Voir panier
-                        </a>
-                      </li>
+        <li class="nav-item">
+          <a class="nav-link <%= _currentPage === 'home' ? 'active' : '' %>" href="/">Accueil</a>
+        </li>
 
-                      <% } else { %>
+        <li class="nav-item">
+          <a class="nav-link <%= _currentPage === 'products' ? 'active' : '' %>" href="/products">
+            Produits
+          </a>
+        </li>
 
-                        <li class="text-center text-muted">
-                          Panier vide
-                        </li>
+        <!-- CART -->
+        <li class="nav-item dropdown">
+          <a class="nav-link" data-bs-toggle="dropdown" href="/products/cart">
+            🛒 <span class="cart-badge"><%= _cartCount %></span>
+          </a>
 
-                        <% } %>
+          <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width:320px;">
 
-              </ul>
-            </li>
+            <% if (_cartItems.length > 0) { %>
 
-          </ul>
+              <% _cartItems.slice(0,3).forEach(item => { %>
 
-          <!-- DROITE -->
-          <ul class="navbar-nav align-items-center">
+                <li class="cart-item">
+                  <% if (item.product && item.product.imageUrl) { %>
+                    <img src="/public/<%= item.product.imageUrl %>">
+                  <% } else { %>
+                    <img src="https://via.placeholder.com/40">
+                  <% } %>
 
-            <!-- LANGUE -->
-            <li class="nav-item me-3">
-              <a href="?lang=<%= _locale === 'fr' ? 'en' : 'fr' %>">
-                <%= _locale==='fr' ? 'EN' : 'FR' %>
-              </a>
-            </li>
+                  <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:600;">
+                      <%= item.product ? item.product.name : 'Produit' %>
+                    </div>
+                    <small class="text-muted">
+                      <%= item.quantity %> x <%= item.product ? item.product.price : 0 %> Fcfa
+                    </small>
+                  </div>
 
-            <!-- USER -->
-            <% if (_user) { %>
-              <li class="nav-item me-2">
-                Bonjour <strong>
-                  <%= _user.name %>
-                </strong>
-              </li>
-              <li class="nav-item">
-                <a href="/auth/logout" class="btn btn-sm btn-outline-danger">
-                  Logout
-                </a>
-              </li>
-              <% } else { %>
-                <li class="nav-item">
-                  <a href="/auth/login" class="btn btn-sm btn-outline-primary">
-                    Login
-                  </a>
+                  <button class="btn btn-sm btn-danger"
+                    onclick="removeFromCart('<%= item.product ? item.product.id : 0 %>')">
+                    ×
+                  </button>
                 </li>
-                <% } %>
+
+              <% }) %>
+
+              <hr>
+
+              <div class="cart-total">
+                Total: <%= _totalAmount %> Fcfa
+              </div>
+
+              <a href="/products/cart" class="btn btn-primary w-100 btn-modern mt-2">
+                Voir panier
+              </a>
+
+            <% } else { %>
+              <p class="text-center text-muted mb-0">Panier vide</p>
+            <% } %>
 
           </ul>
+        </li>
 
-        </div>
-      </div>
-    </nav>
+      </ul>
 
-    <!-- SCRIPT -->
-    <script>
-      function removeFromCart(productId) {
-        fetch('/products/cart/remove', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: 'productId=' + encodeURIComponent(productId)
-        })
-          .then(() => location.reload())
-          .catch(err => console.error(err));
-      }
-    </script>
+      <!-- RIGHT -->
+      <ul class="navbar-nav align-items-center gap-2">
 
-    <% } %>
+        <!-- LANGUAGE -->
+        <li class="nav-item">
+          <a class="nav-link" href="?lang=<%= _locale === 'fr' ? 'en' : 'fr' %>">
+            <%= _locale === 'fr' ? 'EN' : 'FR' %>
+          </a>
+        </li>
+
+        <!-- USER -->
+        <% if (_user) { %>
+          <li class="nav-item">
+            <span class="nav-link">Bonjour <strong><%= _user.name %></strong></span>
+          </li>
+
+          <li class="nav-item">
+            <a href="/auth/logout" class="btn btn-outline-danger btn-modern">
+              Logout
+            </a>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a href="/auth/login" class="btn btn-outline-primary btn-modern">
+              Login
+            </a>
+          </li>
+        <% } %>
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+<script>
+function removeFromCart(productId) {
+  fetch('/products/cart/remove', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'productId=' + encodeURIComponent(productId)
+  }).then(() => location.reload());
+}
+</script>
+
+<% } %>

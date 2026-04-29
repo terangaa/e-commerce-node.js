@@ -1,8 +1,7 @@
-const { Product, Category } = require('../models');
-const { buildOrderAndNotify } = require('./orderController');
-const { sendContactNotification } = require('../services/emailService');
+// ✅ CORRECT
+const { sequelize, Product, Category } = require('../models');
 const { Op } = require('sequelize');
-
+const { sendContactNotification } = require('../services/emailService');
 /* =========================
    HELPERS
 ========================= */
@@ -11,11 +10,15 @@ async function getCartData(req) {
   const productIds = cart.map(i => i.productId);
 
   const products = productIds.length
-    ? await Product.findAll({ where: { id: productIds }, include: Category })
+    ? await Product.findAll({
+        where: { id: productIds },
+        include: [{ model: Category, as: 'category' }]
+      })
     : [];
 
   const cartItems = cart.map(item => {
     const product = products.find(p => p.id === item.productId);
+
     return {
       product,
       quantity: item.quantity,
@@ -34,26 +37,26 @@ async function getCartData(req) {
 ========================= */
 async function home(req, res, next) {
   try {
-    const categories = await Category.findAll({ include: Product });
+    const categories = await Category.findAll({
+      include: [{ model: Product, as: 'products' }]
+    });
+
     const topProducts = await Product.findAll({
       limit: 8,
       order: [['createdAt', 'DESC']],
-      include: [Category]
+      include: [{ model: Category, as: 'category' }]
     });
 
-    const searchQuery = req.query.q || '';
     const { cartItems, totalAmount, cartCount } = await getCartData(req);
 
     res.render('home', {
       categories,
       topProducts,
-      searchQuery,
       cartItems,
       totalAmount,
       cartCount,
-      __: res.__,
-      locale: req.getLocale(),
       user: req.session?.user || null,
+      locale: req.getLocale(),
       currentPage: 'home'
     });
 
@@ -68,15 +71,15 @@ async function home(req, res, next) {
 async function listProducts(req, res, next) {
   try {
     const categories = await Category.findAll();
-    const selectedCategoryId = req.query.categoryId ? Number(req.query.categoryId) : null;
-    const searchQuery = req.query.q || '';
-
     const where = { status: 'available' };
-
+    const selectedCategoryId = req.query.categoryId
+      ? Number(req.query.categoryId)
+      : null;
+    const searchQuery = req.query.q || '';
+    
     if (selectedCategoryId) {
       where.categoryId = selectedCategoryId;
     }
-
     if (searchQuery) {
       where[Op.or] = [
         { name: { [Op.like]: `%${searchQuery}%` } },
@@ -84,9 +87,12 @@ async function listProducts(req, res, next) {
       ];
     }
 
-    const products = await Product.findAll({ where, include: Category });
-    const { cartItems, totalAmount, cartCount } = await getCartData(req);
+    const products = await Product.findAll({
+      where,
+      include: [{ model: Category, as: 'category', required: false }]
+    });
 
+    const { cartItems, totalAmount, cartCount } = await getCartData(req);
     res.render('products', {
       products,
       categories,
@@ -95,24 +101,24 @@ async function listProducts(req, res, next) {
       cartItems,
       totalAmount,
       cartCount,
-      __: res.__,
-      locale: req.getLocale(),
       user: req.session?.user || null,
-      currentPage: 'products',
+      locale: req.getLocale(),
+      currentPage: 'products'
     });
-
   } catch (err) {
     next(err);
   }
 }
-
 /* =========================
    PRODUCT DETAILS
 ========================= */
 async function productDetails(req, res, next) {
   try {
-    const product = await Product.findByPk(req.params.id, { include: Category });
-    if (!product) return res.status(404).json({ error: res.__('product_not_found') });
+    const product = await Product.findByPk(req.params.id, {
+      include: [{ model: Category, as: 'category' }]
+    });
+
+    if (!product) return res.status(404).send('Produit introuvable');
 
     const { cartItems, totalAmount, cartCount } = await getCartData(req);
 
@@ -121,9 +127,8 @@ async function productDetails(req, res, next) {
       cartItems,
       totalAmount,
       cartCount,
-      __: res.__,
-      locale: req.getLocale(),
       user: req.session?.user || null,
+      locale: req.getLocale(),
       currentPage: 'products'
     });
 
@@ -135,130 +140,129 @@ async function productDetails(req, res, next) {
 /* =========================
    CART
 ========================= */
-async function addToCart(req, res, next) {
-  try {
-    const productId = Number(req.body.productId);
-    const quantity = Number(req.body.quantity) || 1;
+async function addToCart(req, res) {
+  const productId = Number(req.body.productId);
+  const quantity = Number(req.body.quantity) || 1;
 
-    const product = await Product.findByPk(productId);
-    if (!product) return res.status(400).json({ error: 'Produit introuvable' });
+  const cart = req.session.cart || [];
+  const existing = cart.find(i => i.productId === productId);
 
-    const cart = req.session.cart || [];
-    const existing = cart.find(item => item.productId === productId);
+  if (existing) existing.quantity += quantity;
+  else cart.push({ productId, quantity });
 
-    if (existing) {
-      existing.quantity += quantity;
-    } else {
-      cart.push({ productId, quantity });
-    }
-
-    req.session.cart = cart;
-    res.redirect('/products/cart');
-
-  } catch (err) {
-    next(err);
-  }
+  req.session.cart = cart;
+  res.redirect('/products/cart');
 }
 
-async function cartPage(req, res, next) {
-  try {
-    const { cartItems, totalAmount, cartCount } = await getCartData(req);
+async function cartPage(req, res) {
+  const { cartItems, totalAmount, cartCount } = await getCartData(req);
 
-    res.render('cart', {
-      cartItems,
-      totalAmount,
-      cartCount,
-      ownerWhatsApp: process.env.OWNER_WHATSAPP || "221711423982",
-      __: res.__,
-      locale: req.getLocale(),
-      user: req.session?.user || null,
-      currentPage: 'cart',
-    });
+  res.render('cart', {
+    cartItems,
+    totalAmount,
+    cartCount,
+    user: req.session?.user || null,
+    locale: req.getLocale(),
+    currentPage: 'cart'
+  });
+}
 
-  } catch (err) {
-    next(err);
-  }
+async function clearCart(req, res) {
+  req.session.cart = [];
+  res.redirect('/products/cart');
+}
+
+async function updateCart(req, res) {
+  const cart = req.session.cart || [];
+  const item = cart.find(i => i.productId === Number(req.body.productId));
+
+  if (item) item.quantity = Number(req.body.quantity);
+
+  req.session.cart = cart;
+  res.redirect('/products/cart');
+}
+
+async function removeFromCart(req, res) {
+  req.session.cart = (req.session.cart || [])
+    .filter(i => i.productId !== Number(req.body.productId));
+
+  res.redirect('/products/cart');
 }
 
 /* =========================
-   CART ACTIONS (CORRECTEMENT HORS cartPage)
+   CONTACT
 ========================= */
+async function contactPage(req, res) {
+  const { cartItems, totalAmount, cartCount } = await getCartData(req);
 
-async function clearCart(req, res, next) {
-  try {
-    req.session.cart = [];
-    res.redirect('/products/cart');
-  } catch (err) {
-    next(err);
-  }
+  res.render('contact', {
+    cartItems,
+    totalAmount,
+    cartCount,
+    user: req.session?.user || null,
+    locale: req.getLocale(),
+    success: req.session.contactSuccess || null,
+    error: req.session.contactError || null,
+    currentPage: 'contact'
+  });
+
+  delete req.session.contactSuccess;
+  delete req.session.contactError;
 }
 
-async function updateCart(req, res, next) {
-  try {
-    const productId = Number(req.body.productId);
-    const quantity = Number(req.body.quantity);
+async function contactSubmit(req, res) {
+  const { name, email, message } = req.body;
 
-    const cart = req.session.cart || [];
-    const item = cart.find(i => i.productId === productId);
-
-    if (!item) return res.status(404).json({ error: 'Produit non trouvé' });
-
-    if (quantity === 0) {
-      req.session.cart = cart.filter(i => i.productId !== productId);
-    } else {
-      item.quantity = quantity;
-    }
-
-    res.redirect('/products/cart');
-
-  } catch (err) {
-    next(err);
+  if (!name || !email || !message) {
+    req.session.contactError = 'Tous les champs sont requis.';
+    return res.redirect('/contact');
   }
-}
 
-async function removeFromCart(req, res, next) {
-  try {
-    const productId = Number(req.body.productId);
-    req.session.cart = (req.session.cart || []).filter(i => i.productId !== productId);
-    res.redirect('/products/cart');
-  } catch (err) {
-    next(err);
-  }
+  await sendContactNotification(name, email, message);
+
+  req.session.contactSuccess = 'Message envoyé avec succès.';
+  res.redirect('/contact');
 }
 
 async function checkoutCart(req, res, next) {
   try {
     const cart = req.session.cart || [];
-    if (!cart.length) return res.status(400).json({ error: 'Panier vide' });
+
+    if (!cart.length) {
+      return res.status(400).send('Panier vide');
+    }
 
     const items = cart.map(i => ({
       productId: Number(i.productId),
       quantity: Number(i.quantity)
     }));
 
-    const { customerName, customerEmail, customerPhone, customerAddress, paymentMethod } = req.body;
+    const {
+      customerName,
+      customerEmail,
+      customerPhone,
+      customerAddress,
+      paymentMethod
+    } = req.body;
 
-    const { order, emailStatus } = await buildOrderAndNotify({
+    const { order } = await buildOrderAndNotify({
       customerName,
       customerEmail,
       customerPhone,
       customerAddress,
       items,
-      paymentMethod,
+      paymentMethod
     });
 
     req.session.cart = [];
 
     res.render('orderSuccess', {
       order,
-      emailStatus,
       cartItems: [],
       totalAmount: 0,
       cartCount: 0,
-      ownerWhatsApp: process.env.OWNER_WHATSAPP || "221711423982",
-      __: res.__,
-      locale: req.getLocale(),
       user: req.session?.user || null,
+      locale: req.getLocale(),
       currentPage: 'cart'
     });
 
@@ -268,54 +272,7 @@ async function checkoutCart(req, res, next) {
 }
 
 /* =========================
-   CONTACT
-========================= */
-async function contactPage(req, res, next) {
-  try {
-    const { cartItems, totalAmount, cartCount } = await getCartData(req);
-
-    res.render('contact', {
-      cartItems,
-      totalAmount,
-      cartCount,
-      __: res.__,
-      locale: req.getLocale(),
-      user: req.session?.user || null,
-      success: req.session.contactSuccess || null,
-      error: req.session.contactError || null,
-      currentPage: 'contact'
-    });
-
-    delete req.session.contactSuccess;
-    delete req.session.contactError;
-
-  } catch (err) {
-    next(err);
-  }
-}
-
-async function contactSubmit(req, res, next) {
-  try {
-    const { name, email, message } = req.body;
-
-    if (!name || !email || !message) {
-      req.session.contactError = 'Tous les champs sont requis.';
-      return res.redirect('/contact');
-    }
-
-    await sendContactNotification(name, email, message);
-
-    req.session.contactSuccess = 'Message envoyé avec succès.';
-    res.redirect('/contact');
-
-  } catch (err) {
-    req.session.contactError = 'Erreur lors de l’envoi.';
-    res.redirect('/contact');
-  }
-}
-
-/* =========================
-   EXPORT
+   EXPORT FINAL
 ========================= */
 module.exports = {
   home,
@@ -326,7 +283,6 @@ module.exports = {
   clearCart,
   updateCart,
   removeFromCart,
-  checkoutCart,
   contactPage,
   contactSubmit
 };
