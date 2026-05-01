@@ -29,14 +29,14 @@ const uploadToCloudinary = (fileBuffer) => {
 // ================= DASHBOARD =================
 async function dashboard(req, res, next) {
   try {
-    const products = await Product.findAll({ 
-      include: [{ model: Category, as: 'category' }] // ✅ ajout as: 'category'
+    const products = await Product.findAll({
+      include: [{ model: Category, as: 'category' }]
     });
     const categories = await Category.findAll();
     const orders = await Order.findAll({
-      include: [{ 
-        model: OrderItem, 
-        include: [{ model: Product, include: [{ model: Category, as: 'category' }] }] // ✅ ajout as
+      include: [{
+        model: OrderItem,
+        include: [{ model: Product, include: [{ model: Category, as: 'category' }] }]
       }],
       order: [['createdAt', 'DESC']]
     });
@@ -68,14 +68,13 @@ async function dashboard(req, res, next) {
 }
 
 // ================= ADD PRODUCT PAGE =================
-// ================= ADD PRODUCT PAGE =================
 async function showAddProduct(req, res) {
   try {
     const categories = await Category.findAll();
 
     return res.render('admin/addProduct', {
       user: req.session.user,
-      formData: {},              // ✅ FIX IMPORTANT
+      formData: {},
       categories: categories || [],
       error: null,
       success: null
@@ -97,14 +96,11 @@ async function showAddProduct(req, res) {
 // ================= CREATE PRODUCT =================
 async function addProduct(req, res) {
   try {
-    // 🔍 DEBUG TEMPORAIRE
-    console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME);
-    console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? '✅ présent' : '❌ manquant');
-    console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? '✅ présent' : '❌ manquant');
-    console.log('req.file:', req.file);
-    console.log('req.body:', req.body);
-
     const { name, price, description, stock, categoryId, status } = req.body;
+
+    console.log('📦 req.body complet:', req.body);
+    console.log('📦 status reçu:', status);
+
     const categories = await Category.findAll();
 
     if (!name || !price) {
@@ -117,18 +113,22 @@ async function addProduct(req, res) {
       });
     }
 
-    // ✅ Upload Cloudinary
     let imageUrl = null;
     if (req.file) {
-      console.log('📤 Upload vers Cloudinary...');
       const result = await uploadToCloudinary(req.file.buffer);
-      console.log('✅ Cloudinary result:', result);
       imageUrl = result.secure_url;
     }
 
+    const finalStatus = (status === 'unavailable') ? 'unavailable' : 'available';
+    console.log('📦 finalStatus:', finalStatus);
+
     const newProduct = await Product.create({
-      name, price, description, stock, categoryId,
-      status: status || 'available',
+      name,
+      price,
+      description,
+      stock,
+      categoryId,
+      status: finalStatus,
       imageUrl
     });
 
@@ -139,28 +139,30 @@ async function addProduct(req, res) {
       formData: newProduct.dataValues,
       categories,
       error: null,
-      success: "Produit ajouté avec succès"
+      success: "Produit ajouté avec succès !"
     });
 
   } catch (err) {
     console.error('❌ ERREUR addProduct:', err.message);
     console.error('❌ STACK:', err.stack);
-    console.error('❌ req.file:', req.file);
-    console.error('❌ req.body:', req.body);
+
+    const categories = await Category.findAll().catch(() => []);
 
     return res.render('admin/addProduct', {
       user: req.session.user,
       formData: req.body,
-      categories: [],
-      error: err.message, // ← vrai message affiché sur l'écran
+      categories,
+      error: err.message,
       success: null
     });
   }
 }
-// ================= EDIT PRODUCT =================
+// ================= EDIT PRODUCT PAGE =================
 async function showEditProduct(req, res) {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findByPk(req.params.id, {
+      include: [{ model: Category, as: 'category' }]
+    });
     const categories = await Category.findAll();
 
     if (!product) {
@@ -169,7 +171,7 @@ async function showEditProduct(req, res) {
 
     return res.render('admin/addProduct', {
       user: req.session.user,
-      formData: product,   // ✅ IMPORTANT
+      formData: product,
       categories,
       error: null,
       success: null
@@ -181,18 +183,35 @@ async function showEditProduct(req, res) {
   }
 }
 
+// ================= UPDATE PRODUCT =================
+// ✅ FIX PRINCIPAL : correction de la logique du status
 async function updateProduct(req, res, next) {
   try {
     const product = await Product.findByPk(req.params.id);
 
+    if (!product) {
+      return res.redirect('/admin/dashboard?tab=products');
+    }
+
     const { name, description, price, stock, categoryId, status } = req.body;
 
-    product.name = name;
+    product.name        = name;
     product.description = description;
-    product.price = price;
-    product.stock = stock;
-    product.categoryId = categoryId;
-    product.status = status === 'actif' ? 'available' : 'unavailable';
+    product.price       = price;
+    product.stock       = stock;
+    product.categoryId  = categoryId;
+
+    // ✅ FIX : accepte toutes les valeurs possibles du formulaire
+    // 'available' ou 'actif'  → disponible
+    // 'unavailable' ou 'inactif' → indisponible
+    // valeur manquante → disponible par défaut
+    if (status === 'available' || status === 'actif') {
+      product.status = 'available';
+    } else if (status === 'unavailable' || status === 'inactif') {
+      product.status = 'unavailable';
+    } else {
+      product.status = 'available'; // ✅ défaut sécurisé
+    }
 
     if (req.file) {
       const result = await uploadToCloudinary(req.file.buffer);
@@ -210,78 +229,121 @@ async function updateProduct(req, res, next) {
 
 // ================= DELETE PRODUCT =================
 async function deleteProduct(req, res) {
-  await Product.destroy({ where: { id: req.params.id } });
+  try {
+    await Product.destroy({ where: { id: req.params.id } });
+  } catch (err) {
+    console.error('❌ Erreur suppression produit:', err.message);
+  }
   res.redirect('/admin/dashboard?tab=products');
 }
 
 // ================= USERS =================
 async function listUsers(req, res) {
-  const users = await User.findAll();
-
-  res.render('admin/users', {
-    users: users || [],
-    selectedTab: 'users'
-  });
+  try {
+    const users = await User.findAll();
+    res.render('admin/users', {
+      users: users || [],
+      selectedTab: 'users',
+      error: null,
+      success: null
+    });
+  } catch (err) {
+    console.error('❌ Erreur listUsers:', err.message);
+    res.render('admin/users', {
+      users: [],
+      selectedTab: 'users',
+      error: err.message,
+      success: null
+    });
+  }
 }
-
 async function addUser(req, res) {
-  const { name, email, password } = req.body;
-  const hash = await bcrypt.hash(password, 10);
+  try {
+    const { name, email, password } = req.body;
+    const hash = await bcrypt.hash(password, 10);
 
-  await User.create({
-    name,
-    email,
-    passwordHash: hash,
-    role: 'user'
-  });
-
+    await User.create({
+      name,
+      email,
+      passwordHash: hash,
+      role: 'user'
+    });
+  } catch (err) {
+    console.error('❌ Erreur création utilisateur:', err.message);
+  }
   res.redirect('/admin/users');
 }
 
 async function deleteUser(req, res) {
-  await User.destroy({ where: { id: req.params.id } });
+  try {
+    await User.destroy({ where: { id: req.params.id } });
+  } catch (err) {
+    console.error('❌ Erreur suppression utilisateur:', err.message);
+  }
   res.redirect('/admin/users');
 }
 
 async function makeAdmin(req, res) {
-  const user = await User.findByPk(req.params.id);
-  user.role = 'admin';
-  await user.save();
-
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (user) {
+      user.role = 'admin';
+      await user.save();
+    }
+  } catch (err) {
+    console.error('❌ Erreur makeAdmin:', err.message);
+  }
   res.redirect('/admin/users');
 }
 
 // ================= CATEGORIES =================
 async function addCategory(req, res) {
-  await Category.create({ name: req.body.name });
+  try {
+    await Category.create({ name: req.body.name });
+  } catch (err) {
+    console.error('❌ Erreur création catégorie:', err.message);
+  }
   res.redirect('/admin/dashboard?tab=categories');
 }
 
 async function deleteCategory(req, res) {
-  await Category.destroy({ where: { id: req.params.id } });
+  try {
+    await Category.destroy({ where: { id: req.params.id } });
+  } catch (err) {
+    console.error('❌ Erreur suppression catégorie:', err.message);
+  }
   res.redirect('/admin/dashboard?tab=categories');
 }
 
 // ================= ORDERS =================
 async function listOrders(req, res) {
-  const orders = await Order.findAll({
-    include: [{ model: OrderItem, include: [Product] }]
-  });
+  try {
+    const orders = await Order.findAll({
+      include: [{ model: OrderItem, include: [Product] }],
+      order: [['createdAt', 'DESC']]
+    });
 
-  res.render('admin/orders', {
-    orders: orders || [],
-    selectedTab: 'orders'
-  });
+    res.render('admin/orders', {
+      orders: orders || [],
+      selectedTab: 'orders'
+    });
+  } catch (err) {
+    console.error('❌ Erreur listOrders:', err.message);
+    res.render('admin/orders', { orders: [], selectedTab: 'orders' });
+  }
 }
 
-// ================= UPDATE ORDER STATUS =================
 async function updateOrderStatus(req, res) {
-  const order = await Order.findByPk(req.params.id);
-
-  order.status = req.body.status;
-  await order.save();
-
-  res.redirect('/admin/orders');
+  try {
+    const order = await Order.findByPk(req.params.id);
+    if (order) {
+      order.status = req.body.status;
+      await order.save();
+    }
+  } catch (err) {
+    console.error('❌ Erreur updateOrderStatus:', err.message);
+  }
+  res.redirect('/admin/dashboard?tab=orders');
 }
 
 // ================= DELIVERY =================

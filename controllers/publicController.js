@@ -71,33 +71,46 @@ async function home(req, res, next) {
 async function listProducts(req, res, next) {
   try {
     const categories = await Category.findAll();
+
     const where = { status: 'available' };
-    const selectedCategoryId = req.query.categoryId
-      ? Number(req.query.categoryId)
-      : null;
+    const selectedCategoryId = req.query.categoryId ? Number(req.query.categoryId) : null;
     const searchQuery = req.query.q || '';
-    
-    if (selectedCategoryId) {
-      where.categoryId = selectedCategoryId;
-    }
+    const sort = req.query.sort || 'newest';
+
+    if (selectedCategoryId) where.categoryId = selectedCategoryId;
+
+    console.log('WHERE clause:', JSON.stringify(where));
+    console.log('selectedCategoryId:', selectedCategoryId, typeof selectedCategoryId);
+
     if (searchQuery) {
       where[Op.or] = [
-        { name: { [Op.like]: `%${searchQuery}%` } },
+        { name:        { [Op.like]: `%${searchQuery}%` } },
         { description: { [Op.like]: `%${searchQuery}%` } }
       ];
     }
 
+    let order = [['createdAt', 'DESC']];
+    if (sort === 'name')       order = [['name', 'ASC']];
+    if (sort === 'price_asc')  order = [['price', 'ASC']];
+    if (sort === 'price_desc') order = [['price', 'DESC']];
+
     const products = await Product.findAll({
       where,
+      order,
       include: [{ model: Category, as: 'category', required: false }]
     });
 
+    console.log('Produits trouvés:', products.length);
+    products.forEach(p => console.log(' -', p.id, p.name, p.categoryId));
+
     const { cartItems, totalAmount, cartCount } = await getCartData(req);
+
     res.render('products', {
       products,
       categories,
       selectedCategoryId,
       searchQuery,
+      sort,
       cartItems,
       totalAmount,
       cartCount,
@@ -105,6 +118,7 @@ async function listProducts(req, res, next) {
       locale: req.getLocale(),
       currentPage: 'products'
     });
+
   } catch (err) {
     next(err);
   }

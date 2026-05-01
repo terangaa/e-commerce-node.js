@@ -186,7 +186,7 @@ async function start() {
     console.log('✅ DB connectée');
 
     if (process.env.NODE_ENV !== 'production') {
-      await sequelize.sync({ alter: true });
+      await sequelize.sync();
     }
 
     app.listen(PORT, () => {

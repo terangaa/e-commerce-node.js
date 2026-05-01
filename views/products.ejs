@@ -9,193 +9,221 @@
 
 <body>
 
-  <%- include('partials/nav', { user, locale, currentPage: 'products' }) %>
+  <%- include('partials/nav', { user, locale, currentPage: 'products', cartCount, cartItems, totalAmount }) %>
 
-    <% let categoryName=__('product_list'); if (selectedCategoryId && categories && categories.length> 0) {
-      for (let i = 0; i < categories.length; i++) { if (categories[i].id==selectedCategoryId) {
-        categoryName=categories[i].name; break; } } } %>
-        <div class="container my-5">
-          <div class="row">
-            <div class="col-12">
+  <%
+    let categoryName = 'Tous les produits';
+    if (selectedCategoryId && categories && categories.length > 0) {
+      for (let i = 0; i < categories.length; i++) {
+        if (categories[i].id == selectedCategoryId) {
+          categoryName = categories[i].name;
+          break;
+        }
+      }
+    }
+  %>
 
-              <!-- TITLE -->
-              <h1 class="section-title">
-                <%= categoryName %>
-              </h1>
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-12">
 
-              <!-- DESCRIPTION -->
-              <p class="text-muted">
-                <%= selectedCategoryId ? 'Découvrez tous nos produits de cette catégorie.'
-                  : 'Explorez nos produits et commandez rapidement en quelques clics.' %>
-              </p>
+        <h1 class="section-title">
+          <%= categoryName %>
+        </h1>
 
-              <!-- FILTERS -->
-              <div class="filters-section bg-light p-3 p-md-4 rounded mb-4">
+        <p class="text-muted">
+          <%= selectedCategoryId
+            ? 'Découvrez tous nos produits de cette catégorie.'
+            : 'Explorez nos produits et commandez rapidement en quelques clics.' %>
+        </p>
 
-                <div class="row g-2 g-md-3 align-items-end">
+        <form action="/products" method="GET">
+          <div class="filters-section bg-light p-3 p-md-4 rounded mb-4">
+            <div class="row g-2 g-md-3 align-items-end">
 
-                  <!-- SEARCH -->
-                  <div class="col-lg-4 col-md-6">
-                    <label class="form-label fw-bold">Rechercher</label>
-                    <input type="text" class="form-control form-control-lg" name="q" placeholder="Nom du produit..."
-                      value="<%= searchQuery ? searchQuery : '' %>">
-                  </div>
-
-                  <!-- CATEGORY -->
-                  <div class="col-lg-3 col-md-6">
-                    <label class="form-label fw-bold">Catégorie</label>
-                    <select name="categoryId" class="form-select form-select-lg">
-                      <option value="">Toutes les catégories</option>
-
-                      <% if (categories && categories.length> 0) { %>
-                        <% for (let i=0; i < categories.length; i++) { %>
-                          <option value="<%= categories[i].id %>" <%=selectedCategoryId==categories[i].id ? 'selected'
-                            : '' %>>
-                            <%= categories[i].name %>
-                          </option>
-                          <% } %>
-                            <% } %>
-
-                    </select>
-                  </div>
-
-                  <!-- SORT -->
-                  <div class="col-lg-2 col-md-6">
-                    <label class="form-label fw-bold">Trier</label>
-                    <select name="sort" class="form-select form-select-lg">
-                      <option value="name">Nom</option>
-                      <option value="price_asc">Prix croissant</option>
-                      <option value="price_desc">Prix décroissant</option>
-                      <option value="newest">Plus récent</option>
-                    </select>
-                  </div>
-
-                  <!-- BUTTON -->
-                  <div class="col-lg-3 col-md-6">
-                    <button class="btn btn-primary btn-lg w-100">
-                      Appliquer
-                    </button>
-                  </div>
-
-                </div>
+              <div class="col-lg-4 col-md-6">
+                <label class="form-label fw-bold">Rechercher</label>
+                <input
+                  type="text"
+                  class="form-control form-control-lg"
+                  name="q"
+                  placeholder="Nom du produit..."
+                  value="<%= searchQuery ? searchQuery : '' %>"
+                >
               </div>
 
-              <!-- PRODUCTS COUNT -->
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>
-                  <%= categoryName %>
-                    <span class="badge bg-primary">
-                      <%= products ? products.length : 0 %>
-                    </span>
-                </h3>
+              <div class="col-lg-3 col-md-6">
+                <label class="form-label fw-bold">Catégorie</label>
+                <select name="categoryId" class="form-select form-select-lg">
+                  <option value="">Toutes les catégories</option>
+                  <% if (categories && categories.length > 0) { %>
+                    <% for (let i = 0; i < categories.length; i++) { %>
+                      <option
+                        value="<%= categories[i].id %>"
+                        <%= selectedCategoryId == categories[i].id ? 'selected' : '' %>
+                      >
+                        <%= categories[i].name %>
+                      </option>
+                    <% } %>
+                  <% } %>
+                </select>
               </div>
 
-              <!-- PRODUCTS GRID -->
-              <div class="row">
+              <div class="col-lg-2 col-md-6">
+                <label class="form-label fw-bold">Trier</label>
+                <select name="sort" class="form-select form-select-lg">
+                  <option value="newest"     <%= (typeof sort !== 'undefined' && sort === 'newest')     ? 'selected' : '' %>>Plus récent</option>
+                  <option value="name"       <%= (typeof sort !== 'undefined' && sort === 'name')       ? 'selected' : '' %>>Nom A-Z</option>
+                  <option value="price_asc"  <%= (typeof sort !== 'undefined' && sort === 'price_asc')  ? 'selected' : '' %>>Prix croissant</option>
+                  <option value="price_desc" <%= (typeof sort !== 'undefined' && sort === 'price_desc') ? 'selected' : '' %>>Prix décroissant</option>
+                </select>
+              </div>
 
-                <% if (products && products.length> 0) { %>
+              <div class="col-lg-3 col-md-6">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                  <i class="fas fa-search me-2"></i>Appliquer
+                </button>
+              </div>
 
-                  <% for (let i=0; i < products.length; i++) { let product=products[i]; %>
+            </div>
+          </div>
+        </form>
 
-                    <div class="col-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h3>
+            <%= categoryName %>
+            <span class="badge bg-primary">
+              <%= products ? products.length : 0 %> produit<%= products && products.length > 1 ? 's' : '' %>
+            </span>
+          </h3>
+          <% if (selectedCategoryId || searchQuery) { %>
+            <a href="/products" class="btn btn-outline-secondary btn-sm">
+              <i class="fas fa-times me-1"></i>Réinitialiser
+            </a>
+          <% } %>
+        </div>
 
-                      <div class="card h-100 product-card">
+        <div class="row">
 
-                        <!-- IMAGE (FIXED) -->
-                        <% if (product.imageUrl) { %>
-                          <img src="<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>">
-                          <% } else { %>
-                            <img src="https://via.placeholder.com/320x240?text=<%= product.name %>" class="card-img-top"
-                              alt="<%= product.name %>">
-                            <% } %>
+          <% if (products && products.length > 0) { %>
 
-                              <div class="card-body d-flex flex-column">
+            <% for (let i = 0; i < products.length; i++) { let product = products[i]; %>
 
-                                <!-- CATEGORY -->
-                                <small class="text-muted">
-                                 <%= product.category ? product.category.name : 'Non catégorisé' %>
-                                </small>
+              <div class="col-6 col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="card h-100 product-card">
 
-                                <!-- NAME -->
-                                <h6>
-                                  <%= product.name %>
-                                </h6>
+                  <% if (product.imageUrl) { %>
+                    <img src="<%= product.imageUrl %>" class="card-img-top" alt="<%= product.name %>" style="height: 220px; object-fit: cover;">
+                  <% } else { %>
+                    <img
+                      src="https://via.placeholder.com/320x240?text=<%= encodeURIComponent(product.name) %>"
+                      class="card-img-top"
+                      alt="<%= product.name %>"
+                      style="height: 220px; object-fit: cover;"
+                    >
+                  <% } %>
 
-                                <!-- DESCRIPTION -->
-                                <p class="text-muted small">
-                                  <%= product.description ? product.description.substring(0, 80) +
-                                    (product.description.length> 80 ? '...' : '')
-                                    : 'Aucune description disponible' %>
-                                </p>
+                  <div class="card-body d-flex flex-column">
 
-                                <!-- PRICE -->
-                                <h5 class="text-primary">
-                                  <%= product.price %> FCFA
-                                </h5>
+                    <small class="text-muted mb-1">
+                      <i class="fas fa-tag me-1"></i>
+                      <%= product.category ? product.category.name : 'Non catégorisé' %>
+                    </small>
 
-                                <!-- STOCK -->
-                                <small class="
-                    <%= product.stock > 10
-                      ? 'text-success'
-                      : product.stock > 0
-                        ? 'text-warning'
-                        : 'text-danger' %>">
+                    <h6 class="mb-1">
+                      <a href="/products/<%= product.id %>" class="text-dark text-decoration-none">
+                        <%= product.name %>
+                      </a>
+                    </h6>
 
-                                  <%= product.stock> 10
-                                    ? 'En stock'
-                                    : product.stock > 0
-                                    ? 'Stock limité'
-                                    : 'Rupture' %>
-                                </small>
+                    <p class="text-muted small mb-2">
+                      <%= product.description
+                        ? product.description.substring(0, 80) + (product.description.length > 80 ? '...' : '')
+                        : 'Aucune description disponible' %>
+                    </p>
 
-                                <!-- ACTIONS -->
-                                <div class="mt-auto d-flex gap-2">
+                    <h5 class="text-primary mb-1">
+                      <%= Number(product.price).toLocaleString('fr-FR') %> FCFA
+                    </h5>
 
-                                  <form method="POST" action="/products/cart/add" class="flex-fill">
+                    <small class="mb-2 <%= product.stock > 10 ? 'text-success' : product.stock > 0 ? 'text-warning' : 'text-danger' %>">
+                      <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
+                      <%= product.stock > 10
+                        ? 'En stock'
+                        : product.stock > 0
+                        ? 'Stock limité (' + product.stock + ')'
+                        : 'Rupture de stock' %>
+                    </small>
 
-                                    <input type="hidden" name="productId" value="<%= product.id %>">
-                                    <input type="hidden" name="quantity" value="1">
+                    <div class="mt-auto d-flex gap-2">
 
-                                    <button class="btn btn-success btn-sm w-100" <%=product.stock <=0 ? 'disabled' : ''
-                                      %>>
-                                      Ajouter
-                                    </button>
+                      <a href="/products/<%= product.id %>" class="btn btn-outline-primary btn-sm" title="Voir le produit">
+                        <i class="fas fa-eye"></i>
+                      </a>
 
-                                  </form>
+                      <form method="POST" action="/products/cart/add" class="flex-fill m-0">
+                        <input type="hidden" name="productId" value="<%= product.id %>">
+                        <input type="hidden" name="quantity" value="1">
+                        <button
+                          type="submit"
+                          class="btn btn-success btn-sm w-100"
+                          <%= product.stock <= 0 ? 'disabled' : '' %>
+                        >
+                          <i class="fas fa-cart-plus me-1"></i>
+                          <%= product.stock <= 0 ? 'Indisponible' : 'Ajouter' %>
+                        </button>
+                      </form>
 
-                                  <button class="btn btn-outline-danger btn-sm"
-                                    onclick="toggleWishlist(<%= product.id %>)">
-                                    ❤
-                                  </button>
-
-                                </div>
-
-                              </div>
-                      </div>
+                      <button
+                        class="btn btn-outline-danger btn-sm"
+                        onclick="toggleWishlist(<%= product.id %>)"
+                        title="Ajouter aux favoris"
+                      >
+                        <i class="fas fa-heart"></i>
+                      </button>
 
                     </div>
 
-                    <% } %>
-
-                      <% } else { %>
-
-                        <!-- EMPTY -->
-                        <div class="text-center py-5 w-100">
-                          <h4>Aucun produit trouvé</h4>
-                          <a href="/products" class="btn btn-primary mt-3">
-                            Voir tous les produits
-                          </a>
-                        </div>
-
-                        <% } %>
-
+                  </div>
+                </div>
               </div>
+
+            <% } %>
+
+          <% } else { %>
+
+            <div class="col-12 text-center py-5">
+              <i class="fas fa-box-open fa-4x text-muted mb-3 d-block"></i>
+              <h4 class="text-muted">Aucun produit trouvé</h4>
+              <p class="text-muted">
+                <% if (searchQuery) { %>
+                  Aucun résultat pour "<strong><%= searchQuery %></strong>".
+                <% } else if (selectedCategoryId) { %>
+                  Aucun produit dans cette catégorie.
+                <% } else { %>
+                  Aucun produit disponible pour le moment.
+                <% } %>
+              </p>
+              <a href="/products" class="btn btn-primary mt-2">
+                <i class="fas fa-arrow-left me-2"></i>Voir tous les produits
+              </a>
             </div>
-          </div>
+
+          <% } %>
+
         </div>
 
-        <%- include('partials/footer') %>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    function toggleWishlist(productId) {
+      console.log('Wishlist toggled for product:', productId);
+    }
+  </script>
 
 </body>
-
 </html>
