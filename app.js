@@ -112,10 +112,10 @@ app.use((req, res, next) => {
    🧭 ROUTES PRINCIPALES
 ───────────────────────────── */
 
-// ✅ ACCUEIL
+// HOME
 app.get('/', home);
 
-// contact
+// CONTACT
 app.get('/contact', contactPage);
 app.post('/contact', contactSubmit);
 
@@ -126,7 +126,21 @@ app.use('/auth', authRoutes);
 app.use('/auth', socialAuthRoutes);
 
 /* ─────────────────────────────
-   🛍️ APP MODULES
+   👤 PROFILE (AJOUT IMPORTANT)
+───────────────────────────── */
+app.get('/profile', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/auth/login');
+  }
+
+  res.render('profile', {
+    user: req.session.user,
+    currentPage: 'profile'
+  });
+});
+
+/* ─────────────────────────────
+   🛍️ MODULES
 ───────────────────────────── */
 app.use('/products', publicRoutes);
 app.use('/admin', adminWebRoutes);

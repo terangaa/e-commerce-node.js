@@ -1052,7 +1052,7 @@
                     <p class="qr-text"><i class="fas fa-qrcode me-2"></i>Scanner pour commander</p>
                     <a href="#" id="whatsappQrBtn" class="qr-code-btn">
                       <img
-                        src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/<%= typeof ownerWhatsApp !== 'undefined' ? ownerWhatsApp : '221765957481' %>"
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/<%= typeof ownerWhatsApp !== 'undefined' ? ownerWhatsApp : '221763668527' %>"
                         alt="QR Code WhatsApp" class="qr-code-img">
                     </a>
                   </div>
@@ -1072,7 +1072,7 @@
 
       <script>
         const cartTotalAmount = <%= totalAmount || 0 %>;
-        const ownerWhatsApp = "<%= ownerWhatsApp || '221765957481' %>";
+        const ownerWhatsApp = "<%= ownerWhatsApp || '221763668527' %>";
         const cartItems = <%- JSON.stringify(cartItems || []) %>;
         let appliedCoupon = null;
 
