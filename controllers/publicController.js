@@ -175,6 +175,7 @@ async function cartPage(req, res) {
     cartItems,
     totalAmount,
     cartCount,
+    ownerWhatsApp: '221763668527', // <-- AJOUTE ÇA
     user: req.session?.user || null,
     locale: req.getLocale(),
     currentPage: 'cart'
