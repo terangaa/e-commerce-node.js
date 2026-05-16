@@ -8,8 +8,10 @@ const i18n = require('i18n');
 const session = require('express-session');
 const { sequelize } = require('./models');
 
+/* ─────────────────────────────
+   ROUTES
+───────────────────────────── */
 const publicRoutes = require('./routes/public');
-const { home, contactPage, contactSubmit } = require('./controllers/publicController');
 const adminWebRoutes = require('./routes/adminWeb');
 const orderRoutes = require('./routes/order');
 const authRoutes = require('./routes/auth');
@@ -19,11 +21,20 @@ const reviewRoutes = require('./routes/review');
 const wishlistRoutes = require('./routes/wishlist');
 const couponRoutes = require('./routes/coupon');
 
+/* ─────────────────────────────
+   CONTROLLERS
+───────────────────────────── */
+const {
+  home,
+  contactPage,
+  contactSubmit
+} = require('./controllers/publicController');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 /* ─────────────────────────────
-   🌍 Internationalisation
+   🌍 i18n CONFIG
 ───────────────────────────── */
 i18n.configure({
   locales: ['en', 'fr'],
@@ -33,20 +44,20 @@ i18n.configure({
   objectNotation: true,
   register: global,
 });
+
 app.use(i18n.init);
 
 /* ─────────────────────────────
-   ⚙️ Middlewares
+   ⚙️ MIDDLEWARES
 ───────────────────────────── */
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-/* 🔥 IMPORTANT POUR RENDER (proxy HTTPS) */
 app.set('trust proxy', 1);
 
 /* ─────────────────────────────
-   🔐 Session (CORRIGÉ)
+   🔐 SESSION
 ───────────────────────────── */
 app.use(session({
   secret: process.env.SESSION_SECRET || 'change-this-secret',
@@ -54,14 +65,14 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 7 * 24 * 3600 * 1000,
-    secure: process.env.NODE_ENV === 'production', // HTTPS only en prod
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: 'lax' // 🔥 IMPORTANT (évite blocage login)
-  },
+    sameSite: 'lax'
+  }
 }));
 
 /* ─────────────────────────────
-   🧠 Global locals
+   🧠 GLOBAL VARIABLES
 ───────────────────────────── */
 app.use((req, res, next) => {
   res.locals.user = req.session?.user || null;
@@ -69,13 +80,16 @@ app.use((req, res, next) => {
   res.locals.ownerWhatsApp = process.env.OWNER_WHATSAPP || "221765957481";
 
   const cart = req.session?.cart || [];
-  res.locals.cartCount = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+  res.locals.cartCount = cart.reduce(
+    (sum, item) => sum + Number(item.quantity || 0),
+    0
+  );
 
   next();
 });
 
 /* ─────────────────────────────
-   🎨 View engine
+   🎨 VIEW ENGINE
 ───────────────────────────── */
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -84,10 +98,10 @@ app.set('views', path.join(__dirname, 'views'));
    📁 STATIC FILES
 ───────────────────────────── */
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 /* ─────────────────────────────
-   📊 Logger
+   📊 LOGS
 ───────────────────────────── */
 app.use((req, res, next) => {
   console.log('[REQ]', req.method, req.originalUrl);
@@ -95,17 +109,39 @@ app.use((req, res, next) => {
 });
 
 /* ─────────────────────────────
-   🧭 Routes principales
+   🧭 ROUTES PRINCIPALES
 ───────────────────────────── */
+
+// HOME
 app.get('/', home);
+
+// CONTACT
 app.get('/contact', contactPage);
 app.post('/contact', contactSubmit);
 
-/* Auth */
+/* ─────────────────────────────
+   🔐 AUTH
+───────────────────────────── */
 app.use('/auth', authRoutes);
 app.use('/auth', socialAuthRoutes);
 
-/* App modules */
+/* ─────────────────────────────
+   👤 PROFILE (AJOUT IMPORTANT)
+───────────────────────────── */
+app.get('/profile', (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/auth/login');
+  }
+
+  res.render('profile', {
+    user: req.session.user,
+    currentPage: 'profile'
+  });
+});
+
+/* ─────────────────────────────
+   🛍️ MODULES
+───────────────────────────── */
 app.use('/products', publicRoutes);
 app.use('/admin', adminWebRoutes);
 app.use('/orders', orderRoutes);
@@ -115,14 +151,14 @@ app.use('/wishlist', wishlistRoutes);
 app.use('/coupons', couponRoutes);
 
 /* ─────────────────────────────
-   🔁 Redirects
+   🔁 REDIRECTS
 ───────────────────────────── */
 app.get('/cart', (req, res) => res.redirect('/products/cart'));
 app.get('/checkout', (req, res) => res.redirect('/products/cart'));
 app.post('/orders/submit', (req, res) => res.redirect(307, '/orders'));
 
 /* ─────────────────────────────
-   ❌ 404 handler
+   ❌ 404
 ───────────────────────────── */
 app.use((req, res) => {
   if (req.xhr || req.headers.accept?.includes('application/json')) {
@@ -136,7 +172,7 @@ app.use((req, res) => {
 });
 
 /* ─────────────────────────────
-   ⚠️ Error handler
+   ⚠️ ERROR HANDLER
 ───────────────────────────── */
 app.use((err, req, res, next) => {
   console.error('[ERREUR]', err);
@@ -163,9 +199,8 @@ async function start() {
     await sequelize.authenticate();
     console.log('✅ DB connectée');
 
-    // 🔥 IMPORTANT: PAS DE SYNC EN PROD
     if (process.env.NODE_ENV !== 'production') {
-      await sequelize.sync({ alter: true });
+      await sequelize.sync();
     }
 
     app.listen(PORT, () => {
