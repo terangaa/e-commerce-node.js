@@ -194,23 +194,40 @@ app.use((err, req, res, next) => {
 ───────────────────────────── */
 async function start() {
   try {
-    console.log("DATABASE_URL =", process.env.DATABASE_URL);
+    // 🔍 Debug (Render + local)
+    console.log("NODE_ENV =", process.env.NODE_ENV);
+    console.log("DATABASE_URL =", process.env.DATABASE_URL ? "OK (hidden)" : "MISSING");
 
+    // ❗ Vérification obligatoire
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL manquante dans les variables d'environnement");
+    }
+
+    // 🔌 Connexion DB
     await sequelize.authenticate();
     console.log('✅ DB connectée');
 
-    if (process.env.NODE_ENV !== 'production') {
+    // ⚠️ Synchronisation UNIQUEMENT en développement
+    if (process.env.NODE_ENV === 'development') {
       await sequelize.sync();
+      console.log('🔄 Models synchronisés (dev)');
     }
 
-    app.listen(PORT, () => {
+    // 🚀 Lancement serveur
+    const server = app.listen(PORT, () => {
       console.log(`🚀 Serveur lancé sur port ${PORT}`);
+    });
+
+    // 🧠 Gestion propre des erreurs serveur
+    server.on('error', (err) => {
+      console.error('❌ Server error:', err);
     });
 
   } catch (err) {
     console.error('❌ Erreur serveur:', err);
+
+    // ❗ Important sur Render
     process.exit(1);
   }
 }
-
 start();
