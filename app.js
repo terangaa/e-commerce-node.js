@@ -2,18 +2,14 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
+
+const app = express(); // ✅ UNIQUE
+
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const i18n = require('i18n');
 const session = require('express-session');
 const { sequelize } = require('./models');
-
-app.use((req, res, next) => {
-  if (req.url === "/service-worker.js") {
-    res.setHeader("Content-Type", "application/javascript");
-  }
-  next();
-});
 
 /* ─────────────────────────────
    ROUTES
@@ -36,9 +32,6 @@ const {
   contactPage,
   contactSubmit
 } = require('./controllers/publicController');
-
-const app = express();
-const PORT = process.env.PORT || 3000;
 
 /* ─────────────────────────────
    🌍 i18n CONFIG
@@ -79,6 +72,20 @@ app.use(session({
 }));
 
 /* ─────────────────────────────
+   📁 STATIC FILES
+───────────────────────────── */
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+app.use(express.static(path.join(__dirname, 'public')));
+
+/* ─────────────────────────────
+   🚀 PWA SERVICE WORKER FIX
+───────────────────────────── */
+app.get('/service-worker.js', (req, res) => {
+  res.setHeader('Content-Type', 'application/javascript');
+  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
+});
+
+/* ─────────────────────────────
    🧠 GLOBAL VARIABLES
 ───────────────────────────── */
 app.use((req, res, next) => {
@@ -102,12 +109,6 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 /* ─────────────────────────────
-   📁 STATIC FILES
-───────────────────────────── */
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-app.use(express.static(path.join(__dirname, 'public')));
-
-/* ─────────────────────────────
    📊 LOGS
 ───────────────────────────── */
 app.use((req, res, next) => {
@@ -118,11 +119,8 @@ app.use((req, res, next) => {
 /* ─────────────────────────────
    🧭 ROUTES PRINCIPALES
 ───────────────────────────── */
-
-// HOME
 app.get('/', home);
 
-// CONTACT
 app.get('/contact', contactPage);
 app.post('/contact', contactSubmit);
 
@@ -133,7 +131,7 @@ app.use('/auth', authRoutes);
 app.use('/auth', socialAuthRoutes);
 
 /* ─────────────────────────────
-   👤 PROFILE (AJOUT IMPORTANT)
+   👤 PROFILE
 ───────────────────────────── */
 app.get('/profile', (req, res) => {
   if (!req.session.user) {
@@ -201,40 +199,28 @@ app.use((err, req, res, next) => {
 ───────────────────────────── */
 async function start() {
   try {
-    // 🔍 Debug (Render + local)
     console.log("NODE_ENV =", process.env.NODE_ENV);
-    console.log("DATABASE_URL =", process.env.DATABASE_URL ? "OK (hidden)" : "MISSING");
+    console.log("DATABASE_URL =", process.env.DATABASE_URL ? "OK" : "MISSING");
 
-    // ❗ Vérification obligatoire
     if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL manquante dans les variables d'environnement");
+      throw new Error("DATABASE_URL manquante");
     }
 
-    // 🔌 Connexion DB
     await sequelize.authenticate();
     console.log('✅ DB connectée');
 
-    // ⚠️ Synchronisation UNIQUEMENT en développement
     if (process.env.NODE_ENV === 'development') {
       await sequelize.sync();
-      console.log('🔄 Models synchronisés (dev)');
     }
 
-    // 🚀 Lancement serveur
-    const server = app.listen(PORT, () => {
-      console.log(`🚀 Serveur lancé sur port ${PORT}`);
-    });
-
-    // 🧠 Gestion propre des erreurs serveur
-    server.on('error', (err) => {
-      console.error('❌ Server error:', err);
+    app.listen(process.env.PORT || 3000, () => {
+      console.log('🚀 Serveur lancé');
     });
 
   } catch (err) {
     console.error('❌ Erreur serveur:', err);
-
-    // ❗ Important sur Render
     process.exit(1);
   }
 }
+
 start();
