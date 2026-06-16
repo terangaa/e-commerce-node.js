@@ -8,6 +8,13 @@ const i18n = require('i18n');
 const session = require('express-session');
 const { sequelize } = require('./models');
 
+app.use((req, res, next) => {
+  if (req.url === "/service-worker.js") {
+    res.setHeader("Content-Type", "application/javascript");
+  }
+  next();
+});
+
 /* ─────────────────────────────
    ROUTES
 ───────────────────────────── */
