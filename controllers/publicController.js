@@ -128,7 +128,8 @@ async function listProducts(req, res, next) {
 ========================= */
 async function productDetails(req, res, next) {
   try {
-    const product = await Product.findByPk(req.params.id, {
+    const product = await Product.findOne({
+      where: { slug: req.params.id }, // ✅ IMPORTANT
       include: [{ model: Category, as: 'category' }]
     });
 
