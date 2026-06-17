@@ -128,10 +128,9 @@ async function listProducts(req, res, next) {
 ========================= */
 async function productDetails(req, res, next) {
   try {
-    const product = await Product.findOne({
-      where: { slug: req.params.id }, // ✅ IMPORTANT
-      include: [{ model: Category, as: 'category' }]
-    });
+  const product = await Product.findOne({
+  where: { id: req.params.id }
+});
 
     if (!product) return res.status(404).send('Produit introuvable');
 
