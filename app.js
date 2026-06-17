@@ -56,6 +56,9 @@ app.use(bodyParser.json());
 
 app.set('trust proxy', 1);
 
+
+
+
 /* ─────────────────────────────
    🔐 SESSION
 ───────────────────────────── */
@@ -80,10 +83,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 /* ─────────────────────────────
    🚀 PWA SERVICE WORKER FIX
 ───────────────────────────── */
-app.get('/service-worker.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
-});
+// app.get('/service-worker.js', (req, res) => {
+//   res.setHeader('Content-Type', 'application/javascript');
+//   res.sendFile(path.join(__dirname, 'public', 'service-worker.js'));
+// });
 
 /* ─────────────────────────────
    🧠 GLOBAL VARIABLES
