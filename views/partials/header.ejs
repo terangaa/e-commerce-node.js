@@ -2,13 +2,16 @@
 <html lang="<%= locale || 'fr' %>">
 
 <head>
-  <%- include('head', { pageTitle: pageTitle || 'Ecommerce JIM' }) %>
+  <%- include('partials/head', { pageTitle }) %>
 </head>
 
 <body>
-  <%- include('nav', { user, locale, currentPage }) %>
 
-  <%- body %>
+  <%- include('partials/header', { user, locale, currentPage }) %>
+
+  <main>
+    <%- body %>
+  </main>
+
 </body>
-
 </html>
