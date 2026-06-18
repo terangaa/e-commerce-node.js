@@ -1,23 +1,56 @@
 {
-  "id": "/",
+  "id": "jim-shop",
   "name": "Jim Shop",
   "short_name": "JimShop",
+  "description": "Jim Shop - boutique e-commerce moderne",
+
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+
   "background_color": "#ffffff",
   "theme_color": "#000000",
+  "orientation": "portrait",
+
   "icons": [
+    {
+      "src": "/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
+  ],
+
+  "screenshots": [
+    {
+      "src": "/screenshots/home-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/home-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png"
+    }
+  ],
+
+  "categories": ["shopping", "business"],
+
+  "display_override": [
+    "standalone",
+    "window-controls-overlay"
   ]
 }
