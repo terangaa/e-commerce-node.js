@@ -16,11 +16,17 @@ class ProductVariantController {
         order: [['createdAt', 'ASC']]
       });
 
-      res.json({ success: true, data: variants });
+      return res.json({
+        success: true,
+        data: variants
+      });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
+      console.error("getProductVariants:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 
@@ -32,18 +38,30 @@ class ProductVariantController {
       const { id } = req.params;
 
       const variant = await ProductVariant.findByPk(id, {
-        include: [{ model: Product, attributes: ['id', 'name', 'price', 'image'] }]
+        include: [{
+          model: Product,
+          attributes: ['id', 'name', 'price', 'image']
+        }]
       });
 
       if (!variant) {
-        return res.status(404).json({ success: false, message: 'Variante non trouvée' });
+        return res.status(404).json({
+          success: false,
+          message: 'Variante non trouvée'
+        });
       }
 
-      res.json({ success: true, data: variant });
+      return res.json({
+        success: true,
+        data: variant
+      });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
+      console.error("getVariantById:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 
@@ -54,28 +72,33 @@ class ProductVariantController {
     try {
       const { productId, name, sku, price, stock, attributes } = req.body;
 
+      // 🔍 check product
       const product = await Product.findByPk(productId);
       if (!product) {
-        return res.status(404).json({ success: false, message: 'Produit non trouvé' });
+        return res.status(404).json({
+          success: false,
+          message: 'Produit non trouvé'
+        });
       }
 
-      // SKU unique
+      // 🔍 SKU unique
       if (sku) {
         const existingSku = await ProductVariant.findOne({ where: { sku } });
         if (existingSku) {
-          return res.status(400).json({ success: false, message: 'SKU déjà utilisé' });
+          return res.status(400).json({
+            success: false,
+            message: 'SKU déjà utilisé'
+          });
         }
       }
 
-      /* ───────── IMAGE UPLOAD CLOUDINARY ───────── */
+      // 📸 IMAGE UPLOAD
       let imageUrl = product.image || null;
 
       if (req.file) {
         const uploadResult = await cloudinary.uploader.upload(
           `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`,
-          {
-            folder: "product_variants"
-          }
+          { folder: "product_variants" }
         );
 
         imageUrl = uploadResult.secure_url;
@@ -92,11 +115,17 @@ class ProductVariantController {
         isActive: true
       });
 
-      res.status(201).json({ success: true, data: variant });
+      return res.status(201).json({
+        success: true,
+        data: variant
+      });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
+      console.error("createVariant:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 
@@ -110,14 +139,21 @@ class ProductVariantController {
 
       const variant = await ProductVariant.findByPk(id);
       if (!variant) {
-        return res.status(404).json({ success: false, message: 'Variante non trouvée' });
+        return res.status(404).json({
+          success: false,
+          message: 'Variante non trouvée'
+        });
       }
 
       // SKU unique check
       if (sku && sku !== variant.sku) {
         const existingSku = await ProductVariant.findOne({ where: { sku } });
+
         if (existingSku) {
-          return res.status(400).json({ success: false, message: 'SKU déjà utilisé' });
+          return res.status(400).json({
+            success: false,
+            message: 'SKU déjà utilisé'
+          });
         }
       }
 
@@ -130,11 +166,17 @@ class ProductVariantController {
         isActive: isActive ?? variant.isActive
       });
 
-      res.json({ success: true, data: variant });
+      return res.json({
+        success: true,
+        data: variant
+      });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
+      console.error("updateVariant:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 
@@ -147,16 +189,25 @@ class ProductVariantController {
 
       const variant = await ProductVariant.findByPk(id);
       if (!variant) {
-        return res.status(404).json({ success: false, message: 'Variante non trouvée' });
+        return res.status(404).json({
+          success: false,
+          message: 'Variante non trouvée'
+        });
       }
 
       await variant.destroy();
 
-      res.json({ success: true, message: 'Variante supprimée' });
+      return res.json({
+        success: true,
+        message: 'Variante supprimée'
+      });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
+      console.error("deleteVariant:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 
@@ -170,31 +221,43 @@ class ProductVariantController {
 
       const variant = await ProductVariant.findByPk(id);
       if (!variant) {
-        return res.status(404).json({ success: false, message: 'Variante non trouvée' });
+        return res.status(404).json({
+          success: false,
+          message: 'Variante non trouvée'
+        });
       }
 
       let newStock = variant.stock;
 
-      if (operation === 'add') newStock += quantity;
-      else if (operation === 'subtract') newStock -= quantity;
-      else newStock = quantity;
+      if (operation === 'add') newStock += Number(quantity);
+      else if (operation === 'subtract') newStock -= Number(quantity);
+      else newStock = Number(quantity);
 
       if (newStock < 0) {
-        return res.status(400).json({ success: false, message: 'Stock invalide' });
+        return res.status(400).json({
+          success: false,
+          message: 'Stock invalide'
+        });
       }
 
       await variant.update({ stock: newStock });
 
-      res.json({ success: true, data: variant });
+      return res.json({
+        success: true,
+        data: variant
+      });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
+      console.error("updateStock:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 
   /* ─────────────────────────────
-     🎯 FILTER BY ATTRIBUTE (OPTIMIZED)
+     🎯 FILTER BY ATTRIBUTE
   ───────────────────────────── */
   static async getVariantsByAttribute(req, res) {
     try {
@@ -209,11 +272,17 @@ class ProductVariantController {
         v.attributes && v.attributes[attribute] === value
       );
 
-      res.json({ success: true, data: filtered });
+      return res.json({
+        success: true,
+        data: filtered
+      });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
+      console.error("getVariantsByAttribute:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 
@@ -244,7 +313,7 @@ class ProductVariantController {
         result[key] = [...attributes[key]];
       });
 
-      res.json({
+      return res.json({
         success: true,
         data: {
           variants,
@@ -253,8 +322,11 @@ class ProductVariantController {
       });
 
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Erreur serveur' });
+      console.error("getProductVariantAttributes:", error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erreur serveur'
+      });
     }
   }
 }

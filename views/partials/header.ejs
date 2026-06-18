@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="<%= locale || 'fr' %>">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <%- include('head', { pageTitle: pageTitle || 'Ecommerce JIM' }) %>
+  <%- include('partials/head', { pageTitle }) %>
 </head>
+
 <body>
-  <%- include('nav', { user, locale, currentPage: currentPage }) %>
+
+  <%- include('partials/header', { user, locale, currentPage }) %>
+
+  <main>
+    <%- body %>
+  </main>
+
+</body>
+</html>

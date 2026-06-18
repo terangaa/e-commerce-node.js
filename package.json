@@ -4,7 +4,7 @@
     "description": "Application e-commerce (Node.js, Express, PostgreSQL) - multi-langues, Wave/Orange Money, notifications email",
     "main": "app.js",
     "engines": {
-        "node": ">=18.x"
+        "node": "20.x"
     },
     "scripts": {
         "start": "node app.js",
@@ -30,7 +30,7 @@
         "i18n": "^0.15.1",
         "jsonwebtoken": "^9.0.2",
         "multer": "^1.4.5-lts.1",
-        "nodemailer": "^8.0.6",
+        "nodemailer": "^6.9.8",
         "passport": "^0.7.0",
         "passport-facebook": "^3.0.0",
         "passport-google-oauth20": "^2.0.0",
@@ -38,12 +38,13 @@
         "pg": "^8.11.3",
         "pg-hstore": "^2.3.4",
         "qrcode": "^1.5.4",
-        "sequelize": "^6.37.3",
+        "sequelize": "^6.37.8",
         "speakeasy": "^2.0.0",
         "streamifier": "^0.1.1",
         "twilio": "^4.19.0"
     },
     "devDependencies": {
+        "jest": "^30.3.0",
         "nodemon": "^3.0.1"
     }
 }

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Catégories</title>
+</head>
+<body>
+
+<h1>Gestion des catégories</h1>
+
+<form action="/admin/categories/create" method="POST">
+  <input type="text" name="name" placeholder="Nom catégorie" required>
+  <button type="submit">Créer</button>
+</form>
+
+<hr>
+
+<ul>
+<% categories.forEach(cat => { %>
+    <li>
+<%= cat.name %>
+    </li>
+<% }) %>
+</ul>
+
+</body>
+</html>
